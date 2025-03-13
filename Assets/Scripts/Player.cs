@@ -286,3 +286,4 @@ public class Player : MonoBehaviour {
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + (wallCheckDistance * facingDir), transform.position.y));
     }
 }
+// test
