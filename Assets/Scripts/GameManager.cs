@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
@@ -7,6 +8,8 @@ public class GameManager : MonoBehaviour {
     public Player player;
 
     public int fruitsCollected;
+
+    [SerializeField] public bool randomFruitsAllowed;
 
     private void Awake() {
         if (instance == null) {
@@ -26,4 +29,5 @@ public class GameManager : MonoBehaviour {
         Debug.Log("Fruit collected! Total: " + fruitsCollected);
     }
 
+    public bool AllowedRandomFuits() => randomFruitsAllowed;
 }
