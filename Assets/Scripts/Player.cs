@@ -67,15 +67,15 @@ public class Player : MonoBehaviour {
 
     public void EnableControl() => canBeControlled = true;
 
-    public void Knockback() {
+    public void Knockback(float knockbackDuration, Vector2 knockbackPower) {
         if (isKnocked)
             return;
-        StartCoroutine(KnockbackRoutine());
+        StartCoroutine(KnockbackRoutine(knockbackDuration));
         anim.SetTrigger("knockback");
         rb.linearVelocity = new Vector2(knockbackPower.x * -facingDir, knockbackPower.y);
     }
 
-    private IEnumerator KnockbackRoutine() {
+    private IEnumerator KnockbackRoutine(float knockbackDuration) {
         isKnocked = true;
         yield return new WaitForSeconds(knockbackDuration);
         isKnocked = false;
