@@ -6,16 +6,19 @@ public class GameManager : MonoBehaviour {
 
     public static GameManager instance;
 
+    [Header("Fruit Manager")]
     public int fruitsCollected;
+    public bool randomFruitsAllowed;
+    public int totalFruits;
+    public Fruit[] allFruits;
 
-    [SerializeField] public bool randomFruitsAllowed;
 
     [Header("Player")]
     public Player player;
-    [SerializeField] public GameObject playerPrefab;
-    [SerializeField] public GameObject currentSpawnPoint;
-    [SerializeField] public GameObject startPoint;
-    [SerializeField] public float RespawnDelay = 1f;
+    public GameObject playerPrefab;
+    public GameObject currentSpawnPoint;
+    public GameObject startPoint;
+    public float RespawnDelay = 1f;
     private void Awake() {
         if (instance == null) {
             instance = this;
@@ -59,6 +62,17 @@ public class GameManager : MonoBehaviour {
 
         player = newPlayer.GetComponent<Player>();
 
+    }
+
+    private void Start() {
+        CollectFruitInfo();
+        Debug.Log("Total fruits: " + totalFruits);
+    }
+
+    private void CollectFruitInfo() {
+        allFruits = new Fruit[0];
+        allFruits = FindObjectsByType<Fruit>(FindObjectsSortMode.None);
+        totalFruits = allFruits.Length;
     }
 
     public void RespawnPlayer() => StartCoroutine(RespawnPlayerCoroutine());

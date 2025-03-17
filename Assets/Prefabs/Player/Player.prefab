@@ -77,13 +77,13 @@ MonoBehaviour:
   playerDeath_VFX: {fileID: 2685973626150419772, guid: 8bbf1ca509c672244aa128cc6fc87b2b, type: 3}
   moveSpeed: 8
   jumpForce: 15
-  doubleJumpForce: 10
+  doubleJumpForce: 12
   bufferJumpWindow: 0.25
   coyoteJumpWindow: 0.5
   wallJumpDuration: 0.6
-  wallJumpForce: {x: 10, y: 15}
+  wallJumpForce: {x: 12, y: 14}
   knockbackDuration: 1
-  knockbackPower: {x: 10, y: 15}
+  knockbackPower: {x: 12, y: 14}
   groundCheckDistnace: 0.8
   wallCheckDistance: 0.5
   whatIsGround:

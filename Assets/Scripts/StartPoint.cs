@@ -14,4 +14,10 @@ public class StartPoint : MonoBehaviour {
         anim.SetTrigger("waveflag");
     }
 
+    private void OnTriggerExit2D(Collider2D other) {
+        if (other.TryGetComponent<Player>(out var player)) {
+            AnimateFlag();
+        }
+    }
+
 }
