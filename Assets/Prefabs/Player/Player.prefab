@@ -74,6 +74,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ae7e81ec568f544d9c4e23bf63723be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerDeath_VFX: {fileID: 2685973626150419772, guid: 8bbf1ca509c672244aa128cc6fc87b2b, type: 3}
   moveSpeed: 8
   jumpForce: 15
   doubleJumpForce: 10
@@ -136,6 +137,7 @@ GameObject:
   - component: {fileID: 7993459797686456620}
   - component: {fileID: 7769133434249199807}
   - component: {fileID: 4373330703967070545}
+  - component: {fileID: 8024928109473424066}
   m_Layer: 0
   m_Name: Animator
   m_TagString: Untagged
@@ -235,3 +237,15 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8024928109473424066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2890920138585575224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e478710bd067fac4284bf6ff71700eea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
