@@ -28,7 +28,6 @@ public class Player : MonoBehaviour {
     private bool isWallJumping;
 
     [Header("Knockback")]
-    [SerializeField] private float knockbackDuration = 1;
     [SerializeField] private Vector2 knockbackPower;
     private bool isKnocked;
 
@@ -53,8 +52,12 @@ public class Player : MonoBehaviour {
 
     private void Update() {
         UpdateAirbornStatus();
-        if (!canBeControlled)
+        if (!canBeControlled) {
+            HandleWallSlide();
+            HandleCollision();
+            HandleAnimations();
             return;
+        }
         if (isKnocked)
             return;
         HandleInput();
@@ -66,6 +69,18 @@ public class Player : MonoBehaviour {
     }
 
     public void EnableControl() => canBeControlled = true;
+
+    public void PushPlayer(Vector2 pushPower, float duration = 0) {
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(pushPower, ForceMode2D.Impulse);
+        StartCoroutine(PushControl(duration));
+    }
+
+    private IEnumerator PushControl(float duration) {
+        canBeControlled = false;
+        yield return new WaitForSeconds(duration);
+        EnableControl();
+    }
 
     public void Knockback(float knockbackDuration, Vector2 knockbackPower, Vector2? hitPosition = null) {
         if (isKnocked)
