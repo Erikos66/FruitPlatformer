@@ -47,8 +47,10 @@ public class Trap_FallingPlatform : MonoBehaviour {
     }
 
     private void CheckPlayerPresence() {
-        if (!playerOnPlatform)
+        if (!playerOnPlatform) {
+            anim.SetTrigger("reactivate");
             SwitchOnPlatform();
+        }
     }
 
     private void SwitchOffPlatform() {
@@ -66,7 +68,6 @@ public class Trap_FallingPlatform : MonoBehaviour {
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.linearVelocity = Vector2.zero;
         isLerping = true;
-        anim.SetTrigger("reactivate");
         StartCoroutine(LerpBackToStart());
     }
 

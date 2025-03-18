@@ -47,8 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90c79b985c026c84f921fd0ea6ff9b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pushForce: {x: 0, y: 50}
-  disableDelay: 0
+  pushForce: 50
+  disableDelay: 0.3
 --- !u!212 &8239361106313527954
 SpriteRenderer:
   m_ObjectHideFlags: 0
