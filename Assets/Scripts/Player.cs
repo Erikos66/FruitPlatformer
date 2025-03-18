@@ -67,12 +67,13 @@ public class Player : MonoBehaviour {
 
     public void EnableControl() => canBeControlled = true;
 
-    public void Knockback(float knockbackDuration, Vector2 knockbackPower) {
+    public void Knockback(float knockbackDuration, Vector2 knockbackPower, Vector2? hitPosition = null) {
         if (isKnocked)
             return;
         StartCoroutine(KnockbackRoutine(knockbackDuration));
         anim.SetTrigger("knockback");
-        rb.linearVelocity = new Vector2(knockbackPower.x * -facingDir, knockbackPower.y);
+        Vector2 direction = hitPosition.HasValue ? (((Vector2)transform.position) - hitPosition.Value).normalized : new Vector2(-facingDir, 0);
+        rb.linearVelocity = new Vector2(direction.x * knockbackPower.x, knockbackPower.y);
     }
 
     private IEnumerator KnockbackRoutine(float knockbackDuration) {
