@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -35,8 +36,12 @@ public class Player : MonoBehaviour {
     [SerializeField] private float groundCheckDistnace;
     [SerializeField] private float wallCheckDistance;
     [SerializeField] private LayerMask whatIsGround;
+    [Space]
+    [SerializeField] private LayerMask whatIsEnemy;
+    [SerializeField] private float EnemyCheckRadius;
+    [SerializeField] private Transform EnemyCheck;
     private bool isGrounded;
-    private bool isAirborne;
+    public bool isAirborne;
     private bool isWallDetected;
 
     private float xInput;
@@ -60,12 +65,29 @@ public class Player : MonoBehaviour {
         }
         if (isKnocked)
             return;
+
+        HandleEnemyDetection();
         HandleInput();
         HandleWallSlide();
         HandleMovement();
         HandleFlip();
         HandleCollision();
         HandleAnimations();
+    }
+
+    private void HandleEnemyDetection() {
+        if (rb.linearVelocity.y >= 0) {
+            return;
+        }
+
+        Collider2D[] enemies = Physics2D.OverlapCircleAll(EnemyCheck.position, EnemyCheckRadius, whatIsEnemy);
+
+        foreach (var enemy in enemies) {
+            if (enemy) {
+                GameObject.Destroy(enemy.gameObject);
+                Jump();
+            }
+        }
     }
 
     public void EnableControl() => canBeControlled = true;
@@ -217,6 +239,7 @@ public class Player : MonoBehaviour {
     }
 
     private void OnDrawGizmos() {
+        Gizmos.DrawWireSphere(EnemyCheck.position, EnemyCheckRadius);
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistnace));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + (wallCheckDistance * facingDir), transform.position.y));
     }
