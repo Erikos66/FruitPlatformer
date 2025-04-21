@@ -1,6 +1,7 @@
 using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.InputSystem.XInput;
+using System.Collections;
 
 public class Enemy_Base : MonoBehaviour {
 
@@ -28,9 +29,10 @@ public class Enemy_Base : MonoBehaviour {
     protected bool isWallDetected;
     protected bool isGroundinFrontDetected;
     protected bool isGrounded;
+    protected DamageTrigger dt;
     [Space]
     [Header("Death Properties")]
-    [SerializeField] protected float deathTime = 1f;
+    [SerializeField] protected float despawnTime = 1f;
     [SerializeField] protected float deathRotationSpeed = 100f;
     [SerializeField] protected float deathImpactForce;
 
@@ -42,6 +44,10 @@ public class Enemy_Base : MonoBehaviour {
         rb = GetComponent<Rigidbody2D>();
         if (rb == null) {
             Debug.LogError("Rigidbody2D component not found on " + gameObject.name);
+        }
+        dt = GetComponentInChildren<DamageTrigger>();
+        if (dt == null) {
+            Debug.LogError("DamageTrigger component not found in children of " + gameObject.name);
         }
     }
 
@@ -73,7 +79,7 @@ public class Enemy_Base : MonoBehaviour {
         rb.linearVelocity = Vector2.zero;
     }
 
-    private void OnDrawGizmos() {
+    protected virtual void OnDrawGizmos() {
         Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x, groundTransform.position.y - groundCheckDistance));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + wallCheckDistance * facingDir, transform.position.y));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
@@ -82,11 +88,11 @@ public class Enemy_Base : MonoBehaviour {
     public virtual void Die() {
         if (isDead) return;
         isDead = true;
-
+        rb.freezeRotation = false;
+        dt.DisableDamageTrigger();
         anim.SetTrigger("onHit");
 
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, deathImpactForce);
-
         Collider2D[] colliders = GetComponents<Collider2D>();
         foreach (Collider2D collider in colliders) {
             collider.enabled = false;
@@ -97,6 +103,6 @@ public class Enemy_Base : MonoBehaviour {
         float rotationDirection = Random.value < 0.5f ? -1f : 1f;
         rb.angularVelocity = rotationDirection * deathRotationSpeed;
 
-        Destroy(gameObject, 5f);
+        Destroy(gameObject, despawnTime);
     }
 }

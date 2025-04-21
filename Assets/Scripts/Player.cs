@@ -76,7 +76,10 @@ public class Player : MonoBehaviour {
     }
 
     private void HandleEnemyDetection() {
-        if (rb.linearVelocity.y >= 0) {
+        // Only allow enemy damage if the player is:
+        // 1. In the air (not grounded)
+        // 2. Moving downward (falling)
+        if (!isAirborne || rb.linearVelocity.y >= 0) {
             return;
         }
 

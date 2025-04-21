@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class DamageBehaviour : MonoBehaviour {
+public class DamageTrigger : MonoBehaviour {
     [Header("Damage Settings")]
     [SerializeField] private float knockbackDuration = 1; // The duration of the knockback effect
     [SerializeField] private Vector2 knockbackPower = new(10, 5); // The power of the knockback effect
@@ -11,6 +11,14 @@ public class DamageBehaviour : MonoBehaviour {
     private bool isPlayerInside = false; // Whether the player is inside the trap
     private Player currentPlayer = null; // The player currently inside the trap
     private Coroutine hitCoroutine = null; // The coroutine that repeatedly hits the player
+    private Collider2D damageArea; // The collider that defines the area of the trap
+
+    private void Awake() {
+        damageArea = GetComponent<Collider2D>();
+        if (damageArea == null) {
+            Debug.LogError("Damage area collider not found on " + gameObject.name);
+        }
+    }
 
     void OnTriggerEnter2D(Collider2D collision) {
         Player player = collision.GetComponent<Player>();
@@ -40,5 +48,14 @@ public class DamageBehaviour : MonoBehaviour {
             }
         }
         hitCoroutine = null;
+    }
+
+    public void DisableDamageTrigger() {
+        isPlayerInside = false;
+        damageArea.enabled = false;
+        if (hitCoroutine != null) {
+            StopCoroutine(hitCoroutine);
+            hitCoroutine = null;
+        }
     }
 }

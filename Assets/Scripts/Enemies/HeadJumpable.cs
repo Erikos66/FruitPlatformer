@@ -20,7 +20,9 @@ public class HeadJumpable : MonoBehaviour {
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.TryGetComponent<Player>(out var player)) {
-            if (player.isAirborne == true) {
+            // Check if player is in the air AND moving downward (falling)
+            Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
+            if (player.isAirborne == true && playerRb != null && playerRb.linearVelocity.y < 0) {
                 StartCoroutine(OnHit());
                 anim.SetTrigger("onHit");
                 rb.linearVelocity = new Vector2(0, 0);
