@@ -4,6 +4,7 @@ using UnityEngine.InputSystem.XInput;
 using System.Collections;
 
 public enum DetectionShape {
+    None,
     Line,
     Cone,
     Rectangle,
@@ -95,6 +96,11 @@ public class Enemy_Base : MonoBehaviour {
     }
 
     protected virtual bool DetectedPlayer() {
+        // If detection is disabled, return false immediately
+        if (detectionShape == DetectionShape.None) {
+            return false;
+        }
+
         Vector2 startPosition = (Vector2)transform.position + new Vector2(sideOffset * facingDir, heightOffset);
 
         switch (detectionShape) {
@@ -180,6 +186,11 @@ public class Enemy_Base : MonoBehaviour {
             Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x + wallCheckDistance * facingDir, groundTransform.position.y));
         }
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+
+        // Skip drawing detection gizmos if detection is disabled
+        if (detectionShape == DetectionShape.None) {
+            return;
+        }
 
         // Get detection start position with offsets
         Vector2 startPosition = (Vector2)transform.position + new Vector2(sideOffset * facingDir, heightOffset);
