@@ -3,12 +3,11 @@ using UnityEngine;
 public class Enemy_Rhino : Enemy_Base {
     [Header("Rhino Specific")]
     [SerializeField] private bool startFacingRight = false;
-    [SerializeField] private float playerDetectionDistance = 20f;
     [SerializeField] private float chargeSpeed = 16f;
     [SerializeField] private float returnSpeed = 3f;
     [SerializeField] private float bounceForce = 2f;
     [SerializeField] private float returnDelay = 2f;
-    [SerializeField] private LayerMask playerDetectionLayer;
+    // playerDetectionDistance and playerDetectionLayer now moved to Enemy_Base
 
     private Vector3 startingPosition;
     private bool isCharging;
@@ -61,28 +60,25 @@ public class Enemy_Rhino : Enemy_Base {
             }
             else if (isReturning) {
                 ReturnBehavior();
-                DetectPlayer();
+                // Use base class player detection method
+                if (DetectedPlayer()) {
+                    isCharging = true;
+                    isReturning = false;
+                    moveSpeed = chargeSpeed;
+                }
             }
             else {
-                DetectPlayer();
+                // Use base class player detection method
+                if (DetectedPlayer()) {
+                    isCharging = true;
+                    isReturning = false;
+                    moveSpeed = chargeSpeed;
+                }
             }
         }
     }
 
-    private void DetectPlayer() {
-        RaycastHit2D hit = Physics2D.Raycast(
-            transform.position,
-            new Vector2(facingDir, 0),
-            playerDetectionDistance,
-            playerDetectionLayer | groundLayer
-        );
-
-        if (hit.collider != null && ((1 << hit.collider.gameObject.layer) & playerDetectionLayer) != 0) {
-            isCharging = true;
-            isReturning = false;
-            moveSpeed = chargeSpeed;
-        }
-    }
+    // Remove the DetectPlayer method since we're now using the base class method
 
     private void ChargeBehavior() {
         rb.linearVelocity = new Vector2(moveSpeed * facingDir, rb.linearVelocity.y);
@@ -126,9 +122,7 @@ public class Enemy_Rhino : Enemy_Base {
     protected override void OnDrawGizmos() {
         base.OnDrawGizmos();
 
-        Gizmos.color = Color.yellow;
-        Vector3 rayDirection = new Vector3(facingDir, 0, 0);
-        Gizmos.DrawRay(transform.position, rayDirection * playerDetectionDistance);
+        // Player detection ray is now drawn in the base class
 
         if (Application.isPlaying) {
             Gizmos.color = Color.blue;

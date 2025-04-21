@@ -24,12 +24,14 @@ public class Enemy_Base : MonoBehaviour {
     [SerializeField] protected LayerMask playerLayer;
     [SerializeField] protected Transform groundTransform;
     [SerializeField] protected float groundCheckDistance = 1f;
-    [SerializeField] protected float playerCheckDistance = 1f;
     [SerializeField] protected float wallCheckDistance = 1f;
     protected bool isWallDetected;
     protected bool isGroundinFrontDetected;
     protected bool isGrounded;
     protected DamageTrigger dt;
+    [Space]
+    [Header("Player Detection")]
+    [SerializeField] protected float playerDetectionDistance = 10f;
     [Space]
     [Header("Death Properties")]
     [SerializeField] protected float despawnTime = 1f;
@@ -79,10 +81,28 @@ public class Enemy_Base : MonoBehaviour {
         rb.linearVelocity = Vector2.zero;
     }
 
+    protected virtual bool DetectedPlayer() {
+        RaycastHit2D hit = Physics2D.Raycast(
+            transform.position,
+            new Vector2(facingDir, 0),
+            playerDetectionDistance,
+            playerLayer | groundLayer
+        );
+
+        if (hit.collider != null && ((1 << hit.collider.gameObject.layer) & playerLayer) != 0) {
+            return true;
+        }
+        return false;
+    }
+
     protected virtual void OnDrawGizmos() {
+        Gizmos.color = Color.blue;
         Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x, groundTransform.position.y - groundCheckDistance));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + wallCheckDistance * facingDir, transform.position.y));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+        Gizmos.color = Color.red;
+        Vector3 rayDirection = new(facingDir, 0, 0);
+        Gizmos.DrawRay(transform.position, rayDirection * playerDetectionDistance);
     }
 
     public virtual void Die() {
