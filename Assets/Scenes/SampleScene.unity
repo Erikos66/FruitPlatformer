@@ -902,7 +902,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -978,7 +978,7 @@ Transform:
   m_GameObject: {fileID: 573876178}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.4775715, y: -2.6999385, z: 0}
+  m_LocalPosition: {x: 3.47, y: -2.6999385, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1011,7 +1011,13 @@ MonoBehaviour:
   groundTransform: {fileID: 1475868519}
   groundCheckDistance: 1.34
   wallCheckDistance: 1
-  playerDetectionDistance: 10
+  detectionShape: 2
+  playerDetectionDistance: 10.61
+  heightOffset: 0.06
+  sideOffset: -0.29
+  coneAngle: 30
+  rectangleHeight: 1.52
+  sphereRadius: 2
   despawnTime: 5
   deathRotationSpeed: 300
   deathImpactForce: 10
@@ -33900,7 +33906,7 @@ Transform:
   m_GameObject: {fileID: 1475868518}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.537, y: 0, z: 0}
+  m_LocalPosition: {x: 0.05, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -3,6 +3,13 @@ using UnityEngine;
 using UnityEngine.InputSystem.XInput;
 using System.Collections;
 
+public enum DetectionShape {
+    Line,
+    Cone,
+    Rectangle,
+    Sphere
+}
+
 public class Enemy_Base : MonoBehaviour {
 
     [Header("Enemy Properties")]
@@ -31,7 +38,13 @@ public class Enemy_Base : MonoBehaviour {
     protected DamageTrigger dt;
     [Space]
     [Header("Player Detection")]
+    [SerializeField] protected DetectionShape detectionShape = DetectionShape.Line;
     [SerializeField] protected float playerDetectionDistance = 10f;
+    [SerializeField] protected float heightOffset = 0f;
+    [SerializeField] protected float sideOffset = 0f;
+    [SerializeField] protected float coneAngle = 30f;
+    [SerializeField] protected float rectangleHeight = 1f;
+    [SerializeField] protected float sphereRadius = 2f;
     [Space]
     [Header("Death Properties")]
     [SerializeField] protected float despawnTime = 1f;
@@ -82,27 +95,145 @@ public class Enemy_Base : MonoBehaviour {
     }
 
     protected virtual bool DetectedPlayer() {
+        Vector2 startPosition = (Vector2)transform.position + new Vector2(sideOffset * facingDir, heightOffset);
+
+        switch (detectionShape) {
+            case DetectionShape.Line:
+                return DetectPlayerWithLine(startPosition);
+            case DetectionShape.Cone:
+                return DetectPlayerWithCone(startPosition);
+            case DetectionShape.Rectangle:
+                return DetectPlayerWithRectangle(startPosition);
+            case DetectionShape.Sphere:
+                return DetectPlayerWithSphere(startPosition);
+            default:
+                return false;
+        }
+    }
+
+    protected virtual bool DetectPlayerWithLine(Vector2 startPosition) {
         RaycastHit2D hit = Physics2D.Raycast(
-            transform.position,
+            startPosition,
             new Vector2(facingDir, 0),
             playerDetectionDistance,
             playerLayer | groundLayer
         );
 
-        if (hit.collider != null && ((1 << hit.collider.gameObject.layer) & playerLayer) != 0) {
-            return true;
+        return hit.collider != null && ((1 << hit.collider.gameObject.layer) & playerLayer) != 0;
+    }
+
+    protected virtual bool DetectPlayerWithCone(Vector2 startPosition) {
+        float halfAngle = coneAngle * 0.5f;
+        float angleStep = coneAngle / 5f; // Cast 5 rays within the cone
+
+        for (float angle = -halfAngle; angle <= halfAngle; angle += angleStep) {
+            float radians = Mathf.Deg2Rad * angle;
+            Vector2 direction = new Vector2(
+                Mathf.Cos(radians) * facingDir - Mathf.Sin(radians) * 0,
+                Mathf.Sin(radians) * facingDir + Mathf.Cos(radians) * 0
+            ).normalized;
+
+            RaycastHit2D hit = Physics2D.Raycast(
+                startPosition,
+                direction,
+                playerDetectionDistance,
+                playerLayer | groundLayer
+            );
+
+            if (hit.collider != null && ((1 << hit.collider.gameObject.layer) & playerLayer) != 0) {
+                return true;
+            }
         }
+
         return false;
     }
 
+    protected virtual bool DetectPlayerWithRectangle(Vector2 startPosition) {
+        Vector2 boxSize = new Vector2(playerDetectionDistance, rectangleHeight);
+        Vector2 boxCenter = startPosition + new Vector2(playerDetectionDistance * 0.5f * facingDir, 0);
+
+        Collider2D hit = Physics2D.OverlapBox(
+            boxCenter,
+            boxSize,
+            0f,
+            playerLayer
+        );
+
+        return hit != null;
+    }
+
+    protected virtual bool DetectPlayerWithSphere(Vector2 startPosition) {
+        Collider2D hit = Physics2D.OverlapCircle(
+            startPosition,
+            sphereRadius,
+            playerLayer
+        );
+
+        return hit != null;
+    }
+
     protected virtual void OnDrawGizmos() {
+        // Draw collision check rays
         Gizmos.color = Color.blue;
-        Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x, groundTransform.position.y - groundCheckDistance));
-        Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + wallCheckDistance * facingDir, transform.position.y));
+        if (groundTransform != null) {
+            Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x, groundTransform.position.y - groundCheckDistance));
+            Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x + wallCheckDistance * facingDir, groundTransform.position.y));
+        }
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+
+        // Get detection start position with offsets
+        Vector2 startPosition = (Vector2)transform.position + new Vector2(sideOffset * facingDir, heightOffset);
+
+        // Draw player detection shape based on current shape type
         Gizmos.color = Color.red;
-        Vector3 rayDirection = new(facingDir, 0, 0);
-        Gizmos.DrawRay(transform.position, rayDirection * playerDetectionDistance);
+
+        switch (detectionShape) {
+            case DetectionShape.Line:
+                // Draw simple line ray
+                Vector3 rayDirection = new Vector3(facingDir, 0, 0);
+                Gizmos.DrawRay(startPosition, rayDirection * playerDetectionDistance);
+                break;
+
+            case DetectionShape.Cone:
+                // Draw cone rays
+                float halfAngle = coneAngle * 0.5f;
+                float angleStep = coneAngle / 5f;
+
+                for (float angle = -halfAngle; angle <= halfAngle; angle += angleStep) {
+                    float radians = Mathf.Deg2Rad * angle;
+                    Vector2 direction = new Vector2(
+                        Mathf.Cos(radians) * facingDir - Mathf.Sin(radians) * 0,
+                        Mathf.Sin(radians) * facingDir + Mathf.Cos(radians) * 0
+                    ).normalized;
+
+                    Gizmos.DrawRay(startPosition, direction * playerDetectionDistance);
+                }
+                break;
+
+            case DetectionShape.Rectangle:
+                // Draw rectangle
+                Vector2 boxSize = new Vector2(playerDetectionDistance, rectangleHeight);
+                Vector2 boxCenter = startPosition + new Vector2(playerDetectionDistance * 0.5f * facingDir, 0);
+
+                // Draw the box outline manually since Gizmos.DrawWireCube doesn't handle 2D rotation well
+                Vector2 halfSize = boxSize * 0.5f;
+                Vector2 topLeft = boxCenter + new Vector2(-halfSize.x * facingDir, halfSize.y);
+                Vector2 topRight = boxCenter + new Vector2(halfSize.x * facingDir, halfSize.y);
+                Vector2 bottomLeft = boxCenter + new Vector2(-halfSize.x * facingDir, -halfSize.y);
+                Vector2 bottomRight = boxCenter + new Vector2(halfSize.x * facingDir, -halfSize.y);
+
+                Gizmos.DrawLine(topLeft, topRight);
+                Gizmos.DrawLine(topRight, bottomRight);
+                Gizmos.DrawLine(bottomRight, bottomLeft);
+                Gizmos.DrawLine(bottomLeft, topLeft);
+                break;
+
+            case DetectionShape.Sphere:
+                // Draw sphere
+                Gizmos.color = new Color(1f, 0f, 0f, 0.3f); // Transparent red
+                Gizmos.DrawWireSphere(startPosition, sphereRadius);
+                break;
+        }
     }
 
     public virtual void Die() {
