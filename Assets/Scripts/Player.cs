@@ -84,7 +84,13 @@ public class Player : MonoBehaviour {
 
         foreach (var enemy in enemies) {
             if (enemy) {
-                GameObject.Destroy(enemy.gameObject);
+                Enemy_Base enemyBase = enemy.GetComponentInParent<Enemy_Base>();
+                if (enemyBase != null) {
+                    enemyBase.Die();
+                }
+                else {
+                    GameObject.Destroy(enemy.gameObject);
+                }
                 Jump();
             }
         }
@@ -202,8 +208,7 @@ public class Player : MonoBehaviour {
     private void HandleWallSlide() {
         bool canWallSlide = isWallDetected && rb.linearVelocity.y < 0;
         float yModifer = yInput < 0 ? 1 : .05f;
-        if (!canWallSlide)
-            return;
+        if (!canWallSlide) return;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * yModifer);
     }
 

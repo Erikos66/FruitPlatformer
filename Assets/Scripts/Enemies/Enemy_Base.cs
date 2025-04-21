@@ -5,29 +5,34 @@ using UnityEngine.InputSystem.XInput;
 public class Enemy_Base : MonoBehaviour {
 
     [Header("Enemy Properties")]
-    [SerializeField] protected int health = 1; // Health of the enemy
-    [SerializeField] protected int damage = 1; // Damage dealt by the enemy
-    [SerializeField] protected float moveSpeed = 1; // Movement speed of the enemy
-    [SerializeField] protected float idleDuration = 1; // Duration to idle before moving
-    protected float idleTimer = 1f; // Timer to track idle duration
-    protected int facingDir = -1; // Direction the enemy is facing
-    protected bool facingRight = false; // Indicates if the enemy is facing right
+    [SerializeField] protected int health = 1;
+    [SerializeField] protected int damage = 1;
+    [SerializeField] protected float moveSpeed = 1;
+    [SerializeField] protected float idleDuration = 1;
+    protected float idleTimer = 1f;
+    protected int facingDir = -1;
+    protected bool facingRight = false;
+    protected bool isDead = false;
     [Space]
     [Header("Enemy Components")]
-    protected Animator anim; // Animator component for the enemy
-    protected Rigidbody2D rb; // Rigidbody2D component for the enemy
+    protected Animator anim;
+    protected Rigidbody2D rb;
     [Space]
     [Header("Collision Properties")]
-    [SerializeField] protected LayerMask groundLayer; // Layer mask for ground detection
-    [SerializeField] protected LayerMask playerLayer; // Layer mask for player detection
-    [SerializeField] protected Transform groundTransform; // Transform to check for ground
-    [SerializeField] protected float groundCheckDistance = 1f; // Distance to check for ground
-    [SerializeField] protected float playerCheckDistance = 1f; // Distance to check for player
-    [SerializeField] protected float wallCheckDistance = 1f; // Distance to check for walls
-    protected bool isWallDetected; // Indicates if a wall is detected
-    protected bool isGroundinFrontDetected; // Indicates if ground is detected
-    protected bool isGrounded; // Indicates if the enemy is grounded
-
+    [SerializeField] protected LayerMask groundLayer;
+    [SerializeField] protected LayerMask playerLayer;
+    [SerializeField] protected Transform groundTransform;
+    [SerializeField] protected float groundCheckDistance = 1f;
+    [SerializeField] protected float playerCheckDistance = 1f;
+    [SerializeField] protected float wallCheckDistance = 1f;
+    protected bool isWallDetected;
+    protected bool isGroundinFrontDetected;
+    protected bool isGrounded;
+    [Space]
+    [Header("Death Properties")]
+    [SerializeField] protected float deathTime = 1f;
+    [SerializeField] protected float deathRotationSpeed = 100f;
+    [SerializeField] protected float deathImpactForce;
 
     protected virtual void Awake() {
         anim = GetComponent<Animator>();
@@ -72,5 +77,26 @@ public class Enemy_Base : MonoBehaviour {
         Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x, groundTransform.position.y - groundCheckDistance));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + wallCheckDistance * facingDir, transform.position.y));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+    }
+
+    public virtual void Die() {
+        if (isDead) return;
+        isDead = true;
+
+        anim.SetTrigger("onHit");
+
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, deathImpactForce);
+
+        Collider2D[] colliders = GetComponents<Collider2D>();
+        foreach (Collider2D collider in colliders) {
+            collider.enabled = false;
+        }
+
+        gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+
+        float rotationDirection = Random.value < 0.5f ? -1f : 1f;
+        rb.angularVelocity = rotationDirection * deathRotationSpeed;
+
+        Destroy(gameObject, 5f);
     }
 }
