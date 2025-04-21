@@ -7,7 +7,6 @@ public class Enemy_Rhino : Enemy_Base {
     [SerializeField] private float returnSpeed = 3f;
     [SerializeField] private float bounceForce = 2f;
     [SerializeField] private float returnDelay = 2f;
-    // playerDetectionDistance and playerDetectionLayer now moved to Enemy_Base
 
     private Vector3 startingPosition;
     private bool isCharging;
@@ -60,7 +59,6 @@ public class Enemy_Rhino : Enemy_Base {
             }
             else if (isReturning) {
                 ReturnBehavior();
-                // Use base class player detection method
                 if (DetectedPlayer()) {
                     isCharging = true;
                     isReturning = false;
@@ -68,7 +66,6 @@ public class Enemy_Rhino : Enemy_Base {
                 }
             }
             else {
-                // Use base class player detection method
                 if (DetectedPlayer()) {
                     isCharging = true;
                     isReturning = false;
@@ -77,8 +74,6 @@ public class Enemy_Rhino : Enemy_Base {
             }
         }
     }
-
-    // Remove the DetectPlayer method since we're now using the base class method
 
     private void ChargeBehavior() {
         rb.linearVelocity = new Vector2(moveSpeed * facingDir, rb.linearVelocity.y);
@@ -121,8 +116,6 @@ public class Enemy_Rhino : Enemy_Base {
 
     protected override void OnDrawGizmos() {
         base.OnDrawGizmos();
-
-        // Player detection ray is now drawn in the base class
 
         if (Application.isPlaying) {
             Gizmos.color = Color.blue;

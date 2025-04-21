@@ -96,7 +96,6 @@ public class Enemy_Base : MonoBehaviour {
     }
 
     protected virtual bool DetectedPlayer() {
-        // If detection is disabled, return false immediately
         if (detectionShape == DetectionShape.None) {
             return false;
         }
@@ -130,7 +129,7 @@ public class Enemy_Base : MonoBehaviour {
 
     protected virtual bool DetectPlayerWithCone(Vector2 startPosition) {
         float halfAngle = coneAngle * 0.5f;
-        float angleStep = coneAngle / 5f; // Cast 5 rays within the cone
+        float angleStep = coneAngle / 5f;
 
         for (float angle = -halfAngle; angle <= halfAngle; angle += angleStep) {
             float radians = Mathf.Deg2Rad * angle;
@@ -179,7 +178,6 @@ public class Enemy_Base : MonoBehaviour {
     }
 
     protected virtual void OnDrawGizmos() {
-        // Draw collision check rays
         Gizmos.color = Color.blue;
         if (groundTransform != null) {
             Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x, groundTransform.position.y - groundCheckDistance));
@@ -187,26 +185,21 @@ public class Enemy_Base : MonoBehaviour {
         }
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
 
-        // Skip drawing detection gizmos if detection is disabled
         if (detectionShape == DetectionShape.None) {
             return;
         }
 
-        // Get detection start position with offsets
         Vector2 startPosition = (Vector2)transform.position + new Vector2(sideOffset * facingDir, heightOffset);
 
-        // Draw player detection shape based on current shape type
         Gizmos.color = Color.red;
 
         switch (detectionShape) {
             case DetectionShape.Line:
-                // Draw simple line ray
                 Vector3 rayDirection = new Vector3(facingDir, 0, 0);
                 Gizmos.DrawRay(startPosition, rayDirection * playerDetectionDistance);
                 break;
 
             case DetectionShape.Cone:
-                // Draw cone rays
                 float halfAngle = coneAngle * 0.5f;
                 float angleStep = coneAngle / 5f;
 
@@ -222,11 +215,9 @@ public class Enemy_Base : MonoBehaviour {
                 break;
 
             case DetectionShape.Rectangle:
-                // Draw rectangle
                 Vector2 boxSize = new Vector2(playerDetectionDistance, rectangleHeight);
                 Vector2 boxCenter = startPosition + new Vector2(playerDetectionDistance * 0.5f * facingDir, 0);
 
-                // Draw the box outline manually since Gizmos.DrawWireCube doesn't handle 2D rotation well
                 Vector2 halfSize = boxSize * 0.5f;
                 Vector2 topLeft = boxCenter + new Vector2(-halfSize.x * facingDir, halfSize.y);
                 Vector2 topRight = boxCenter + new Vector2(halfSize.x * facingDir, halfSize.y);
@@ -240,8 +231,7 @@ public class Enemy_Base : MonoBehaviour {
                 break;
 
             case DetectionShape.Sphere:
-                // Draw sphere
-                Gizmos.color = new Color(1f, 0f, 0f, 0.3f); // Transparent red
+                Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
                 Gizmos.DrawWireSphere(startPosition, sphereRadius);
                 break;
         }
