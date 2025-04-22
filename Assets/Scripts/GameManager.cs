@@ -76,4 +76,8 @@ public class GameManager : MonoBehaviour {
     }
 
     public void RespawnPlayer() => StartCoroutine(RespawnPlayerCoroutine());
+
+    public void LoadCredits() {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("The_End");
+    }
 }

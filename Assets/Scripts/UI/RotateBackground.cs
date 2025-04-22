@@ -38,12 +38,12 @@ public class RotateBackground : MonoBehaviour {
         // Rotate the background based on the rotation speed
         float rotationX = rotationSpeed.x * Time.deltaTime;
         float rotationY = rotationSpeed.y * Time.deltaTime;
-        mr.material.mainTextureOffset += new Vector2(rotationX, rotationY);
+        mr.sharedMaterial.mainTextureOffset += new Vector2(rotationX, rotationY);
 
         UpdateBackgroundTexture();
     }
 
     private void UpdateBackgroundTexture() {
-        mr.material.mainTexture = backgroundTextures[(int)backgroundColor];
+        mr.sharedMaterial.mainTexture = backgroundTextures[(int)backgroundColor];
     }
 }
