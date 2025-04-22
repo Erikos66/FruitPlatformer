@@ -31,10 +31,6 @@ public class RotateBackground : MonoBehaviour {
         // Set the background color based on the selected enum value
     }
 
-    void Start() {
-        UpdateBackgroundTexture();
-    }
-
     void Update() {
         if (backgroundType == BackgroundType.Static) {
             return;
@@ -43,6 +39,8 @@ public class RotateBackground : MonoBehaviour {
         float rotationX = rotationSpeed.x * Time.deltaTime;
         float rotationY = rotationSpeed.y * Time.deltaTime;
         mr.material.mainTextureOffset += new Vector2(rotationX, rotationY);
+
+        UpdateBackgroundTexture();
     }
 
     private void UpdateBackgroundTexture() {
