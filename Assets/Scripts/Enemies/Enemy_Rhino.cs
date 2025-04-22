@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class Enemy_Rhino : Enemy_Base {
     [Header("Rhino Specific")]
-    [SerializeField] private bool startFacingRight = false;
     [SerializeField] private float chargeSpeed = 16f;
     [SerializeField] private float returnSpeed = 3f;
     [SerializeField] private float bounceForce = 2f;
@@ -20,12 +19,7 @@ public class Enemy_Rhino : Enemy_Base {
         base.Awake();
         normalSpeed = moveSpeed;
         startingPosition = transform.position;
-        startingFacingDir = startFacingRight ? 1 : -1;
         facingDir = startingFacingDir;
-        facingRight = startFacingRight;
-        if (facingRight) {
-            transform.Rotate(0f, 180f, 0f);
-        }
     }
 
     protected override void Update() {

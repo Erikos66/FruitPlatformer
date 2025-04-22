@@ -18,6 +18,7 @@ public class Enemy_Base : MonoBehaviour {
     [SerializeField] protected int damage = 1;
     [SerializeField] protected float moveSpeed = 1;
     [SerializeField] protected float idleDuration = 1;
+    [SerializeField] protected bool startFacingRight = false;  // Toggle to control starting direction
     protected float idleTimer = 1f;
     protected int facingDir = -1;
     protected bool facingRight = false;
@@ -64,6 +65,15 @@ public class Enemy_Base : MonoBehaviour {
         dt = GetComponentInChildren<DamageTrigger>();
         if (dt == null) {
             Debug.LogError("DamageTrigger component not found in children of " + gameObject.name);
+        }
+
+        // Initialize facing direction based on startFacingRight toggle
+        facingDir = startFacingRight ? 1 : -1;
+        facingRight = startFacingRight;
+
+        // Apply initial rotation if needed
+        if (startFacingRight) {
+            transform.Rotate(0f, 180f, 0f);
         }
     }
 
