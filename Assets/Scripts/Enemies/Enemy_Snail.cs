@@ -91,7 +91,6 @@ public class Enemy_Snail : Enemy_Base {
                 if (!isSliding) {
                     // Start sliding if not already sliding
                     LaunchShell();
-                    groundTransform.position = transform.position + new Vector3(-0.35f, 0, 0);
                 }
                 else {
                     // Actually die if already in NoShell state and sliding

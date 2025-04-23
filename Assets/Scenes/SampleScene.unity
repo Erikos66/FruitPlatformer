@@ -302,17 +302,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy_Snail
       objectReference: {fileID: 0}
-    - target: {fileID: 3982298882866030941, guid: 47f1e62f280c0cd409935e117c70b707, type: 3}
-      propertyPath: enemyLayer.m_Bits
-      value: 320
-      objectReference: {fileID: 0}
     - target: {fileID: 4244217510170397178, guid: 47f1e62f280c0cd409935e117c70b707, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.1694193
+      value: 0.47
       objectReference: {fileID: 0}
     - target: {fileID: 4244217510170397178, guid: 47f1e62f280c0cd409935e117c70b707, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.869941
+      value: -8
       objectReference: {fileID: 0}
     - target: {fileID: 4244217510170397178, guid: 47f1e62f280c0cd409935e117c70b707, type: 3}
       propertyPath: m_LocalPosition.z
@@ -39767,11 +39763,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6767432889128341256, guid: 89d99a84864341e4dbdc8ef1fa39918f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.8943415
+      value: 3.54
       objectReference: {fileID: 0}
     - target: {fileID: 6767432889128341256, guid: 89d99a84864341e4dbdc8ef1fa39918f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -7.613881
+      value: -2.79
       objectReference: {fileID: 0}
     - target: {fileID: 6767432889128341256, guid: 89d99a84864341e4dbdc8ef1fa39918f, type: 3}
       propertyPath: m_LocalPosition.z

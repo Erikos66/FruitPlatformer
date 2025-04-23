@@ -19,7 +19,7 @@ public class Enemy_Rhino : Enemy_Base {
         base.Awake();
         normalSpeed = moveSpeed;
         startingPosition = transform.position;
-        facingDir = startingFacingDir;
+        startingFacingDir = facingDir;
     }
 
     protected override void Update() {

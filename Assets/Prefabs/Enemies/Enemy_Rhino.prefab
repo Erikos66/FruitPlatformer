@@ -85,6 +85,7 @@ MonoBehaviour:
   damage: 1
   moveSpeed: 2
   idleDuration: 1
+  startFacingRight: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -93,20 +94,21 @@ MonoBehaviour:
     m_Bits: 128
   groundTransform: {fileID: 2117214603694251693}
   groundCheckDistance: 1.1
-  playerCheckDistance: 1.2
   wallCheckDistance: 1.2
+  detectionShape: 1
+  playerDetectionDistance: 20
+  heightOffset: 0
+  sideOffset: 0
+  coneAngle: 30
+  rectangleHeight: 1
+  sphereRadius: 2
   despawnTime: 5
   deathRotationSpeed: 300
   deathImpactForce: 10
-  startFacingRight: 0
-  playerDetectionDistance: 20
   chargeSpeed: 16
   returnSpeed: 3
   bounceForce: 2
   returnDelay: 2
-  playerDetectionLayer:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!212 &5078939081319756263
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -177,7 +179,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -324,7 +326,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.09565401, y: 0.047827244}
+  m_Offset: {x: -0.689155, y: -0.16465616}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -334,7 +336,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2.243506, y: 1.0956545}
+  m_Size: {x: 1.3830583, y: 0.976696}
   m_EdgeRadius: 0
 --- !u!114 &1100972936511853110
 MonoBehaviour:

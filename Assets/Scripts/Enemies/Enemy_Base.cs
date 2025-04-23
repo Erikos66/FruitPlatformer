@@ -1,7 +1,5 @@
-using UnityEditor.Callbacks;
 using UnityEngine;
-using UnityEngine.InputSystem.XInput;
-using System.Collections;
+
 
 public enum DetectionShape {
     None,
