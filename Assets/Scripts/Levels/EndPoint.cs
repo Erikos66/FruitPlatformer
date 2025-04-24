@@ -15,7 +15,7 @@ public class EndPoint : MonoBehaviour {
         if (player) {
             anim.SetTrigger("activate");
             Debug.Log("Level complete!");
-            GameManager.instance.LoadCredits();
+            GameManager.instance.LevelFinished();
         }
 
     }

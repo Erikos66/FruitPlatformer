@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour {
     private Rigidbody2D rb;
     private Animator anim;
+    private PlayerAnimation playerAnimationController;
 
     [Header("Visuals")]
     public GameObject playerDeath_VFX;
@@ -52,7 +53,17 @@ public class Player : MonoBehaviour {
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
+        if (rb == null) {
+            Debug.LogError("Rigidbody2D component not found on Player script.");
+        }
         anim = GetComponentInChildren<Animator>();
+        if (anim == null) {
+            Debug.LogError("Animator component not found on Player script.");
+        }
+        playerAnimationController = GetComponentInChildren<PlayerAnimation>();
+        if (rb == null) {
+            Debug.LogError("Rigidbody2D component not found on Player script.");
+        }
     }
 
     private void Update() {

@@ -19,18 +19,18 @@ public class GameManager : MonoBehaviour {
     public GameObject currentSpawnPoint;
     public GameObject startPoint;
     public float RespawnDelay = 1f;
-    private void Awake() {
+
+    [Header("PlayerSkins")]
+    public int selectedSkinIndex = 0;
+
+    private void OnEnable() {
         if (instance == null) {
             instance = this;
         }
         else if (instance != this) {
             Destroy(gameObject);
         }
-        if (!currentSpawnPoint) {
-            currentSpawnPoint = startPoint;
-            Debug.LogWarning("StartPoint not set! Using default StartPoint.");
-        }
-
+        DontDestroyOnLoad(gameObject);
     }
 
     public void Score() {
@@ -75,9 +75,20 @@ public class GameManager : MonoBehaviour {
         totalFruits = allFruits.Length;
     }
 
-    public void RespawnPlayer() => StartCoroutine(RespawnPlayerCoroutine());
+    public void RespawnPlayer() {
+        if (!currentSpawnPoint) {
+            Debug.LogWarning("Current spawn point not set! Using default StartPoint.");
+            currentSpawnPoint = startPoint;
+        }
+        StartCoroutine(RespawnPlayerCoroutine());
+    }
 
-    public void LoadCredits() {
+    private void LoadCredits() {
         UnityEngine.SceneManagement.SceneManager.LoadScene("The_End");
+    }
+
+    public void LevelFinished() {
+        Debug.Log("Level Finished!");
+        UI_InGame.Instance.FadeEffect.ScreenFadeEffect(1f, 1f, () => { LoadCredits(); });
     }
 }

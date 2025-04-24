@@ -5,6 +5,24 @@ public class UI_Credits : MonoBehaviour {
     [SerializeField] private float scrollSpeed = 50f;
     [SerializeField] private string mainMenuSceneName = "MainMenu";
     [SerializeField] private float OffScreenY = -1000f;
+    private UI_FadeEffect fadeEffect;
+
+
+    void Start() {
+
+        fadeEffect.ScreenFadeEffect(0f, 1.5f);
+
+    }
+
+    private void Awake() {
+
+        fadeEffect = GetComponentInChildren<UI_FadeEffect>();
+        if (fadeEffect == null) {
+            Debug.LogError("FadeEffect is not assigned in the inspector.");
+        }
+
+    }
+
     private bool isSkipped = false;
 
     private void Update() {
@@ -26,6 +44,8 @@ public class UI_Credits : MonoBehaviour {
     }
 
     public void GoToMainMenu() {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuSceneName);
+        fadeEffect.ScreenFadeEffect(1f, 1.5f, () => {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuSceneName);
+        });
     }
 }
