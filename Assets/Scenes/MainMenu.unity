@@ -296,6 +296,8 @@ MonoBehaviour:
   startPoint: {fileID: 0}
   RespawnDelay: 1
   selectedSkinIndex: 0
+  showLevelSelectOnMainMenu: 0
+  mainMenuSceneName: MainMenu
 --- !u!4 &31686902
 Transform:
   m_ObjectHideFlags: 0
@@ -3201,7 +3203,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -2.7399, y: 0.913208}
+  m_AnchoredPosition: {x: -2.7399292, y: 0.913208}
   m_SizeDelta: {x: -56.6244, y: -45.6646}
   m_Pivot: {x: 0.49999973, y: 0.50000006}
 --- !u!114 &405074737
@@ -3562,6 +3564,7 @@ MonoBehaviour:
   - {fileID: 1202626395}
   - {fileID: 1612849554}
   - {fileID: 1796228514}
+  levelSelectUI: {fileID: 1796228514}
 --- !u!114 &491095287
 MonoBehaviour:
   m_ObjectHideFlags: 0

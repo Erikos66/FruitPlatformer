@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class LevelSelectButton : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI levelNameText;
     [SerializeField] private TextMeshProUGUI fruitInfoText;
+    [SerializeField] private TextMeshProUGUI timeInfoText;
     [SerializeField] private Button button;
 
     private string sceneName;
@@ -40,6 +41,24 @@ public class LevelSelectButton : MonoBehaviour {
             }
             else {
                 fruitInfoText.gameObject.SetActive(false);
+            }
+        }
+
+        // Update time information if we have the timeInfoText component
+        if (timeInfoText != null) {
+            float bestTime = GameManager.instance.GetBestLevelTime(scene);
+
+            if (bestTime > 0f) {
+                // Format time as minutes:seconds.milliseconds
+                int minutes = Mathf.FloorToInt(bestTime / 60f);
+                int seconds = Mathf.FloorToInt(bestTime % 60f);
+                int milliseconds = Mathf.FloorToInt((bestTime * 100f) % 100f);
+
+                timeInfoText.text = $"Best Time: {minutes}:{seconds:00}.{milliseconds:00}";
+                timeInfoText.gameObject.SetActive(true);
+            }
+            else {
+                timeInfoText.gameObject.SetActive(false);
             }
         }
     }

@@ -32,6 +32,17 @@ public class GameManager : MonoBehaviour {
     [Header("PlayerSkins")]
     public int selectedSkinIndex = 0;
 
+    [Header("Level Timer")]
+    private float levelStartTime;
+    private bool isTimerRunning = false;
+    private Dictionary<string, float> bestLevelTimes = new Dictionary<string, float>();
+
+    // Add this field to track if we should show level select when returning to main menu
+    [HideInInspector] public bool showLevelSelectOnMainMenu = false;
+
+    // Name of the main menu scene
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
+
     private void OnEnable() {
         // Register for scene loaded events to update fruit info
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -46,6 +57,9 @@ public class GameManager : MonoBehaviour {
 
         // Load saved fruit collection data
         LoadFruitCollectionData();
+
+        // Load saved level completion times
+        LoadLevelCompletionTimes();
 
         // Pre-populate total fruits per level from LevelDataSO if available
         if (levelData != null) {
@@ -97,10 +111,23 @@ public class GameManager : MonoBehaviour {
         // Save to PlayerPrefs
         SaveFruitCollectionData();
 
+        // Notify UI to update fruit count display
+        if (UI_InGame.Instance != null) {
+            UI_InGame.Instance.OnFruitCollected();
+        }
+
         Debug.Log("Fruit collected! Total: " + fruitsCollected);
     }
 
     public bool AllowedRandomFuits() => randomFruitsAllowed;
+
+    public void RespawnPlayer() {
+        if (!currentSpawnPoint) {
+            Debug.LogWarning("Current spawn point not set! Using default StartPoint.");
+            currentSpawnPoint = startPoint;
+        }
+        StartCoroutine(RespawnPlayerCoroutine());
+    }
 
     private IEnumerator RespawnPlayerCoroutine() {
         Transform playerCurrentSpawnPoint = currentSpawnPoint.transform;
@@ -117,9 +144,10 @@ public class GameManager : MonoBehaviour {
         }
 
         GameObject newPlayer = Instantiate(playerPrefab, playerCurrentSpawnPoint.position, playerCurrentSpawnPoint.rotation);
-
         player = newPlayer.GetComponent<Player>();
 
+        // Start the level timer when the player is spawned
+        StartLevelTimer();
     }
 
     private void Start() {
@@ -132,6 +160,9 @@ public class GameManager : MonoBehaviour {
         // Only collect fruit info for levels (not menu scenes)
         if (scene.name.StartsWith("Level_")) {
             CollectFruitInfo();
+            // Reset timer state when a new level is loaded
+            isTimerRunning = false;
+            levelStartTime = 0f;
         }
     }
 
@@ -145,21 +176,23 @@ public class GameManager : MonoBehaviour {
         totalFruitsPerLevel[currentScene] = totalFruits;
     }
 
-    public void RespawnPlayer() {
-        if (!currentSpawnPoint) {
-            Debug.LogWarning("Current spawn point not set! Using default StartPoint.");
-            currentSpawnPoint = startPoint;
-        }
-        StartCoroutine(RespawnPlayerCoroutine());
-    }
-
-    private void LoadCredits() {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("The_End");
+    private void LoadMainMenu() {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuSceneName);
     }
 
     public void LevelFinished() {
         Debug.Log("Level Finished!");
-        UI_InGame.Instance.FadeEffect.ScreenFadeEffect(1f, 1f, () => { LoadCredits(); });
+
+        // Stop the timer and save the time if it was running
+        if (isTimerRunning) {
+            StopLevelTimer();
+        }
+
+        // Set flag to show level select UI when returning to main menu
+        showLevelSelectOnMainMenu = true;
+
+        // Fade out and load main menu instead of credits
+        UI_InGame.Instance.FadeEffect.ScreenFadeEffect(1f, 1f, () => { LoadMainMenu(); });
     }
 
     // Get the number of fruits collected in a specific level
@@ -215,6 +248,73 @@ public class GameManager : MonoBehaviour {
                 int total = PlayerPrefs.GetInt("TotalFruits_" + sceneName, 0);
                 if (total > 0) {
                     totalFruitsPerLevel[sceneName] = total;
+                }
+            }
+        }
+    }
+
+    // Get the current level time (while the level is being played)
+    public float GetCurrentLevelTime() {
+        if (isTimerRunning) {
+            return Time.time - levelStartTime;
+        }
+        return 0f;
+    }
+
+    // Start the level timer
+    public void StartLevelTimer() {
+        if (!isTimerRunning) {
+            levelStartTime = Time.time;
+            isTimerRunning = true;
+            Debug.Log("Level timer started");
+        }
+    }
+
+    // Stop the level timer and save the completion time
+    public void StopLevelTimer() {
+        if (isTimerRunning) {
+            float completionTime = Time.time - levelStartTime;
+            string currentScene = SceneManager.GetActiveScene().name;
+
+            // Only save the time if it's better than the previous best (or if there's no previous time)
+            if (!bestLevelTimes.ContainsKey(currentScene) || completionTime < bestLevelTimes[currentScene]) {
+                bestLevelTimes[currentScene] = completionTime;
+                PlayerPrefs.SetFloat("LevelTime_" + currentScene, completionTime);
+                PlayerPrefs.Save();
+                Debug.Log($"New best time for {currentScene}: {completionTime:F2} seconds");
+            }
+
+            isTimerRunning = false;
+        }
+    }
+
+    // Get the best completion time for a specific level
+    public float GetBestLevelTime(string levelName) {
+        if (bestLevelTimes.ContainsKey(levelName)) {
+            return bestLevelTimes[levelName];
+        }
+        return 0f; // Return 0 if no time has been recorded
+    }
+
+    // Has the level been completed?
+    public bool HasLevelBeenCompleted(string levelName) {
+        return bestLevelTimes.ContainsKey(levelName) && bestLevelTimes[levelName] > 0f;
+    }
+
+    // Load saved level completion times
+    private void LoadLevelCompletionTimes() {
+        bestLevelTimes.Clear();
+
+        // This will load time data for all levels that have been played
+        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++) {
+            string scenePath = SceneUtility.GetScenePathByBuildIndex(i);
+            string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+
+            // Only load data for level scenes
+            if (sceneName.StartsWith("Level_")) {
+                float time = PlayerPrefs.GetFloat("LevelTime_" + sceneName, 0f);
+                if (time > 0f) {
+                    bestLevelTimes[sceneName] = time;
                 }
             }
         }

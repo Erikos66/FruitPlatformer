@@ -7,14 +7,30 @@ public class MainMenu : MonoBehaviour {
     private UI_FadeEffect fadeEffect;
 
     [SerializeField] private GameObject[] UIElements;
+    [SerializeField] private GameObject levelSelectUI; // Reference to the level select UI panel
 
     private void Awake() {
         fadeEffect = GetComponentInChildren<UI_FadeEffect>();
-
     }
 
     private void Start() {
         fadeEffect.ScreenFadeEffect(0f, 1.5f);
+
+        // Check if we should show the level select UI
+        if (GameManager.instance != null && GameManager.instance.showLevelSelectOnMainMenu) {
+            // Reset the flag
+            GameManager.instance.showLevelSelectOnMainMenu = false;
+
+            // Wait a brief moment to ensure UI is fully loaded, then show level select
+            Invoke(nameof(ShowLevelSelect), 0.1f);
+        }
+    }
+
+    private void ShowLevelSelect() {
+        // Show the level select UI
+        if (levelSelectUI != null) {
+            SwitchUI(levelSelectUI);
+        }
     }
 
     public void NewGame() {
