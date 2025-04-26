@@ -10,6 +10,7 @@ public class LevelSelectManager : MonoBehaviour {
     [SerializeField] private string levelDisplayNameFormat = "Level {0}";
     [SerializeField] private Vector2 buttonSpacing = new Vector2(0, -80);
     [SerializeField] private bool useBuiltInScenes = true;
+    [SerializeField] private bool showLockedLevels = false; // Option to show locked levels (e.g. as disabled buttons)
 
     // For manual level configuration if not using built-in scenes
     [System.Serializable]
@@ -21,6 +22,10 @@ public class LevelSelectManager : MonoBehaviour {
     [SerializeField] private List<LevelInfo> manualLevelList = new List<LevelInfo>();
 
     private void Start() {
+        GenerateLevelButtons();
+    }
+
+    public void RefreshLevelButtons() {
         GenerateLevelButtons();
     }
 
@@ -83,28 +88,39 @@ public class LevelSelectManager : MonoBehaviour {
             string sceneName = levelScenes[i];
             string levelNumber = sceneName.Substring(levelNamePrefix.Length);
 
-            // Try to parse level number
-            if (int.TryParse(levelNumber, out int levelNum)) {
-                CreateLevelButton(string.Format(levelDisplayNameFormat, levelNum), sceneName);
-            }
-            else {
-                CreateLevelButton(sceneName, sceneName);
+            // Only show levels that are unlocked, unless showLockedLevels is true
+            if (GameManager.instance.IsLevelUnlocked(sceneName) || showLockedLevels) {
+                bool isUnlocked = GameManager.instance.IsLevelUnlocked(sceneName);
+
+                // Try to parse level number
+                if (int.TryParse(levelNumber, out int levelNum)) {
+                    CreateLevelButton(string.Format(levelDisplayNameFormat, levelNum), sceneName, isUnlocked);
+                }
+                else {
+                    CreateLevelButton(sceneName, sceneName, isUnlocked);
+                }
             }
         }
     }
 
     private void GenerateButtonsFromManualList() {
         for (int i = 0; i < manualLevelList.Count; i++) {
-            CreateLevelButton(manualLevelList[i].displayName, manualLevelList[i].sceneName);
+            string sceneName = manualLevelList[i].sceneName;
+
+            // Only show levels that are unlocked, unless showLockedLevels is true
+            if (GameManager.instance.IsLevelUnlocked(sceneName) || showLockedLevels) {
+                bool isUnlocked = GameManager.instance.IsLevelUnlocked(sceneName);
+                CreateLevelButton(manualLevelList[i].displayName, sceneName, isUnlocked);
+            }
         }
     }
 
-    private void CreateLevelButton(string displayName, string sceneName) {
+    private void CreateLevelButton(string displayName, string sceneName, bool isUnlocked) {
         GameObject buttonObj = Instantiate(levelButtonPrefab, buttonContainer);
         LevelSelectButton levelButton = buttonObj.GetComponent<LevelSelectButton>();
 
         if (levelButton != null) {
-            levelButton.Setup(displayName, sceneName);
+            levelButton.Setup(displayName, sceneName, isUnlocked);
         }
         else {
             Debug.LogError("LevelSelectButton component not found on button prefab!");

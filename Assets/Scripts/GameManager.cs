@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -37,6 +38,10 @@ public class GameManager : MonoBehaviour {
     private bool isTimerRunning = false;
     private Dictionary<string, float> bestLevelTimes = new Dictionary<string, float>();
 
+    // Level progression tracking
+    private HashSet<string> unlockedLevels = new HashSet<string>();
+    private List<string> orderedLevelNames = new List<string>();
+
     // Add this field to track if we should show level select when returning to main menu
     [HideInInspector] public bool showLevelSelectOnMainMenu = false;
 
@@ -61,12 +66,50 @@ public class GameManager : MonoBehaviour {
         // Load saved level completion times
         LoadLevelCompletionTimes();
 
+        // Load unlocked levels
+        LoadUnlockedLevels();
+
         // Pre-populate total fruits per level from LevelDataSO if available
         if (levelData != null) {
             PreloadFruitCounts();
         }
         else {
             Debug.LogWarning("LevelDataSO not assigned in GameManager. Total fruit counts won't be available until levels are loaded.");
+        }
+
+        // Build ordered list of level names
+        BuildOrderedLevelList();
+    }
+
+    // Build an ordered list of all level names in the build settings
+    private void BuildOrderedLevelList() {
+        orderedLevelNames.Clear();
+
+        // Find all scenes in build settings
+        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++) {
+            string scenePath = SceneUtility.GetScenePathByBuildIndex(i);
+            string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+
+            // Only process level scenes
+            if (sceneName.StartsWith("Level_")) {
+                orderedLevelNames.Add(sceneName);
+            }
+        }
+
+        // Sort levels by their number
+        orderedLevelNames.Sort((a, b) => {
+            string aNum = a.Substring("Level_".Length);
+            string bNum = b.Substring("Level_".Length);
+
+            if (int.TryParse(aNum, out int aVal) && int.TryParse(bNum, out int bVal)) {
+                return aVal.CompareTo(bVal);
+            }
+            return string.Compare(a, b);
+        });
+
+        // Always ensure Level_1 is unlocked
+        if (orderedLevelNames.Count > 0) {
+            UnlockLevel(orderedLevelNames[0]);
         }
     }
 
@@ -180,6 +223,35 @@ public class GameManager : MonoBehaviour {
         UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuSceneName);
     }
 
+    // Find the next level in sequence
+    private string GetNextLevelName(string currentLevelName) {
+        int currentIndex = orderedLevelNames.IndexOf(currentLevelName);
+
+        // If the current level is found and it's not the last one
+        if (currentIndex >= 0 && currentIndex < orderedLevelNames.Count - 1) {
+            return orderedLevelNames[currentIndex + 1];
+        }
+
+        // If it's the last level or not found, return empty string
+        return string.Empty;
+    }
+
+    public void LoadNextLevel(string currentLevelName) {
+        string nextLevelName = GetNextLevelName(currentLevelName);
+
+        if (!string.IsNullOrEmpty(nextLevelName)) {
+            // Unlock the next level
+            UnlockLevel(nextLevelName);
+
+            // Load the next level
+            SceneManager.LoadScene(nextLevelName);
+        }
+        else {
+            // If there's no next level, go back to the menu
+            LoadMainMenu();
+        }
+    }
+
     public void LevelFinished() {
         Debug.Log("Level Finished!");
 
@@ -188,11 +260,29 @@ public class GameManager : MonoBehaviour {
             StopLevelTimer();
         }
 
-        // Set flag to show level select UI when returning to main menu
-        showLevelSelectOnMainMenu = true;
+        string currentScene = SceneManager.GetActiveScene().name;
 
-        // Fade out and load main menu instead of credits
-        UI_InGame.Instance.FadeEffect.ScreenFadeEffect(1f, 1f, () => { LoadMainMenu(); });
+        // Mark level as completed in PlayerPrefs
+        UnlockLevel(currentScene);
+
+        // Get the next level name
+        string nextLevelName = GetNextLevelName(currentScene);
+
+        // If there is a next level
+        if (!string.IsNullOrEmpty(nextLevelName)) {
+            // Unlock the next level
+            UnlockLevel(nextLevelName);
+
+            // Fade out and load the next level
+            UI_InGame.Instance.FadeEffect.ScreenFadeEffect(1f, 1f, () => { SceneManager.LoadScene(nextLevelName); });
+        }
+        else {
+            // If this was the last level, set flag to show level select UI when returning to main menu
+            showLevelSelectOnMainMenu = true;
+
+            // Fade out and load main menu
+            UI_InGame.Instance.FadeEffect.ScreenFadeEffect(1f, 1f, () => { LoadMainMenu(); });
+        }
     }
 
     // Get the number of fruits collected in a specific level
@@ -315,6 +405,51 @@ public class GameManager : MonoBehaviour {
                 float time = PlayerPrefs.GetFloat("LevelTime_" + sceneName, 0f);
                 if (time > 0f) {
                     bestLevelTimes[sceneName] = time;
+                }
+            }
+        }
+    }
+
+    // LEVEL UNLOCKING METHODS
+
+    // Check if a level is unlocked
+    public bool IsLevelUnlocked(string levelName) {
+        // First level is always unlocked
+        if (orderedLevelNames.Count > 0 && orderedLevelNames[0] == levelName) {
+            return true;
+        }
+
+        return unlockedLevels.Contains(levelName);
+    }
+
+    // Unlock a specific level
+    public void UnlockLevel(string levelName) {
+        if (!unlockedLevels.Contains(levelName)) {
+            unlockedLevels.Add(levelName);
+            PlayerPrefs.SetInt("UnlockedLevel_" + levelName, 1);
+            PlayerPrefs.Save();
+        }
+    }
+
+    // Unlock all levels
+    public void UnlockAllLevels() {
+        foreach (string levelName in orderedLevelNames) {
+            UnlockLevel(levelName);
+        }
+        Debug.Log("All levels unlocked!");
+    }
+
+    // Load unlocked levels from PlayerPrefs
+    private void LoadUnlockedLevels() {
+        unlockedLevels.Clear();
+
+        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++) {
+            string scenePath = SceneUtility.GetScenePathByBuildIndex(i);
+            string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+
+            if (sceneName.StartsWith("Level_")) {
+                if (PlayerPrefs.GetInt("UnlockedLevel_" + sceneName, 0) == 1) {
+                    unlockedLevels.Add(sceneName);
                 }
             }
         }
