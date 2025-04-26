@@ -14,10 +14,11 @@ public class Fruit : MonoBehaviour {
         if (string.IsNullOrEmpty(fruitID)) {
             fruitID = $"{gameObject.scene.name}_fruit_{transform.position.x}_{transform.position.y}";
         }
+
+        gameManager = GameManager.instance;
     }
 
     private void Start() {
-        gameManager = GameManager.instance;
 
         if (gameManager.AllowedRandomFuits()) {
             SetRandomFruit();

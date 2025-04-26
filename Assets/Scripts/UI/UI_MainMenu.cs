@@ -8,7 +8,6 @@ public class MainMenu : MonoBehaviour {
 
     [SerializeField] private GameObject[] UIElements;
     [SerializeField] private GameObject levelSelectUI; // Reference to the level select UI panel
-    [SerializeField] private LevelSelectManager levelSelectManager; // Reference to the LevelSelectManager
 
     private void Awake() {
         fadeEffect = GetComponentInChildren<UI_FadeEffect>();
@@ -69,11 +68,6 @@ public class MainMenu : MonoBehaviour {
     public void UnlockAllLevels() {
         if (GameManager.instance != null) {
             GameManager.instance.UnlockAllLevels();
-
-            // Refresh the level select UI if we have a reference to it
-            if (levelSelectManager != null) {
-                levelSelectManager.RefreshLevelButtons();
-            }
 
             Debug.Log("All levels have been unlocked!");
         }

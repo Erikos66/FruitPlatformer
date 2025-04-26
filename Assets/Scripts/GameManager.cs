@@ -165,10 +165,34 @@ public class GameManager : MonoBehaviour {
     public bool AllowedRandomFuits() => randomFruitsAllowed;
 
     public void RespawnPlayer() {
-        if (!currentSpawnPoint) {
-            Debug.LogWarning("Current spawn point not set! Using default StartPoint.");
-            currentSpawnPoint = startPoint;
+        // Validate we have a player prefab assigned
+        if (playerPrefab == null) {
+            Debug.LogError("Player prefab is not assigned in GameManager! Cannot respawn player.");
+            return;
         }
+
+        // Validate spawn point
+        if (currentSpawnPoint == null) {
+            Debug.LogWarning("Current spawn point not set! Looking for startPoint...");
+
+            if (startPoint == null) {
+                // Try to find any StartPoint in the scene
+                StartPoint[] points = FindObjectsByType<StartPoint>(FindObjectsSortMode.None);
+                if (points.Length > 0) {
+                    currentSpawnPoint = points[0].gameObject;
+                    Debug.Log($"Found StartPoint '{currentSpawnPoint.name}' to use as spawn point.");
+                }
+                else {
+                    Debug.LogError("No spawn points found in the level! Cannot respawn player.");
+                    return;
+                }
+            }
+            else {
+                currentSpawnPoint = startPoint;
+                Debug.Log("Using default startPoint for respawning.");
+            }
+        }
+
         StartCoroutine(RespawnPlayerCoroutine());
     }
 
@@ -200,12 +224,15 @@ public class GameManager : MonoBehaviour {
 
     // Called when a scene is loaded
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
-        // Only collect fruit info for levels (not menu scenes)
+        // Only collect fruit info and handle player spawning for levels (not menu scenes)
         if (scene.name.StartsWith("Level_")) {
             CollectFruitInfo();
             // Reset timer state when a new level is loaded
             isTimerRunning = false;
             levelStartTime = 0f;
+
+            // Find and set up spawn points for the new level
+            SetupSpawnPointsForLevel();
         }
     }
 
@@ -452,6 +479,81 @@ public class GameManager : MonoBehaviour {
                     unlockedLevels.Add(sceneName);
                 }
             }
+        }
+    }
+
+    // Find and setup spawn points when entering a new level
+    private void SetupSpawnPointsForLevel() {
+        // Find all StartPoint objects in the scene
+        StartPoint[] startPoints = FindObjectsByType<StartPoint>(FindObjectsSortMode.None);
+
+        if (startPoints.Length == 0) {
+            Debug.LogError("No StartPoint found in the scene! Player cannot spawn. Please add a StartPoint component to a GameObject in the level.");
+            return;
+        }
+
+        // Set the first one as the default startPoint
+        startPoint = startPoints[0].gameObject;
+
+        // Validate all StartPoints to ensure they have valid respawn points
+        foreach (StartPoint sp in startPoints) {
+            if (sp.respawnPoint == null) {
+                Debug.LogError($"StartPoint '{sp.gameObject.name}' has no respawnPoint assigned! Please assign a Transform as respawnPoint in the inspector.");
+            }
+        }
+
+        // Set the currentSpawnPoint to the startPoint by default
+        currentSpawnPoint = startPoint;
+
+        Debug.Log($"Found {startPoints.Length} spawn point(s). Using '{startPoint.name}' as default.");
+    }
+
+    // Spawn the player at the appropriate start point
+    private void SpawnPlayerAtStartPoint() {
+        // Validate playerPrefab exists
+        if (playerPrefab == null) {
+            Debug.LogError("Player prefab is not assigned in GameManager! Cannot spawn player.");
+            return;
+        }
+
+        // Validate that we have a start point
+        if (startPoint == null) {
+            Debug.LogError("No start point found in the level! Cannot spawn player.");
+            return;
+        }
+
+        // Validate the StartPoint component and respawn point
+        if (!startPoint.TryGetComponent<StartPoint>(out var startPointComponent)) {
+            Debug.LogError($"GameObject '{startPoint.name}' doesn't have a StartPoint component! Cannot spawn player.");
+            return;
+        }
+
+        if (startPointComponent.respawnPoint == null) {
+            Debug.LogError($"StartPoint '{startPoint.name}' has no respawnPoint assigned! Cannot spawn player.");
+            return;
+        }
+
+        // Destroy any existing player
+        if (player != null) {
+            Destroy(player.gameObject);
+            player = null;
+        }
+
+        // Instantiate the player and get the component
+        Vector3 spawnPosition = startPointComponent.respawnPoint.position;
+        Quaternion spawnRotation = startPointComponent.respawnPoint.rotation;
+
+        Debug.Log($"Spawning player at position: {spawnPosition}");
+        GameObject playerObject = Instantiate(playerPrefab, spawnPosition, spawnRotation);
+
+        if (playerObject.TryGetComponent<Player>(out var playerComponent)) {
+            player = playerComponent;
+            startPointComponent.AnimateFlag();
+            StartLevelTimer();
+            Debug.Log("Player spawned successfully!");
+        }
+        else {
+            Debug.LogError("Player prefab doesn't have a Player component! Cannot control the character.");
         }
     }
 }
