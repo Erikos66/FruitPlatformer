@@ -1,26 +1,31 @@
 using System.Collections;
 using UnityEngine;
 
-public class Fruit : MonoBehaviour {
+public class Fruit : MonoBehaviour
+{
     [SerializeField] private string fruitID; // Unique ID for this fruit
-    private GameManager gameManager;
+    private GameManager gm;
     private Animator anim;
     private bool hasBeenCollectedBefore = false;
 
-    private void Awake() {
+    private void Awake()
+    {
         anim = GetComponentInChildren<Animator>();
 
         // If no ID has been set in the inspector, generate one based on position
-        if (string.IsNullOrEmpty(fruitID)) {
+        if (string.IsNullOrEmpty(fruitID))
+        {
             fruitID = $"{gameObject.scene.name}_fruit_{transform.position.x}_{transform.position.y}";
         }
 
-        gameManager = GameManager.instance;
+        gm = GameManager.instance;
     }
 
-    private void Start() {
-
-        if (gameManager.AllowedRandomFuits()) {
+    private void Start()
+    {
+        // Check if GameManager instance exists before attempting to use it
+        if (gm != null && gm.AllowedRandomFuits())
+        {
             SetRandomFruit();
         }
 
@@ -28,29 +33,35 @@ public class Fruit : MonoBehaviour {
         CheckIfAlreadyCollected();
     }
 
-    private void CheckIfAlreadyCollected() {
+    private void CheckIfAlreadyCollected()
+    {
         string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
         string key = $"Fruit_{currentScene}_{fruitID}";
 
         // If this fruit was collected in a previous session, disable it
-        if (PlayerPrefs.GetInt(key, 0) == 1) {
+        if (PlayerPrefs.GetInt(key, 0) == 1)
+        {
             hasBeenCollectedBefore = true;
             gameObject.SetActive(false);
         }
     }
 
-    private void SetRandomFruit() {
+    private void SetRandomFruit()
+    {
         int random = Random.Range(0, 9);
         anim.SetFloat("fruitType", random);
     }
 
-    private void OnTriggerEnter2D(Collider2D other) {
+    private void OnTriggerEnter2D(Collider2D other)
+    {
         Player player = other.GetComponent<Player>();
-        if (player != null && !hasBeenCollectedBefore) {
-            gameManager.AddFruit();
+        if (player != null && !hasBeenCollectedBefore)
+        {
             anim.SetTrigger("Collected");
             StartCoroutine(DestroyFruit());
             Destroy(GetComponent<Collider2D>());
+            if (gm != null)
+                gm.AddFruit();
 
             // Mark this specific fruit as collected
             string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
@@ -60,7 +71,8 @@ public class Fruit : MonoBehaviour {
         }
     }
 
-    private IEnumerator DestroyFruit() {
+    private IEnumerator DestroyFruit()
+    {
         yield return new WaitForSeconds(0.8f);
         Destroy(gameObject);
     }
