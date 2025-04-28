@@ -89,8 +89,8 @@ public class LevelSelectManager : MonoBehaviour {
             string levelNumber = sceneName.Substring(levelNamePrefix.Length);
 
             // Only show levels that are unlocked, unless showLockedLevels is true
-            if (GameManager.instance.IsLevelUnlocked(sceneName) || showLockedLevels) {
-                bool isUnlocked = GameManager.instance.IsLevelUnlocked(sceneName);
+            if (GameManager.instance.levelManager.IsLevelUnlocked(sceneName) || showLockedLevels) {
+                bool isUnlocked = GameManager.instance.levelManager.IsLevelUnlocked(sceneName);
 
                 // Try to parse level number
                 if (int.TryParse(levelNumber, out int levelNum)) {
@@ -108,8 +108,8 @@ public class LevelSelectManager : MonoBehaviour {
             string sceneName = manualLevelList[i].sceneName;
 
             // Only show levels that are unlocked, unless showLockedLevels is true
-            if (GameManager.instance.IsLevelUnlocked(sceneName) || showLockedLevels) {
-                bool isUnlocked = GameManager.instance.IsLevelUnlocked(sceneName);
+            if (GameManager.instance.levelManager.IsLevelUnlocked(sceneName) || showLockedLevels) {
+                bool isUnlocked = GameManager.instance.levelManager.IsLevelUnlocked(sceneName);
                 CreateLevelButton(manualLevelList[i].displayName, sceneName, isUnlocked);
             }
         }

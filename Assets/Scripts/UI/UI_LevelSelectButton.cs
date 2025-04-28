@@ -43,11 +43,23 @@ public class LevelSelectButton : MonoBehaviour {
 
         // Update fruit information if we have the fruitInfoText component
         if (fruitInfoText != null) {
-            int collectedFruits = GameManager.instance.GetCollectedFruitsInLevel(scene);
-            int totalFruits = GameManager.instance.GetTotalFruitsInLevel(scene);
+            if (isUnlocked) {
+                // Check if the level has been played before
+                bool levelPlayed = GameManager.instance.saveManager.HasLevelBeenPlayed(scene);
 
-            if (totalFruits > 0 && isUnlocked) {
-                fruitInfoText.text = $"Fruits: {collectedFruits}/{totalFruits}";
+                if (levelPlayed) {
+                    // Get the collected and total fruit counts
+                    int collectedFruits = GameManager.instance.saveManager.GetCollectedFruitsCount(scene);
+                    int totalFruits = GameManager.instance.saveManager.GetTotalFruitsCount(scene);
+
+                    // Display the collected/total fruits
+                    fruitInfoText.text = $"Fruits: {collectedFruits}/{totalFruits}";
+                }
+                else {
+                    // Level hasn't been played yet, show unknown values
+                    fruitInfoText.text = "Fruits: ???/???";
+                }
+
                 fruitInfoText.gameObject.SetActive(true);
             }
             else {
@@ -57,15 +69,12 @@ public class LevelSelectButton : MonoBehaviour {
 
         // Update time information if we have the timeInfoText component
         if (timeInfoText != null) {
-            float bestTime = GameManager.instance.GetBestLevelTime(scene);
+            float bestTime = GameManager.instance.saveManager.GetLevelBestTime(scene);
 
             if (bestTime > 0f && isUnlocked) {
-                // Format time as minutes:seconds.milliseconds
-                int minutes = Mathf.FloorToInt(bestTime / 60f);
-                int seconds = Mathf.FloorToInt(bestTime % 60f);
-                int milliseconds = Mathf.FloorToInt((bestTime * 100f) % 100f);
-
-                timeInfoText.text = $"Best Time: {minutes}:{seconds:00}.{milliseconds:00}";
+                // Format time using the TimerManager's format method
+                string formattedTime = GameManager.instance.timerManager.FormatTime(bestTime);
+                timeInfoText.text = $"Best Time: {formattedTime}";
                 timeInfoText.gameObject.SetActive(true);
             }
             else {
@@ -79,6 +88,9 @@ public class LevelSelectButton : MonoBehaviour {
         if (!isUnlocked)
             return;
 
+        // Play UI button click sound
+        AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
+
         if (fadeEffect != null) {
             fadeEffect.ScreenFadeEffect(1f, 1f, LoadLevel);
         }
@@ -88,6 +100,7 @@ public class LevelSelectButton : MonoBehaviour {
     }
 
     private void LoadLevel() {
-        SceneManager.LoadScene(sceneName);
+        // Use LevelManager to load the scene
+        GameManager.instance.levelManager.LoadLevel(sceneName);
     }
 }

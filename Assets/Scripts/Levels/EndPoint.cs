@@ -11,13 +11,17 @@ public class EndPoint : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D collision) {
         Player player = collision.GetComponent<Player>();
         if (player) {
+            // Play level finish sound
+            AudioManager.Instance.PlaySFX("SFX_Finish");
+
             anim.SetTrigger("activate");
             Debug.Log("Level complete!");
 
             // Explicitly stop the timer when player reaches the end point
-            GameManager.instance.StopLevelTimer();
+            GameManager.instance.timerManager.StopLevelTimer();
 
-            GameManager.instance.LevelFinished();
+            // Mark the level as finished and handle progression
+            GameManager.instance.levelManager.LevelFinished();
         }
     }
 }

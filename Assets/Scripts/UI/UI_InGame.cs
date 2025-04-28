@@ -38,6 +38,13 @@ public class UI_InGame : MonoBehaviour {
             pauseMenu.SetActive(false);
         }
 
+        // Set UI buttons to ignore timescale
+        if (pauseMenu != null) {
+            foreach (UnityEngine.UI.Button button in pauseMenu.GetComponentsInChildren<UnityEngine.UI.Button>(true)) {
+                button.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
+            }
+        }
+
         // Start the fade in effect, with player spawning after fade completes
         FadeEffect.ScreenFadeEffect(0f, 1.5f, OnFadeInComplete);
 
@@ -59,14 +66,14 @@ public class UI_InGame : MonoBehaviour {
     private void OnFadeInComplete() {
         // Now spawn the player after fade completes
         if (GameManager.instance != null) {
-            GameManager.instance.RespawnPlayer();
+            GameManager.instance.playerManager.RespawnPlayer();
         }
     }
 
     void Update() {
         // Update timer display if we have the text component and timer should be shown
         if (showTimer && timerText != null && GameManager.instance != null) {
-            float currentTime = GameManager.instance.GetCurrentLevelTime();
+            float currentTime = GameManager.instance.timerManager.GetCurrentLevelTime();
 
             if (currentTime > 0) {
                 // Format time as just seconds (rounded to 2 decimal places)
@@ -104,12 +111,9 @@ public class UI_InGame : MonoBehaviour {
     // Update the fruit count text to show current collection progress
     private void UpdateFruitCountText() {
         if (showFruitCount && fruitCountText != null && GameManager.instance != null) {
-            // Get current scene name
-            string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-
-            // Get collected and total fruits for the current level
-            int collectedFruits = GameManager.instance.GetCollectedFruitsInLevel(currentScene);
-            int totalFruits = GameManager.instance.GetTotalFruitsInLevel(currentScene);
+            // Get counts from FruitManager
+            int collectedFruits = GameManager.instance.fruitManager.GetFruitsCollected();
+            int totalFruits = GameManager.instance.fruitManager.GetFruitsInLevel();
 
             // Display as "collected/total"
             fruitCountText.text = $"{collectedFruits}/{totalFruits}";
@@ -139,8 +143,14 @@ public class UI_InGame : MonoBehaviour {
 
     // method to return to main menu
     public void ReturnToMainMenu() {
-        // Make sure to reset time scale before loading a new scene
-        Time.timeScale = 1f;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        // Use LevelManager to return to the main menu
+        if (GameManager.instance != null) {
+            GameManager.instance.levelManager.ReturnToMainMenu();
+        }
+        else {
+            // Fallback if game manager is not available
+            Time.timeScale = 1f;
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        }
     }
 }

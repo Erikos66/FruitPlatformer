@@ -41,9 +41,12 @@ public class UI_SkinSelector : MonoBehaviour {
     }
 
     public void SelectSkin() {
-        GameManager.instance.selectedSkinIndex = selectedSkinIndex;
-        Debug.Log("Selected skin index: " + selectedSkinIndex);
+        if (GameManager.instance != null && GameManager.instance.playerManager != null) {
+            GameManager.instance.playerManager.SetSkin(selectedSkinIndex);
+            Debug.Log("Selected skin index: " + selectedSkinIndex);
+        }
+        else {
+            Debug.LogError("Cannot select skin: GameManager or playerManager is not initialized.");
+        }
     }
-
-
 }

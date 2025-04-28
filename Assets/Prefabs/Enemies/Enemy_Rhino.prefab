@@ -83,7 +83,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 1
   damage: 1
-  moveSpeed: 2
+  moveSpeed: 3
   idleDuration: 1
   startFacingRight: 0
   groundLayer:
@@ -93,10 +93,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   groundTransform: {fileID: 2117214603694251693}
-  groundCheckDistance: 1.1
-  wallCheckDistance: 1.2
+  groundCheckDistance: 1.4
+  wallCheckDistance: 1
   detectionShape: 1
-  playerDetectionDistance: 20
+  playerDetectionDistance: 15
   heightOffset: 0
   sideOffset: 0
   coneAngle: 30
@@ -106,9 +106,9 @@ MonoBehaviour:
   deathRotationSpeed: 300
   deathImpactForce: 10
   chargeSpeed: 16
-  returnSpeed: 3
-  bounceForce: 2
-  returnDelay: 2
+  returnSpeed: 4
+  bounceForce: 3
+  returnDelay: 1
 --- !u!212 &5078939081319756263
 SpriteRenderer:
   m_ObjectHideFlags: 0

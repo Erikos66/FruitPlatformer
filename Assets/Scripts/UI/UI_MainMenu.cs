@@ -17,9 +17,9 @@ public class MainMenu : MonoBehaviour {
         fadeEffect.ScreenFadeEffect(0f, 1.5f);
 
         // Check if we should show the level select UI
-        if (GameManager.instance != null && GameManager.instance.showLevelSelectOnMainMenu) {
+        if (GameManager.instance != null && GameManager.instance.levelManager.showLevelSelectOnMainMenu) {
             // Reset the flag
-            GameManager.instance.showLevelSelectOnMainMenu = false;
+            GameManager.instance.levelManager.showLevelSelectOnMainMenu = false;
 
             // Wait a brief moment to ensure UI is fully loaded, then show level select
             Invoke(nameof(ShowLevelSelect), 0.1f);
@@ -34,10 +34,14 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void NewGame() {
+        // Play UI button click sound
+        AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
         fadeEffect.ScreenFadeEffect(1f, 1.5f, LoadLevelScene);
     }
 
     public void Credits() {
+        // Play UI button click sound
+        AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
         fadeEffect.ScreenFadeEffect(1f, 1.5f, LoadCreditsScene);
     }
 
@@ -46,6 +50,8 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void QuitGame() {
+        // Play UI button click sound
+        AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
         Application.Quit();
         Debug.Log("Quit Game");
     }
@@ -55,6 +61,8 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void SwitchUI(GameObject uiToEnable) {
+        // Play UI button click sound
+        AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
         foreach (GameObject uiElement in UIElements) {
             uiElement.SetActive(false);
         }
@@ -66,8 +74,10 @@ public class MainMenu : MonoBehaviour {
     /// Assign this to a button in the Unity Editor.
     /// </summary>
     public void UnlockAllLevels() {
+        // Play UI button click sound
+        AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
         if (GameManager.instance != null) {
-            GameManager.instance.UnlockAllLevels();
+            GameManager.instance.levelManager.UnlockAllLevels();
 
             Debug.Log("All levels have been unlocked!");
         }

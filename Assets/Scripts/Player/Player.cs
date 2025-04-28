@@ -101,6 +101,8 @@ public class Player : MonoBehaviour {
                 Enemy_Base enemyBase = enemy.GetComponentInParent<Enemy_Base>();
                 if (enemyBase != null) {
                     enemyBase.Die();
+                    // Play enemy kicked sound
+                    AudioManager.Instance.PlaySFX("SFX_EnemyKicked");
                 }
                 else {
                     GameObject.Destroy(enemy.gameObject);
@@ -129,6 +131,13 @@ public class Player : MonoBehaviour {
             return;
         StartCoroutine(KnockbackRoutine(knockbackDuration));
         anim.SetTrigger("knockback");
+
+        // Use GameManager's CameraManager instead of singleton
+        if (GameManager.instance != null && GameManager.instance.cameraManager != null)
+            GameManager.instance.cameraManager.ShakeCamera(0.5f, 0.2f);
+
+        // Play knocked sound
+        AudioManager.Instance.PlaySFX("SFX_PlayerKnocked");
         Vector2 direction = hitPosition.HasValue ? (((Vector2)transform.position) - hitPosition.Value).normalized : new Vector2(-facingDir, 0);
         rb.linearVelocity = new Vector2(direction.x * knockbackPower.x, knockbackPower.y);
     }
@@ -197,18 +206,26 @@ public class Player : MonoBehaviour {
         CancelCoyoteJump();
     }
 
-    private void Jump() => rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+    private void Jump() {
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        // Play jump sound
+        AudioManager.Instance.PlaySFX("SFX_Jump");
+    }
 
     private void DoubleJump() {
         StopCoroutine(WallJumpRoutine());
         isWallJumping = false;
         canDoubleJump = false;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
+        // Play jump sound for double jump too
+        AudioManager.Instance.PlaySFX("SFX_Jump");
     }
 
     private void WallJump() {
         canDoubleJump = true;
         rb.linearVelocity = new Vector2(wallJumpForce.x * -facingDir, wallJumpForce.y);
+        // Play jump sound for wall jump too
+        AudioManager.Instance.PlaySFX("SFX_Jump");
         Flip();
         StartCoroutine(WallJumpRoutine());
     }
@@ -243,9 +260,9 @@ public class Player : MonoBehaviour {
             return;
         if (isWallJumping)
             return;
+
         rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
     }
-
     private void HandleFlip() {
         if ((xInput < 0 && facingRight) || (xInput > 0 && !facingRight))
             Flip();
@@ -264,6 +281,8 @@ public class Player : MonoBehaviour {
     }
 
     public void Die() {
+        // Play death sound
+        AudioManager.Instance.PlaySFX("SFX_Death");
         GameObject newPlayerDeathVFX = Instantiate(playerDeath_VFX, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
