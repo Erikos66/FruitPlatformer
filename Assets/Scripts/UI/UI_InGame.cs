@@ -108,8 +108,8 @@ public class UI_InGame : MonoBehaviour {
             string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
             // Get collected and total fruits for the current level
-            int collectedFruits = GameManager.instance.fruitsCollected;
-            int totalFruits = GameManager.instance.totalFruits;
+            int collectedFruits = GameManager.instance.GetCollectedFruitsInLevel(currentScene);
+            int totalFruits = GameManager.instance.GetTotalFruitsInLevel(currentScene);
 
             // Display as "collected/total"
             fruitCountText.text = $"{collectedFruits}/{totalFruits}";

@@ -149,6 +149,7 @@ MonoBehaviour:
   damage: 1
   moveSpeed: 2
   idleDuration: 1
+  startFacingRight: 1
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -156,9 +157,15 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   groundTransform: {fileID: 2588745178739211776}
-  groundCheckDistance: 1.1
-  playerCheckDistance: 0
-  wallCheckDistance: 0.5
+  groundCheckDistance: 1.4
+  wallCheckDistance: 0.6
+  detectionShape: 0
+  playerDetectionDistance: 10
+  heightOffset: 0
+  sideOffset: 0
+  coneAngle: 30
+  rectangleHeight: 1
+  sphereRadius: 2
   despawnTime: 5
   deathRotationSpeed: 300
   deathImpactForce: 10

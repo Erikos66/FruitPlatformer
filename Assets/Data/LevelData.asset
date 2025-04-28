@@ -14,4 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelInfoList:
   - levelName: Level_1
-    totalFruits: 3
+    totalFruits: 10
+  - levelName: Level_2
+    totalFruits: 15
+  - levelName: Level_3
+    totalFruits: 7
