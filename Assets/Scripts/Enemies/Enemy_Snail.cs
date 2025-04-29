@@ -72,11 +72,16 @@ public class Enemy_Snail : Enemy_Base {
 
         // Re-enable sliding
         isBouncingOffWall = false;
+
+        // play the bounce sound
+        AudioManager.Instance.PlaySFX("SFX_EnemyKicked");
     }
 
     // Called when player jumps on the snail
     public override void Die() {
         if (isDead) return;
+        // play the die sound
+        AudioManager.Instance.PlaySFX("SFX_EnemyKicked");
 
         switch (currentState) {
             case SnailState.WithShell:
