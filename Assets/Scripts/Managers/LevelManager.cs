@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour {
+    // Singleton instance
+    public static LevelManager Instance { get; private set; }
+
     // List of all level scenes in order
     [SerializeField] private List<string> levelSceneNames = new List<string>();
 
@@ -14,7 +17,17 @@ public class LevelManager : MonoBehaviour {
     // Level state flags
     [HideInInspector] public bool showLevelSelectOnMainMenu = false;
 
-    private void Start() {
+    private void Awake() {
+
+        // Singleton setup
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this) {
+            Destroy(gameObject);
+        }
+
         // Initialize level names if empty
         if (levelSceneNames.Count == 0) {
             // Add default level names (replace with your actual level scene names)
@@ -44,9 +57,9 @@ public class LevelManager : MonoBehaviour {
     }
 
     public void LoadLevel(string levelName) {
-        GameManager.instance.timerManager.ResetLevelTimer();
+        TimerManager.Instance.ResetLevelTimer();
         // Reset the first spawn flag so timer starts when player spawns
-        GameManager.instance.playerManager.ResetFirstSpawnFlag();
+        PlayerManager.Instance.ResetFirstSpawnFlag();
         StartCoroutine(LoadLevelRoutine(levelName));
     }
 
@@ -65,8 +78,8 @@ public class LevelManager : MonoBehaviour {
         yield return null;
 
         // Reset the fruit counter after the new scene is loaded
-        if (GameManager.instance != null && GameManager.instance.fruitManager != null) {
-            GameManager.instance.fruitManager.ResetFruitCounter();
+        if (FruitManager.Instance != null) {
+            FruitManager.Instance.ResetFruitCounter();
         }
     }
 
@@ -96,11 +109,11 @@ public class LevelManager : MonoBehaviour {
     public void LevelFinished() {
         // Store the completed level
         string currentLevel = SceneManager.GetActiveScene().name;
-        GameManager.instance.saveManager.SetLevelComplete(currentLevel);
+        SaveManager.Instance.SetLevelComplete(currentLevel);
 
         // Save the time for this level if it's better than previous
-        float levelTime = GameManager.instance.timerManager.GetCurrentLevelTime();
-        GameManager.instance.saveManager.SaveLevelBestTime(currentLevel, levelTime);
+        float levelTime = TimerManager.Instance.GetCurrentLevelTime();
+        SaveManager.Instance.SaveLevelBestTime(currentLevel, levelTime);
 
         // Wait a bit before loading next level
         StartCoroutine(LoadNextLevelAfterDelay(0f));
@@ -117,11 +130,11 @@ public class LevelManager : MonoBehaviour {
     }
 
     public bool IsLevelUnlocked(string levelName) {
-        return GameManager.instance.saveManager.IsLevelUnlocked(levelName);
+        return SaveManager.Instance.IsLevelUnlocked(levelName);
     }
 
     public void UnlockAllLevels() {
-        GameManager.instance.saveManager.UnlockAllLevels(levelSceneNames);
+        SaveManager.Instance.UnlockAllLevels(levelSceneNames);
     }
 
     public List<string> GetAllLevelNames() {

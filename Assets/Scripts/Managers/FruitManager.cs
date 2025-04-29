@@ -2,12 +2,26 @@ using System;
 using UnityEngine;
 
 public class FruitManager : MonoBehaviour {
+    // Singleton instance
+    public static FruitManager Instance { get; private set; }
+
     // Current level fruits collected/total
     private int fruitsCollected = 0;
     private int fruitsInLevel = 0;
 
     // Event that UI can subscribe to for updates
     public event Action<int, int> OnFruitsUpdated;
+
+    private void Awake() {
+        // Singleton setup
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this) {
+            Destroy(gameObject);
+        }
+    }
 
     /// <summary>
     /// Reset fruit counter when entering a new level
@@ -17,7 +31,7 @@ public class FruitManager : MonoBehaviour {
         string currentLevel = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
         // First check if we have a saved total count for this level
-        int savedTotalFruits = GameManager.instance.saveManager.GetTotalFruitsCount(currentLevel);
+        int savedTotalFruits = SaveManager.Instance.GetTotalFruitsCount(currentLevel);
 
         // If we have a saved count, use it; otherwise count the fruits in the level
         if (savedTotalFruits > 0) {
@@ -29,7 +43,7 @@ public class FruitManager : MonoBehaviour {
         }
 
         // Check if we have saved fruit count data for this level
-        int savedCollectedFruits = GameManager.instance.saveManager.GetCollectedFruitsCount(currentLevel);
+        int savedCollectedFruits = SaveManager.Instance.GetCollectedFruitsCount(currentLevel);
 
         // Use the saved count or reset to 0
         fruitsCollected = savedCollectedFruits;
@@ -45,7 +59,7 @@ public class FruitManager : MonoBehaviour {
         string currentLevel = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
         // First check if we already have a saved total count for this level
-        int savedTotalFruits = GameManager.instance.saveManager.GetTotalFruitsCount(currentLevel);
+        int savedTotalFruits = SaveManager.Instance.GetTotalFruitsCount(currentLevel);
 
         // If we already have a saved count for this level, use it instead of recounting
         if (savedTotalFruits > 0) {
@@ -66,7 +80,7 @@ public class FruitManager : MonoBehaviour {
 
         // Get count of fruits that were previously collected in past plays of this level
         // but aren't included in the scene anymore (edge case)
-        int previouslyCollected = GameManager.instance.saveManager.GetCollectedFruitsCount(currentLevel);
+        int previouslyCollected = SaveManager.Instance.GetCollectedFruitsCount(currentLevel);
 
         // Total is the sum of visible fruits plus any inactive fruits
         fruitsInLevel = fruits.Length + inactiveCount;
@@ -77,7 +91,7 @@ public class FruitManager : MonoBehaviour {
         }
 
         // Save the total fruits count for this level
-        GameManager.instance.saveManager.SaveTotalFruitsCount(currentLevel, fruitsInLevel);
+        SaveManager.Instance.SaveTotalFruitsCount(currentLevel, fruitsInLevel);
     }
 
     /// <summary>
@@ -88,7 +102,7 @@ public class FruitManager : MonoBehaviour {
 
         // Save the current fruit collection progress
         string currentLevel = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        GameManager.instance.saveManager.SaveCollectedFruitsCount(currentLevel, fruitsCollected);
+        SaveManager.Instance.SaveCollectedFruitsCount(currentLevel, fruitsCollected);
 
         NotifyFruitCountUpdated();
 
@@ -102,10 +116,9 @@ public class FruitManager : MonoBehaviour {
     /// Called when all fruits in a level have been collected
     /// </summary>
     private void AllFruitsCollected() {
-
         // Save the achievement of collecting all fruits in the level
         string currentLevel = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        GameManager.instance.saveManager.SetAllFruitsCollected(currentLevel);
+        SaveManager.Instance.SetAllFruitsCollected(currentLevel);
     }
 
     /// <summary>

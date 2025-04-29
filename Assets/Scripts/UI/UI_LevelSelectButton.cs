@@ -45,12 +45,12 @@ public class LevelSelectButton : MonoBehaviour {
         if (fruitInfoText != null) {
             if (isUnlocked) {
                 // Check if the level has been played before
-                bool levelPlayed = GameManager.instance.saveManager.HasLevelBeenPlayed(scene);
+                bool levelPlayed = SaveManager.Instance.HasLevelBeenPlayed(scene);
 
                 if (levelPlayed) {
                     // Get the collected and total fruit counts
-                    int collectedFruits = GameManager.instance.saveManager.GetCollectedFruitsCount(scene);
-                    int totalFruits = GameManager.instance.saveManager.GetTotalFruitsCount(scene);
+                    int collectedFruits = SaveManager.Instance.GetCollectedFruitsCount(scene);
+                    int totalFruits = SaveManager.Instance.GetTotalFruitsCount(scene);
 
                     // Display the collected/total fruits
                     fruitInfoText.text = $"Fruits: {collectedFruits}/{totalFruits}";
@@ -69,11 +69,11 @@ public class LevelSelectButton : MonoBehaviour {
 
         // Update time information if we have the timeInfoText component
         if (timeInfoText != null) {
-            float bestTime = GameManager.instance.saveManager.GetLevelBestTime(scene);
+            float bestTime = SaveManager.Instance.GetLevelBestTime(scene);
 
             if (bestTime > 0f && isUnlocked) {
                 // Format time using the TimerManager's format method
-                string formattedTime = GameManager.instance.timerManager.FormatTime(bestTime);
+                string formattedTime = TimerManager.Instance.FormatTime(bestTime);
                 timeInfoText.text = $"Best Time: {formattedTime}";
                 timeInfoText.gameObject.SetActive(true);
             }
@@ -101,6 +101,6 @@ public class LevelSelectButton : MonoBehaviour {
 
     private void LoadLevel() {
         // Use LevelManager to load the scene
-        GameManager.instance.levelManager.LoadLevel(sceneName);
+        LevelManager.Instance.LoadLevel(sceneName);
     }
 }

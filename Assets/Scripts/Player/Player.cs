@@ -133,8 +133,8 @@ public class Player : MonoBehaviour {
         anim.SetTrigger("knockback");
 
         // Use GameManager's CameraManager instead of singleton
-        if (GameManager.instance != null && GameManager.instance.cameraManager != null)
-            GameManager.instance.cameraManager.ShakeCamera();
+        if (CameraManager.Instance != null)
+            CameraManager.Instance.ShakeCamera();
 
         // Play knocked sound
         AudioManager.Instance.PlaySFX("SFX_PlayerKnocked");

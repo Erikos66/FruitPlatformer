@@ -1,19 +1,30 @@
-using System.Collections;
 using UnityEngine;
 using Unity.Cinemachine;
-using System;
 
 public class CameraManager : MonoBehaviour {
+
+    // Singleton instance
+    public static CameraManager Instance { get; private set; }
+
+
     private CinemachineCamera CineCamera;
     private CinemachineImpulseSource ImpulseSource;
 
     [SerializeField] private Vector2 impantForce = new(0.75f, 0.75f);
 
-    private void Start() {
+    private void Awake() {
         // Find the virtual camera in the scene if it exists
         CineCamera = FindFirstObjectByType<CinemachineCamera>();
-
         ImpulseSource = FindFirstObjectByType<CinemachineImpulseSource>();
+
+        // Singleton setup
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this) {
+            Destroy(gameObject);
+        }
     }
 
     /// <summary>

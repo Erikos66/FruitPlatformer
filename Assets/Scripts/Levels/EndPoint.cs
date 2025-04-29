@@ -18,10 +18,10 @@ public class EndPoint : MonoBehaviour {
             Debug.Log("Level complete!");
 
             // Explicitly stop the timer when player reaches the end point
-            GameManager.instance.timerManager.StopLevelTimer();
+            TimerManager.Instance.StopLevelTimer();
 
             // Mark the level as finished and handle progression
-            GameManager.instance.levelManager.LevelFinished();
+            LevelManager.Instance.LevelFinished();
         }
     }
 }

@@ -1,37 +1,36 @@
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
+    // Singleton instance
+    public static GameManager Instance { get; private set; }
 
-    public static GameManager instance;
-
-    // References to all specialized managers
-    [HideInInspector] public FruitManager fruitManager;
-    [HideInInspector] public PlayerManager playerManager;
-    [HideInInspector] public LevelManager levelManager;
-    [HideInInspector] public CameraManager cameraManager;
-    [HideInInspector] public UIManager uiManager;
-    [HideInInspector] public SaveManager saveManager;
-    [HideInInspector] public TimerManager timerManager;
+    // Public properties for easy access to common managers
+    public GameObject[] managerObjects;
 
     private void Awake() {
-        if (instance == null) {
-            instance = this;
+        // Singleton setup
+        if (Instance == null) {
+            Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeManagers();
         }
-        else if (instance != this) {
+        else if (Instance != this) {
             Destroy(gameObject);
         }
+        // Initialize managers
+        InitializeManagers();
     }
 
     private void InitializeManagers() {
-        // Create and initialize all specialized managers
-        fruitManager = gameObject.AddComponent<FruitManager>();
-        playerManager = gameObject.AddComponent<PlayerManager>();
-        levelManager = gameObject.AddComponent<LevelManager>();
-        cameraManager = gameObject.AddComponent<CameraManager>();
-        uiManager = gameObject.AddComponent<UIManager>();
-        saveManager = gameObject.AddComponent<SaveManager>();
-        timerManager = gameObject.AddComponent<TimerManager>();
+        // instantiate manager objects if they are not already in the scene
+        foreach (var managerObject in managerObjects) {
+            if (managerObject != null) {
+                var managerType = managerObject.GetComponent<MonoBehaviour>().GetType();
+                if (FindFirstObjectByType(managerType) == null) {
+                    Instantiate(managerObject);
+                }
+            }
+        }
     }
 }

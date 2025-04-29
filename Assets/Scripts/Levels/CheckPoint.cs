@@ -18,11 +18,8 @@ public class CheckPoint : MonoBehaviour {
         isActivated = true;
         canBeActivated = false;
 
-        // Update the spawn point in PlayerManager instead of directly on GameManager
-        if (GameManager.instance != null && GameManager.instance.playerManager != null) {
-            // We need to add a method to PlayerManager to handle setting spawn points
-            GameManager.instance.playerManager.SetSpawnPoint(respawnPoint);
-        }
+        // Update the spawn point in PlayerManager directly
+        PlayerManager.Instance.SetSpawnPoint(respawnPoint);
     }
 
     private void OnTriggerEnter2D(Collider2D collision) {

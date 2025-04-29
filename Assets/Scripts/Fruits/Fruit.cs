@@ -18,7 +18,7 @@ public class Fruit : MonoBehaviour {
     private void Start() {
         // Check if GameManager instance exists before attempting to use it
         // The functionality for random fruits would now be in a different manager
-        if (GameManager.instance != null) {
+        if (GameManager.Instance != null) {
             SetRandomFruit();
         }
 
@@ -53,8 +53,8 @@ public class Fruit : MonoBehaviour {
             Destroy(GetComponent<Collider2D>());
 
             // Use FruitManager to track collected fruit
-            if (GameManager.instance != null)
-                GameManager.instance.fruitManager.CollectFruit();
+            if (GameManager.Instance != null)
+                FruitManager.Instance.CollectFruit();
 
             // Mark this specific fruit as collected
             string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;

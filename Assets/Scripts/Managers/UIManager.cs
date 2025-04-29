@@ -2,14 +2,28 @@ using System.Collections;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour {
+    // Singleton instance
+    public static UIManager Instance { get; private set; }
+
     // Keep references to important UI elements and controllers
     private UI_InGame inGameUI;
     private UI_FadeEffect fadeEffect;
 
+    private void Awake() {
+        // Singleton setup
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this) {
+            Destroy(gameObject);
+        }
+    }
+
     private void Start() {
         // Subscribe to events
-        if (GameManager.instance.fruitManager != null) {
-            GameManager.instance.fruitManager.OnFruitsUpdated += UpdateFruitUI;
+        if (FruitManager.Instance != null) {
+            FruitManager.Instance.OnFruitsUpdated += UpdateFruitUI;
         }
 
         // Try to find the UI elements
@@ -18,8 +32,8 @@ public class UIManager : MonoBehaviour {
 
     private void OnDestroy() {
         // Unsubscribe from events
-        if (GameManager.instance != null && GameManager.instance.fruitManager != null) {
-            GameManager.instance.fruitManager.OnFruitsUpdated -= UpdateFruitUI;
+        if (FruitManager.Instance != null) {
+            FruitManager.Instance.OnFruitsUpdated -= UpdateFruitUI;
         }
     }
 

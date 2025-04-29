@@ -17,9 +17,9 @@ public class MainMenu : MonoBehaviour {
         fadeEffect.ScreenFadeEffect(0f, 1.5f);
 
         // Check if we should show the level select UI
-        if (GameManager.instance != null && GameManager.instance.levelManager.showLevelSelectOnMainMenu) {
+        if (LevelManager.Instance != null && LevelManager.Instance.showLevelSelectOnMainMenu) {
             // Reset the flag
-            GameManager.instance.levelManager.showLevelSelectOnMainMenu = false;
+            LevelManager.Instance.showLevelSelectOnMainMenu = false;
 
             // Wait a brief moment to ensure UI is fully loaded, then show level select
             Invoke(nameof(ShowLevelSelect), 0.1f);
@@ -44,7 +44,6 @@ public class MainMenu : MonoBehaviour {
         AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
         fadeEffect.ScreenFadeEffect(1f, 1.5f, LoadCreditsScene);
     }
-
     private void LoadLevelScene() {
         SceneManager.LoadScene(sceneName);
     }
@@ -76,10 +75,7 @@ public class MainMenu : MonoBehaviour {
     public void UnlockAllLevels() {
         // Play UI button click sound
         AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
-        if (GameManager.instance != null) {
-            GameManager.instance.levelManager.UnlockAllLevels();
-
-            Debug.Log("All levels have been unlocked!");
-        }
+        LevelManager.Instance.UnlockAllLevels();
+        Debug.Log("All levels have been unlocked!");
     }
 }

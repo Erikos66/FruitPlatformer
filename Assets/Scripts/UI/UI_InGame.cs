@@ -58,15 +58,13 @@ public class UI_InGame : MonoBehaviour {
     // Called when the initial fade-in effect is complete
     private void OnFadeInComplete() {
         // Now spawn the player after fade completes
-        if (GameManager.instance != null) {
-            GameManager.instance.playerManager.RespawnPlayer();
-        }
+        PlayerManager.Instance.RespawnPlayer();
     }
 
     void Update() {
         // Update timer display if we have the text component and timer should be shown
-        if (showTimer && timerText != null && GameManager.instance != null) {
-            float currentTime = GameManager.instance.timerManager.GetCurrentLevelTime();
+        if (showTimer && timerText != null) {
+            float currentTime = TimerManager.Instance.GetCurrentLevelTime();
 
             if (currentTime > 0) {
                 // Format time as just seconds (rounded to 2 decimal places)
@@ -92,9 +90,6 @@ public class UI_InGame : MonoBehaviour {
                     Debug.Log("Pausing game - showing pause menu");
                 }
             }
-            else {
-                Debug.LogError("Pause menu reference is null!");
-            }
         }
 
         // Update fruit count display
@@ -103,10 +98,10 @@ public class UI_InGame : MonoBehaviour {
 
     // Update the fruit count text to show current collection progress
     private void UpdateFruitCountText() {
-        if (showFruitCount && fruitCountText != null && GameManager.instance != null) {
+        if (showFruitCount && fruitCountText != null) {
             // Get counts from FruitManager
-            int collectedFruits = GameManager.instance.fruitManager.GetFruitsCollected();
-            int totalFruits = GameManager.instance.fruitManager.GetFruitsInLevel();
+            int collectedFruits = FruitManager.Instance.GetFruitsCollected();
+            int totalFruits = FruitManager.Instance.GetFruitsInLevel();
 
             // Display as "collected/total"
             fruitCountText.text = $"{collectedFruits}/{totalFruits}";

@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SaveManager : MonoBehaviour {
+    // Singleton instance
+    public static SaveManager Instance { get; private set; }
+
     // PlayerPrefs keys
     private const string KEY_LEVEL_UNLOCKED_PREFIX = "Level_Unlocked_";
     private const string KEY_LEVEL_COMPLETED_PREFIX = "Level_Completed_";
@@ -11,7 +14,15 @@ public class SaveManager : MonoBehaviour {
     private const string KEY_LEVEL_FRUITS_COLLECTED_PREFIX = "Level_FruitsCollected_";
     private const string KEY_LEVEL_TOTAL_FRUITS_PREFIX = "Level_TotalFruits_";
 
-    private void Start() {
+    private void Awake() {
+        // Singleton setup
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this) {
+            Destroy(gameObject);
+        }
         // Initialize the first level as unlocked by default
         if (!PlayerPrefs.HasKey(KEY_LEVEL_UNLOCKED_PREFIX + "Level_1")) {
             PlayerPrefs.SetInt(KEY_LEVEL_UNLOCKED_PREFIX + "Level_1", 1);
@@ -44,7 +55,7 @@ public class SaveManager : MonoBehaviour {
     /// Unlock the next level in sequence
     /// </summary>
     private void UnlockNextLevel(string currentLevelName) {
-        List<string> levelNames = GameManager.instance.levelManager.GetAllLevelNames();
+        List<string> levelNames = LevelManager.Instance.GetAllLevelNames();
         int currentIndex = levelNames.IndexOf(currentLevelName);
 
         if (currentIndex >= 0 && currentIndex < levelNames.Count - 1) {
@@ -177,7 +188,7 @@ public class SaveManager : MonoBehaviour {
     /// </summary>
     public void ResetAllProgress() {
         // Clear all PlayerPrefs - be careful with this!
-        List<string> levelNames = GameManager.instance.levelManager.GetAllLevelNames();
+        List<string> levelNames = LevelManager.Instance.GetAllLevelNames();
 
         foreach (string levelName in levelNames) {
             PlayerPrefs.DeleteKey(KEY_LEVEL_COMPLETED_PREFIX + levelName);

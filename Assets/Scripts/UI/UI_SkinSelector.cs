@@ -43,8 +43,8 @@ public class UI_SkinSelector : MonoBehaviour {
     }
 
     public void SelectSkin() {
-        if (GameManager.instance != null && GameManager.instance.playerManager != null) {
-            GameManager.instance.playerManager.SetSkin(selectedSkinIndex);
+        if (GameManager.Instance != null && PlayerManager.Instance != null) {
+            SkinManager.Instance.SetSkin(selectedSkinIndex);
             Debug.Log("Selected skin index: " + selectedSkinIndex);
         }
         else {

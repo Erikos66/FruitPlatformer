@@ -1,4 +1,3 @@
-using UnityEditor.Animations;
 using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour {
@@ -26,8 +25,8 @@ public class PlayerAnimation : MonoBehaviour {
 
     void Start() {
         // Get the selected skin index from the PlayerManager
-        if (GameManager.instance != null && GameManager.instance.saveManager != null) {
-            int skinIndex = GameManager.instance.saveManager.GetSelectedSkinIndex();
+        if (SaveManager.Instance != null) {
+            int skinIndex = SaveManager.Instance.GetSelectedSkinIndex();
 
             // Apply the skin if it's within range
             if (skinIndex < playerSkins.Length) {

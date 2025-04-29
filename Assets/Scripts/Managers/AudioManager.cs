@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour {
+
+    // Singleton instance
     public static AudioManager Instance { get; private set; }
 
     [Header("Audio Source Containers")]
@@ -31,16 +33,16 @@ public class AudioManager : MonoBehaviour {
     public float MusicVolume => musicVolume;
     public float MasterVolume => masterVolume;
 
-    private void Awake() {
-        // Singleton pattern
+    public void Awake() {
+        // Singleton setup
         if (Instance == null) {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeAudioSources();
         }
-        else {
+        else if (Instance != this) {
             Destroy(gameObject);
         }
+        InitializeAudioSources();
     }
 
     private void Start() {

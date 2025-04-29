@@ -1,9 +1,23 @@
 using UnityEngine;
 
 public class TimerManager : MonoBehaviour {
+    // Singleton instance
+    public static TimerManager Instance { get; private set; }
+
     private float levelStartTime;
     private float levelEndTime;
     private bool isTimerRunning = false;
+
+    void Awake() {
+        // Singleton setup
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this) {
+            Destroy(gameObject);
+        }
+    }
 
     /// <summary>
     /// Start the level timer
@@ -68,7 +82,7 @@ public class TimerManager : MonoBehaviour {
         if (isTimerRunning) {
             // Update the UI with current time
             // This assumes there's a UIManager with a method to update the timer display
-            GameManager.instance.uiManager.UpdateTimerDisplay(GetCurrentLevelTime());
+            UIManager.Instance.UpdateTimerDisplay(GetCurrentLevelTime());
         }
     }
 }
