@@ -94,7 +94,7 @@ MonoBehaviour:
     m_Bits: 128
   groundTransform: {fileID: 2117214603694251693}
   groundCheckDistance: 1.4
-  wallCheckDistance: 1
+  wallCheckDistance: 1.2
   detectionShape: 1
   playerDetectionDistance: 15
   heightOffset: 0
@@ -190,7 +190,7 @@ Rigidbody2D:
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &3370770432936221551
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -5,18 +5,21 @@ public class SkinManager : MonoBehaviour {
     public static SkinManager Instance { get; private set; }
 
     [Header("Player Skin Settings")]
-    [SerializeField] private GameObject[] availableSkins;
+    [SerializeField] private AnimatorOverrideController[] availableSkins;
     private int selectedSkinIndex = 0;
 
     private void Awake() {
         // Singleton setup
         if (Instance == null) {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject); // Keep this object alive across scenes
         }
         else if (Instance != this) {
             Destroy(gameObject);
         }
+    }
+
+    void Start() {
         // Initialize default skin settings
         LoadSelectedSkin();
     }
@@ -41,11 +44,11 @@ public class SkinManager : MonoBehaviour {
         if (player == null || availableSkins == null || availableSkins.Length == 0)
             return;
 
-        // Find the player renderer and apply skin
-        SpriteRenderer playerRenderer = player.GetComponentInChildren<SpriteRenderer>();
-        if (playerRenderer != null && selectedSkinIndex < availableSkins.Length) {
-            // Apply skin based on the selected index
-            // This implementation depends on how your skins are structured
+        // Find the player animator and apply skin
+        PlayerAnimation playerAnim = player.GetComponentInChildren<PlayerAnimation>();
+        if (playerAnim != null && playerAnim.anim != null && selectedSkinIndex < availableSkins.Length) {
+            // Apply the AnimatorOverrideController as the runtime controller
+            playerAnim.anim.runtimeAnimatorController = availableSkins[selectedSkinIndex];
         }
     }
 
@@ -79,7 +82,7 @@ public class SkinManager : MonoBehaviour {
     /// <summary>
     /// Get the currently selected skin
     /// </summary>
-    public GameObject GetSelectedSkin() {
+    public AnimatorOverrideController GetSelectedSkin() {
         if (availableSkins != null && availableSkins.Length > 0 && selectedSkinIndex < availableSkins.Length)
             return availableSkins[selectedSkinIndex];
         return null;

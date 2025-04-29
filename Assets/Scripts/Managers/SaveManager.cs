@@ -18,7 +18,7 @@ public class SaveManager : MonoBehaviour {
         // Singleton setup
         if (Instance == null) {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject); // Keep this object alive across scenes
         }
         else if (Instance != this) {
             Destroy(gameObject);
