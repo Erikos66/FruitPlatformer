@@ -134,7 +134,7 @@ public class Player : MonoBehaviour {
 
         // Use GameManager's CameraManager instead of singleton
         if (GameManager.instance != null && GameManager.instance.cameraManager != null)
-            GameManager.instance.cameraManager.ShakeCamera(0.5f, 0.2f);
+            GameManager.instance.cameraManager.ShakeCamera();
 
         // Play knocked sound
         AudioManager.Instance.PlaySFX("SFX_PlayerKnocked");
