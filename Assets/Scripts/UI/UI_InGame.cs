@@ -38,13 +38,6 @@ public class UI_InGame : MonoBehaviour {
             pauseMenu.SetActive(false);
         }
 
-        // Set UI buttons to ignore timescale
-        if (pauseMenu != null) {
-            foreach (UnityEngine.UI.Button button in pauseMenu.GetComponentsInChildren<UnityEngine.UI.Button>(true)) {
-                button.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
-            }
-        }
-
         // Start the fade in effect, with player spawning after fade completes
         FadeEffect.ScreenFadeEffect(0f, 1.5f, OnFadeInComplete);
 
@@ -143,14 +136,7 @@ public class UI_InGame : MonoBehaviour {
 
     // method to return to main menu
     public void ReturnToMainMenu() {
-        // Use LevelManager to return to the main menu
-        if (GameManager.instance != null) {
-            GameManager.instance.levelManager.ReturnToMainMenu();
-        }
-        else {
-            // Fallback if game manager is not available
-            Time.timeScale = 1f;
-            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
-        }
+        Time.timeScale = 1f;
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 }

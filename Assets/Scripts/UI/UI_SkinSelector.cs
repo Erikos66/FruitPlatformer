@@ -11,6 +11,7 @@ public class UI_SkinSelector : MonoBehaviour {
         if (selectedSkinIndex > 3) {
             selectedSkinIndex = 0;
         }
+        AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
         UpdateSkin();
     }
 
@@ -19,6 +20,7 @@ public class UI_SkinSelector : MonoBehaviour {
         if (selectedSkinIndex < 0) {
             selectedSkinIndex = 3;
         }
+        AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
         UpdateSkin();
     }
 
