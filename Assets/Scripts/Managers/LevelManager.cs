@@ -103,7 +103,7 @@ public class LevelManager : MonoBehaviour {
         GameManager.instance.saveManager.SaveLevelBestTime(currentLevel, levelTime);
 
         // Wait a bit before loading next level
-        StartCoroutine(LoadNextLevelAfterDelay(3f));
+        StartCoroutine(LoadNextLevelAfterDelay(0f));
     }
 
     private IEnumerator LoadNextLevelAfterDelay(float delay) {

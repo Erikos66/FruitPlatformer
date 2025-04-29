@@ -43,6 +43,8 @@ public class Trap_Arrow : MonoBehaviour {
         if (collision.TryGetComponent<Player>(out var player)) {
             anim.SetTrigger("spring");
             player.PushPlayer(transform.up * pushForce, disableDelay);
+            // play the boost sound
+            AudioManager.Instance.PlaySFX("SFX_Boost");
         }
     }
 

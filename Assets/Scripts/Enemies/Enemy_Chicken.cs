@@ -55,6 +55,8 @@ public class Enemy_Chicken : Enemy_Base {
             currentSpeed = chargeSpeed;
         }
         rb.linearVelocity = new Vector2(currentSpeed * facingDir, rb.linearVelocity.y);
+        // play the charge sound
+        AudioManager.Instance.PlaySFX("SFX_ChickenCharge");
     }
 
     private void SlideToStop() {

@@ -70,6 +70,8 @@ public class Enemy_Rhino : Enemy_Base {
     }
 
     private void ChargeBehavior() {
+        // play the charge sound
+        AudioManager.Instance.PlaySFX("SFX_RinoCharge");
         rb.linearVelocity = new Vector2(moveSpeed * facingDir, rb.linearVelocity.y);
     }
 

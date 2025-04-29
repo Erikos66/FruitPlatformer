@@ -10,7 +10,6 @@ public class AudioManager : MonoBehaviour {
     [SerializeField] private Transform musicContainer;
 
     [Header("Volume Controls")]
-    [SerializeField] private Slider masterVolumeSlider;
     [SerializeField] private Slider sfxVolumeSlider;
     [SerializeField] private Slider musicVolumeSlider;
 
@@ -47,10 +46,6 @@ public class AudioManager : MonoBehaviour {
     private void Start() {
         LoadVolumeSettings();
 
-        // Initialize sliders with saved values if they exist
-        if (masterVolumeSlider != null)
-            masterVolumeSlider.value = masterVolume;
-
         if (sfxVolumeSlider != null)
             sfxVolumeSlider.value = sfxVolume;
 
@@ -59,12 +54,6 @@ public class AudioManager : MonoBehaviour {
     }
 
     private void Update() {
-        // Check for slider changes and update volumes
-        if (masterVolumeSlider != null && masterVolume != masterVolumeSlider.value) {
-            masterVolume = masterVolumeSlider.value;
-            ApplyAllVolumes();
-            SaveVolumeSettings();
-        }
 
         if (sfxVolumeSlider != null && sfxVolume != sfxVolumeSlider.value) {
             sfxVolume = sfxVolumeSlider.value;
@@ -163,13 +152,8 @@ public class AudioManager : MonoBehaviour {
 
     // Public methods to set sliders programmatically if needed
     public void SetSliderReferences(Slider master, Slider sfx, Slider music) {
-        masterVolumeSlider = master;
         sfxVolumeSlider = sfx;
         musicVolumeSlider = music;
-
-        // Update slider values with current settings
-        if (masterVolumeSlider != null)
-            masterVolumeSlider.value = masterVolume;
 
         if (sfxVolumeSlider != null)
             sfxVolumeSlider.value = sfxVolume;

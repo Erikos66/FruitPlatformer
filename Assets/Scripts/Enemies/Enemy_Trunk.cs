@@ -65,6 +65,8 @@ public class Enemy_Trunk : Enemy_Base {
     private void Attack() {
         anim.SetTrigger("onAttack");
         attackCooldownTimer = attackCooldown;
+        // Play attack sound
+        AudioManager.Instance.PlaySFX("SFX_Shoot");
 
         // Bullet will be spawned via animation event through SpawnBullet method
     }

@@ -13,6 +13,8 @@ public class CheckPoint : MonoBehaviour {
     private void ActiveCheckPoint() {
         if (isActivated)
             return;
+        // Play the checkpoint sound
+        AudioManager.Instance.PlaySFX("SFX_FlagUp");
         isActivated = true;
         canBeActivated = false;
 
