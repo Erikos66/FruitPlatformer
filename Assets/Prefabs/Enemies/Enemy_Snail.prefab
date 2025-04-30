@@ -158,7 +158,7 @@ MonoBehaviour:
     m_Bits: 128
   groundTransform: {fileID: 1873422878432689480}
   groundCheckDistance: 0.8
-  wallCheckDistance: 0.2
+  wallCheckDistance: 0.5
   detectionShape: 0
   playerDetectionDistance: 0
   heightOffset: 0
