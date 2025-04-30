@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class LevelManager : MonoBehaviour {
     // Singleton instance
     public static LevelManager Instance { get; private set; }
+    [SerializeField] private bool showAllLevels;
 
     // List of all level scenes in order
     [SerializeField] private List<string> levelSceneNames = new List<string>();
@@ -34,7 +35,15 @@ public class LevelManager : MonoBehaviour {
             levelSceneNames.Add("Level_1");
             levelSceneNames.Add("Level_2");
             levelSceneNames.Add("Level_3");
+            levelSceneNames.Add("Level_4");
             // Add more levels as needed
+        }
+    }
+
+    void OnEnable() {
+        if (showAllLevels) {
+            // Unlock all levels if the flag is set
+            UnlockAllLevels();
         }
     }
 

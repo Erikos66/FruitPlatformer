@@ -10,6 +10,8 @@ public class UI_InGame : MonoBehaviour {
     [SerializeField] private GameObject pauseMenu; // Reference to the pause menu UI
     private bool showTimer = true;
     private bool showFruitCount = true;
+    private Player player; // Reference to the Player component
+    private PlayerInput ActionMapping; // Reference to the PlayerInput component
 
     private void Awake() {
         if (Instance == null) {
@@ -28,8 +30,32 @@ public class UI_InGame : MonoBehaviour {
             Debug.LogError("Pause menu is not assigned in the inspector.");
         }
 
-        // Make sure we're active - removing this line that was deactivating the UI
-        // this.gameObject.SetActive(false);
+        ActionMapping = new PlayerInput(); // Initialize PlayerInput
+
+    }
+
+    void OnEnable() {
+        ActionMapping.Enable(); // Enable input actions when the UI is enabled
+
+        ActionMapping.UI.Pause.performed += ctx => PauseToggle();
+    }
+
+
+    void OnDisable() {
+        ActionMapping.Disable(); // Disable input actions when the UI is disabled
+
+        ActionMapping.UI.Pause.performed -= ctx => PauseToggle();
+    }
+
+    private void PauseToggle() {
+        if (pauseMenu != null) {
+            if (pauseMenu.activeSelf) {
+                ResumeGame(); // Resume the game if pause menu is open
+            }
+            else {
+                PauseGame(); // Pause the game if pause menu is closed
+            }
+        }
     }
 
     void Start() {
@@ -76,21 +102,21 @@ public class UI_InGame : MonoBehaviour {
             }
         }
 
-        // Handle pause menu toggle with escape key
-        if (Input.GetKeyDown(KeyCode.Escape)) {
-            Debug.Log("Escape key pressed"); // Debug log to verify key detection
+        // Handle pause menu toggle with escape key [THIS IS OBSOLETE]
+        // if (Input.GetKeyDown(KeyCode.Escape)) {
+        //     Debug.Log("Escape key pressed"); // Debug log to verify key detection
 
-            if (pauseMenu != null) {
-                if (pauseMenu.activeSelf) {
-                    ResumeGame(); // Resume the game if pause menu is open
-                    Debug.Log("Resuming game - hiding pause menu");
-                }
-                else {
-                    PauseGame(); // Pause the game if pause menu is closed
-                    Debug.Log("Pausing game - showing pause menu");
-                }
-            }
-        }
+        //     if (pauseMenu != null) {
+        //         if (pauseMenu.activeSelf) {
+        //             ResumeGame(); // Resume the game if pause menu is open
+        //             Debug.Log("Resuming game - hiding pause menu");
+        //         }
+        //         else {
+        //             PauseGame(); // Pause the game if pause menu is closed
+        //             Debug.Log("Pausing game - showing pause menu");
+        //         }
+        //     }
+        // }
 
         // Update fruit count display
         UpdateFruitCountText();
@@ -115,6 +141,9 @@ public class UI_InGame : MonoBehaviour {
 
     // method to pause the game
     public void PauseGame() {
+        GameObject playerObject = PlayerManager.Instance.GetCurrentPlayer(); // Get the player GameObject
+        player = playerObject.GetComponent<Player>(); // Get the Player component
+        player.ActionMapping.Disable(); // Disable player input actions
         Time.timeScale = 0f; // Pause the game
         if (pauseMenu != null) {
             pauseMenu.SetActive(true); // Show pause menu UI
@@ -124,6 +153,9 @@ public class UI_InGame : MonoBehaviour {
     // method to resume the game
     public void ResumeGame() {
         Time.timeScale = 1f; // Resume the game
+        GameObject playerObject = PlayerManager.Instance.GetCurrentPlayer(); // Get the player GameObject
+        player = playerObject.GetComponent<Player>(); // Get the Player component
+        player.ActionMapping.Enable(); // Enable player input actions
         if (pauseMenu != null) {
             pauseMenu.SetActive(false); // Hide pause menu UI
         }

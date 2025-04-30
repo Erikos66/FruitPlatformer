@@ -1,10 +1,16 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class UI_SkinSelector : MonoBehaviour {
 
     [SerializeField] private Animator chrSkinDisplayAnimator;
     [SerializeField] private int selectedSkinIndex = 0;
+    [SerializeField] private GameObject firstSelectedButton;
 
+
+    void OnEnable() {
+        EventSystem.current.SetSelectedGameObject(firstSelectedButton);
+    }
 
     public void NextSkin() {
         selectedSkinIndex++;

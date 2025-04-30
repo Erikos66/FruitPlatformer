@@ -65,8 +65,6 @@ public class Enemy_Trunk : Enemy_Base {
     private void Attack() {
         anim.SetTrigger("onAttack");
         attackCooldownTimer = attackCooldown;
-        // Play attack sound
-        AudioManager.Instance.PlaySFX("SFX_Shoot");
 
         // Bullet will be spawned via animation event through SpawnBullet method
     }
@@ -84,6 +82,9 @@ public class Enemy_Trunk : Enemy_Base {
             Debug.LogWarning("Player not found!");
             return;
         }
+
+        // Play attack sound
+        AudioManager.Instance.PlaySFX("SFX_Shoot");
 
         Vector2 targetPosition = player.transform.position;
 

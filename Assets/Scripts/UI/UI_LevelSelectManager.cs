@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 public class LevelSelectManager : MonoBehaviour {
     [SerializeField] private GameObject levelButtonPrefab;
@@ -11,6 +12,7 @@ public class LevelSelectManager : MonoBehaviour {
     [SerializeField] private Vector2 buttonSpacing = new Vector2(0, -80);
     [SerializeField] private bool useBuiltInScenes = true;
     [SerializeField] private bool showLockedLevels = false; // Option to show locked levels (e.g. as disabled buttons)
+    [SerializeField] private GameObject firstSelectedButton; // First button to be selected when the menu opens
 
     // For manual level configuration if not using built-in scenes
     [System.Serializable]
@@ -23,6 +25,10 @@ public class LevelSelectManager : MonoBehaviour {
 
     private void Start() {
         GenerateLevelButtons();
+    }
+
+    void OnEnable() {
+        EventSystem.current.SetSelectedGameObject(firstSelectedButton);
     }
 
     public void RefreshLevelButtons() {

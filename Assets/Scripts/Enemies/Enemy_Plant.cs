@@ -24,8 +24,6 @@ public class Enemy_Plant : Enemy_Base {
     private void Attack() {
         anim.SetTrigger("onAttack");
         attackCooldownTimer = attackCooldown;
-        // Play attack sound
-        AudioManager.Instance.PlaySFX("SFX_Shoot");
 
         // We'll spawn the bullet at the animation event
         // This allows us to synchronize the bullet spawn with the attack animation
@@ -44,6 +42,8 @@ public class Enemy_Plant : Enemy_Base {
             Debug.LogWarning("Player not found!");
             return;
         }
+
+        AudioManager.Instance.PlaySFX("SFX_Shoot");
 
         Vector2 targetPosition = player.transform.position;
 

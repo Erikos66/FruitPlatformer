@@ -9,11 +9,13 @@ public class Player : MonoBehaviour {
 
     [Header("Visuals")]
     public GameObject playerDeath_VFX;
+    private ParticleSystem dustfx;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float doubleJumpForce;
+    public PlayerInput ActionMapping { get; private set; }
     private bool canDoubleJump;
     private bool canBeControlled = false;
 
@@ -45,8 +47,7 @@ public class Player : MonoBehaviour {
     public bool isAirborne;
     private bool isWallDetected;
 
-    private float xInput;
-    private float yInput;
+    private Vector2 moveInput;
 
     private bool facingRight = true;
     private int facingDir = 1;
@@ -64,6 +65,32 @@ public class Player : MonoBehaviour {
         if (rb == null) {
             Debug.LogError("Rigidbody2D component not found on Player script.");
         }
+        dustfx = GetComponentInChildren<ParticleSystem>();
+        if (dustfx == null) {
+            Debug.LogError("Dust particle system not found on Player script.");
+        }
+        ActionMapping = new PlayerInput();
+        if (ActionMapping == null) {
+            Debug.LogError("PlayerInput component not found on Player script.");
+        }
+    }
+
+    private void OnEnable() {
+        ActionMapping.Enable();
+
+        ActionMapping.Player.Jump.performed += ctx => JumpButton();
+        ActionMapping.Player.Movement.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+        ActionMapping.Player.Movement.canceled += ctx => moveInput = Vector2.zero;
+
+    }
+
+    private void OnDisable() {
+        ActionMapping.Disable();
+
+        ActionMapping.Player.Jump.performed -= ctx => JumpButton();
+        ActionMapping.Player.Movement.performed -= ctx => moveInput = ctx.ReadValue<Vector2>();
+        ActionMapping.Player.Movement.canceled -= ctx => moveInput = Vector2.zero;
+
     }
 
     private void Update() {
@@ -78,7 +105,7 @@ public class Player : MonoBehaviour {
             return;
 
         HandleEnemyDetection();
-        HandleInput();
+        // HandleInput();
         HandleWallSlide();
         HandleMovement();
         HandleFlip();
@@ -162,19 +189,23 @@ public class Player : MonoBehaviour {
     }
 
     private void HandleLanding() {
+        // play dust fx
+        if (dustfx != null) {
+            dustfx.Play();
+        }
         isAirborne = false;
         canDoubleJump = true;
         AttemptBufferJump();
     }
 
-    private void HandleInput() {
-        xInput = Input.GetAxisRaw("Horizontal");
-        yInput = Input.GetAxisRaw("Vertical");
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            JumpButton();
-            RequestBufferJump();
-        }
-    }
+    // private void HandleInput() {
+    //     xInput = Input.GetAxisRaw("Horizontal");
+    //     yInput = Input.GetAxisRaw("Vertical");
+    //     if (Input.GetKeyDown(KeyCode.Space)) {
+    //         JumpButton();
+    //         RequestBufferJump();
+    //     }
+    // }
 
     private void RequestBufferJump() {
         if (isAirborne)
@@ -210,6 +241,10 @@ public class Player : MonoBehaviour {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         // Play jump sound
         AudioManager.Instance.PlaySFX("SFX_Jump");
+        // play dust fx
+        if (dustfx != null) {
+            dustfx.Play();
+        }
     }
 
     private void DoubleJump() {
@@ -219,6 +254,10 @@ public class Player : MonoBehaviour {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
         // Play jump sound for double jump too
         AudioManager.Instance.PlaySFX("SFX_Jump");
+        // play dust fx
+        if (dustfx != null) {
+            dustfx.Play();
+        }
     }
 
     private void WallJump() {
@@ -238,7 +277,7 @@ public class Player : MonoBehaviour {
 
     private void HandleWallSlide() {
         bool canWallSlide = isWallDetected && rb.linearVelocity.y < 0;
-        float yModifer = yInput < 0 ? 1 : .05f;
+        float yModifer = moveInput.y < 0 ? 1 : .05f;
         if (!canWallSlide) return;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * yModifer);
     }
@@ -261,10 +300,10 @@ public class Player : MonoBehaviour {
         if (isWallJumping)
             return;
 
-        rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
     }
     private void HandleFlip() {
-        if ((xInput < 0 && facingRight) || (xInput > 0 && !facingRight))
+        if ((moveInput.x < 0 && facingRight) || (moveInput.x > 0 && !facingRight))
             Flip();
     }
 
