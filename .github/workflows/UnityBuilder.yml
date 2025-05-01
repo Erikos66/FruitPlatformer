@@ -20,11 +20,22 @@ jobs:
               with:
                   fetch-depth: 0
                   lfs: true
-            - uses: actions/cache@v3
+            # Enhanced caching strategy for Unity
+            - uses: actions/cache@v4.2.3
               with:
-                  path: Library
-                  key: Library-${{ matrix.targetPlatform }}
-                  restore-keys: Library-
+                  path: |
+                      Library
+                      Temp
+                      Logs
+                      UserSettings
+                      Library/PackageCache
+                      Library/ScriptAssemblies
+                      Library/BuildPlayerData
+                      Library/Bee
+                  key: ${{ matrix.targetPlatform }}-Unity-Cache-${{ hashFiles('Assets/**', 'Packages/manifest.json', 'ProjectSettings/**') }}
+                  restore-keys: |
+                      ${{ matrix.targetPlatform }}-Unity-Cache-
+                      Unity-Cache-
             - if: matrix.targetPlatform == 'Android'
               uses: jlumbroso/free-disk-space@v1.3.1
             - uses: game-ci/unity-builder@v4.4.0
