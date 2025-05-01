@@ -28,6 +28,14 @@ jobs:
             - uses: actions/checkout@v4
               with:
                   lfs: true
+                  fetch-depth: 0
+
+            # Set up Docker to avoid resource issues
+            - name: Set up Docker
+              uses: docker/setup-buildx-action@v3
+              with:
+                  driver: docker
+
             - uses: actions/cache@v3
               with:
                   path: ${{ matrix.projectPath }}/Library
@@ -35,6 +43,7 @@ jobs:
                   restore-keys: |
                       Library-${{ matrix.projectPath }}-
                       Library-
+
             # For manual runs (workflow_dispatch), provide artifacts
             - uses: game-ci/unity-test-runner@v4
               id: tests
@@ -49,7 +58,7 @@ jobs:
                   githubToken: ${{ secrets.GITHUB_TOKEN }}
                   checkName: ${{ matrix.testMode }} Test Results
                   artifactsPath: ${{ matrix.testMode }}-artifacts
-                  coverageOptions: "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport"
+                  customParameters: "-enableCodeCoverage -coverageResultsPath=CodeCoverage -coverageOptions='generateHtmlReport;generateBadgeReport;generateAdditionalMetrics'"
 
             # For PR runs, no artifacts
             - uses: game-ci/unity-test-runner@v4
@@ -64,6 +73,7 @@ jobs:
                   testMode: ${{ matrix.testMode }}
                   githubToken: ${{ secrets.GITHUB_TOKEN }}
                   checkName: ${{ matrix.testMode }} Test Results
+                  customParameters: "-enableCodeCoverage -coverageResultsPath=CodeCoverage -coverageOptions='generateHtmlReport;generateBadgeReport;generateAdditionalMetrics'"
 
             # Upload artifacts for manual runs only
             - uses: actions/upload-artifact@v4
@@ -74,13 +84,14 @@ jobs:
 
             # Upload coverage artifacts for manual runs only
             - uses: actions/upload-artifact@v4
-              if: always() && github.event_name == 'workflow_dispatch' && steps.tests.outputs.coveragePath
+              if: always() && github.event_name == 'workflow_dispatch'
               with:
                   name: Coverage results for ${{ matrix.testMode }}
-                  path: ${{ steps.tests.outputs.coveragePath }}
+                  path: CodeCoverage
+                  if-no-files-found: ignore
 
     labelPR:
-        name: Label PR as Safe to Merge
+        name: Set PR Label
         needs: testAllModes
         runs-on: ubuntu-latest
         if: success() && github.event_name == 'pull_request' # Only run on PRs
@@ -111,7 +122,7 @@ jobs:
                       }
 
     unlabelPR:
-        name: Remove Safe to Merge Label on Test Failure
+        name: Check PR Label
         needs: testAllModes
         runs-on: ubuntu-latest
         if: failure() && github.event_name == 'pull_request' # Only run on PRs
