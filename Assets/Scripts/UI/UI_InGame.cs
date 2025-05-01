@@ -1,5 +1,8 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class UI_InGame : MonoBehaviour {
     public static UI_InGame Instance { get; private set; }
@@ -11,7 +14,15 @@ public class UI_InGame : MonoBehaviour {
     private bool showTimer = true;
     private bool showFruitCount = true;
     private Player player; // Reference to the Player component
-    private PlayerInput ActionMapping; // Reference to the PlayerInput component
+
+    // Use DefaultInputActions instead of PlayerInput
+    private DefaultInputActions defaultInputActions;
+    private PlayerInput playerInput; // Keep original PlayerInput for Pause functionality
+
+    // Store the last selected UI element when using controller/keyboard
+    private GameObject lastSelectedPauseMenuItem;
+    // Flag to track if we're using mouse or keyboard/gamepad
+    private bool usingMouse = false;
 
     private void Awake() {
         if (Instance == null) {
@@ -30,21 +41,45 @@ public class UI_InGame : MonoBehaviour {
             Debug.LogError("Pause menu is not assigned in the inspector.");
         }
 
-        ActionMapping = new PlayerInput(); // Initialize PlayerInput
+        // Initialize the PlayerInput for Pause functionality
+        playerInput = new PlayerInput();
+        playerInput.Enable();
+        playerInput.UI.Pause.performed += ctx => PauseToggle();
 
+        // Initialize DefaultInputActions for UI navigation
+        defaultInputActions = new DefaultInputActions();
+        defaultInputActions.Enable();
+
+        // Only detect mouse movement for mouse usage, not click
+        defaultInputActions.UI.Point.performed += _ => OnMouseMove();
+
+        // Detect keyboard/gamepad navigation input
+        defaultInputActions.UI.Navigate.performed += _ => OnKeyboardOrGamepadInput();
+        defaultInputActions.UI.Submit.performed += _ => OnKeyboardOrGamepadInput();
+        defaultInputActions.UI.Cancel.performed += _ => OnKeyboardOrGamepadInput();
     }
 
     void OnEnable() {
-        ActionMapping.Enable(); // Enable input actions when the UI is enabled
+        // Enable input actions
+        if (playerInput != null) {
+            playerInput.Enable();
+        }
 
-        ActionMapping.UI.Pause.performed += ctx => PauseToggle();
+        if (defaultInputActions == null) {
+            defaultInputActions = new DefaultInputActions();
+        }
+        defaultInputActions.Enable();
     }
 
-
     void OnDisable() {
-        ActionMapping.Disable(); // Disable input actions when the UI is disabled
+        // Disable input actions
+        if (playerInput != null) {
+            playerInput.Disable();
+        }
 
-        ActionMapping.UI.Pause.performed -= ctx => PauseToggle();
+        if (defaultInputActions != null) {
+            defaultInputActions.Disable();
+        }
     }
 
     private void PauseToggle() {
@@ -102,21 +137,10 @@ public class UI_InGame : MonoBehaviour {
             }
         }
 
-        // Handle pause menu toggle with escape key [THIS IS OBSOLETE]
-        // if (Input.GetKeyDown(KeyCode.Escape)) {
-        //     Debug.Log("Escape key pressed"); // Debug log to verify key detection
-
-        //     if (pauseMenu != null) {
-        //         if (pauseMenu.activeSelf) {
-        //             ResumeGame(); // Resume the game if pause menu is open
-        //             Debug.Log("Resuming game - hiding pause menu");
-        //         }
-        //         else {
-        //             PauseGame(); // Pause the game if pause menu is closed
-        //             Debug.Log("Pausing game - showing pause menu");
-        //         }
-        //     }
-        // }
+        // Handle menu selection state when pause menu is active
+        if (pauseMenu != null && pauseMenu.activeSelf) {
+            UpdateMenuSelection();
+        }
 
         // Update fruit count display
         UpdateFruitCountText();
@@ -139,6 +163,80 @@ public class UI_InGame : MonoBehaviour {
         UpdateFruitCountText();
     }
 
+    // Detect mouse movement and deselect menu items
+    private void OnMouseMove() {
+        if (!usingMouse && pauseMenu != null && pauseMenu.activeSelf) {
+            // Only switch to mouse mode if actually moving the mouse
+            usingMouse = true;
+
+            // Store the current selection before deselecting
+            if (EventSystem.current.currentSelectedGameObject != null) {
+                lastSelectedPauseMenuItem = EventSystem.current.currentSelectedGameObject;
+            }
+
+            // Deselect UI elements when mouse moves
+            EventSystem.current.SetSelectedGameObject(null);
+        }
+    }
+
+    // Detect keyboard/gamepad input and restore selection
+    private void OnKeyboardOrGamepadInput() {
+        if (usingMouse && pauseMenu != null && pauseMenu.activeSelf) {
+            // Switch from mouse to keyboard/gamepad
+            usingMouse = false;
+
+            // Restore last selected object
+            if (lastSelectedPauseMenuItem != null && lastSelectedPauseMenuItem.activeInHierarchy) {
+                EventSystem.current.SetSelectedGameObject(lastSelectedPauseMenuItem);
+            }
+            else {
+                // Find a selectable element if the previous one isn't valid
+                SelectFirstPauseMenuItem();
+            }
+        }
+    }
+
+    // Handle menu selection state
+    private void UpdateMenuSelection() {
+        // If using keyboard/gamepad but nothing is selected
+        if (!usingMouse && EventSystem.current.currentSelectedGameObject == null) {
+            // Restore last selection if it exists and is active
+            if (lastSelectedPauseMenuItem != null && lastSelectedPauseMenuItem.activeInHierarchy) {
+                EventSystem.current.SetSelectedGameObject(lastSelectedPauseMenuItem);
+            }
+            else {
+                // Find a selectable element if the previous one isn't valid
+                SelectFirstPauseMenuItem();
+            }
+        }
+
+        // When keyboard/gamepad is used, update the last selected object
+        if (!usingMouse && EventSystem.current.currentSelectedGameObject != null) {
+            lastSelectedPauseMenuItem = EventSystem.current.currentSelectedGameObject;
+        }
+    }
+
+    // Find and select the first interactive UI element in the pause menu
+    private void SelectFirstPauseMenuItem() {
+        if (pauseMenu != null) {
+            Selectable[] selectables = pauseMenu.GetComponentsInChildren<Selectable>();
+
+            // Find first interactable selectable
+            Selectable firstInteractable = null;
+            foreach (Selectable selectable in selectables) {
+                if (selectable.interactable && selectable.gameObject.activeInHierarchy) {
+                    firstInteractable = selectable;
+                    break;
+                }
+            }
+
+            if (firstInteractable != null) {
+                lastSelectedPauseMenuItem = firstInteractable.gameObject;
+                EventSystem.current.SetSelectedGameObject(lastSelectedPauseMenuItem);
+            }
+        }
+    }
+
     // method to pause the game
     public void PauseGame() {
         GameObject playerObject = PlayerManager.Instance.GetCurrentPlayer(); // Get the player GameObject
@@ -147,6 +245,10 @@ public class UI_InGame : MonoBehaviour {
         Time.timeScale = 0f; // Pause the game
         if (pauseMenu != null) {
             pauseMenu.SetActive(true); // Show pause menu UI
+
+            // Reset mouse usage flag and select the first menu item
+            usingMouse = false;
+            SelectFirstPauseMenuItem();
         }
     }
 
