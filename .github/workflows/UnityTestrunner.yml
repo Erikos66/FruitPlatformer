@@ -5,6 +5,7 @@ on:
         branches:
             - master
             - main
+    workflow_dispatch: # Adding manual trigger capability
 
 permissions:
     contents: read
@@ -50,7 +51,7 @@ jobs:
         name: Label PR as Safe to Merge
         needs: testAllModes
         runs-on: ubuntu-latest
-        if: success()
+        if: success() && github.event_name == 'pull_request' # Only run on PRs
         steps:
             - uses: actions/github-script@v6
               with:
@@ -81,7 +82,7 @@ jobs:
         name: Remove Safe to Merge Label on Test Failure
         needs: testAllModes
         runs-on: ubuntu-latest
-        if: failure()
+        if: failure() && github.event_name == 'pull_request' # Only run on PRs
         steps:
             - uses: actions/github-script@v6
               with:
