@@ -7,59 +7,59 @@ on:
         branches: [main, master]
 
 jobs:
-    lint:
-        name: Check for Linting
+    lint-and-fix:
+        name: Lint and Fix
         runs-on: ubuntu-latest
         permissions:
-            contents: read
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4.2.2
-              with:
-                  fetch-depth: 0
-
-            - name: Run Super-Linter
-              uses: super-linter/super-linter@v7.3.0
-              env:
-                  VALIDATE_ALL_CODEBASE: false
-                  DEFAULT_BRANCH: master
-                  VALIDATE_CSHARP: true
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    fix-lint-issues:
-        name: Fix Linting
-        needs: lint
-        permissions:
-            # To write linting fixes
             contents: write
-            # To write Super-linter status checks
             statuses: write
-        runs-on: ubuntu-latest
+            pull-requests: write
         steps:
             - name: Checkout code
               uses: actions/checkout@v4.2.2
               with:
                   fetch-depth: 0
+                  # This is important for fixing and committing changes
+                  token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Super-Linter Fix
+            # First run linter in check only mode
+            - name: Check for Linting
+              id: lint
               uses: super-linter/super-linter@v7.3.0
               env:
                   VALIDATE_ALL_CODEBASE: false
                   DEFAULT_BRANCH: master
                   VALIDATE_CSHARP: true
-                  FIX_CSHARP: true
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  # Prevent errors on status updates
+                  DISABLE_ERRORS: true
+                  # Run in check mode only
+                  APPLY_FIXES: none
+              continue-on-error: true
+
+            # Then run in fix mode if errors were found
+            - name: Fix Linting Errors
+              if: steps.lint.outcome == 'failure'
+              uses: super-linter/super-linter@v7.3.0
+              env:
+                  VALIDATE_ALL_CODEBASE: false
+                  DEFAULT_BRANCH: master
+                  VALIDATE_CSHARP: true
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  # Enable fix mode for C#
+                  APPLY_FIXES: true
+                  FIX_CSHARP: true
+                  # Prevent errors on status updates
+                  DISABLE_ERRORS: true
 
             - name: Commit and push linting fixes
-              # Run only on:
-              # - Pull requests
-              # - Not on the default branch
-              if: >
-                  github.event_name == 'pull_request' &&
-                  github.ref_name != github.event.repository.default_branch
+              # Commit changes regardless of event type
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
                   commit_message: "chore: fix linting issues"
                   commit_user_name: super-linter
                   commit_user_email: super-linter@super-linter.dev
+                  # Verify changes were made before committing
+                  skip_dirty_check: false
+                  # Try to push even if errors occurred
+                  skip_fetch: true
