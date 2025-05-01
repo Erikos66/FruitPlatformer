@@ -1,65 +1,42 @@
+---
 name: Super Linter
 
-on:
-    push:
-        branches: [main, master]
-    pull_request:
-        branches: [main, master]
+on: [pull_request, workflow_dispatch]
+
+permissions:
+    contents: read
 
 jobs:
-    lint-and-fix:
-        name: Lint and Fix
-        runs-on: ubuntu-latest
+    fix-lint-issues:
         permissions:
+            # To write linting fixes
             contents: write
+            # To write Super-linter status checks
             statuses: write
-            pull-requests: write
+        runs-on: ubuntu-latest
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4.2.2
+            - uses: actions/checkout@v4.2.2
               with:
                   fetch-depth: 0
-                  # This is important for fixing and committing changes
-                  token: ${{ secrets.GITHUB_TOKEN }}
-
-            # First run linter in check only mode
-            - name: Check for Linting
-              id: lint
-              uses: super-linter/super-linter@v7.3.0
+            - name: Super Lint
+              uses: super-linter/super-linter@v7.3.0 # x-release-please-version
               env:
-                  VALIDATE_ALL_CODEBASE: false
-                  DEFAULT_BRANCH: master
-                  VALIDATE_CSHARP: true
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  # Prevent errors on status updates
-                  DISABLE_ERRORS: true
-                  # Run in check mode only
-                  APPLY_FIXES: none
-              continue-on-error: true
-
-            # Then run in fix mode if errors were found
-            - name: Fix Linting Errors
-              if: steps.lint.outcome == 'failure'
-              uses: super-linter/super-linter@v7.3.0
-              env:
-                  VALIDATE_ALL_CODEBASE: false
-                  DEFAULT_BRANCH: master
-                  VALIDATE_CSHARP: true
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  # Enable fix mode for C#
-                  APPLY_FIXES: true
+                  # Set your fix mode variables to true
                   FIX_CSHARP: true
-                  # Prevent errors on status updates
-                  DISABLE_ERRORS: true
-
+                  # To reuse the same Super-linter configuration that you use in the
+                  # lint job without duplicating it, see
+                  # https://github.com/super-linter/super-linter/blob/main/docs/run-linter-locally.md#share-environment-variables-between-environments
             - name: Commit and push linting fixes
-              # Commit changes regardless of event type
-              uses: stefanzweifel/git-auto-commit-action@v5
+              # Run only on:
+              # - Pull requests
+              # - Not on the default branch
+              if: >
+                  github.event_name == 'pull_request' &&
+                  github.ref_name != github.event.repository.default_branch
+              uses: stefanzweifel/git-auto-commit-action@v5.2.0
               with:
+                  branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
                   commit_message: "chore: fix linting issues"
                   commit_user_name: super-linter
                   commit_user_email: super-linter@super-linter.dev
-                  # Verify changes were made before committing
-                  skip_dirty_check: false
-                  # Try to push even if errors occurred
-                  skip_fetch: true
