@@ -47,12 +47,13 @@ jobs:
                         const logsPath = path.join(testResultsPath, 'editmode-results.xml');
                         if (fs.existsSync(logsPath)) {
                           const logContent = fs.readFileSync(logsPath, 'utf8').toString();
-                          testResults = `<details><summary>Test Results Log</summary>\n\n\`\`\`xml\n${logContent}\n\`\`\`\n</details>`;
+                          testResults = `<details><summary>Test Results XML</summary>\n\n\`\`\`xml\n${logContent}\n\`\`\`\n</details>\n\n`;
                         }
                         
-                        // Try to find any error logs
+                        // Try to find any error logs with special focus on content after "##### Output"
                         const errorLogsDir = testResultsPath;
                         let errorLogs = '';
+                        let outputContent = '';
                         
                         if (fs.existsSync(errorLogsDir)) {
                           const files = fs.readdirSync(errorLogsDir);
@@ -63,18 +64,41 @@ jobs:
                               const logContent = fs.readFileSync(logPath, 'utf8').toString();
                               
                               if (logContent && logContent.trim().length > 0) {
-                                const truncatedContent = logContent.length > 5000 
-                                  ? logContent.substring(0, 5000) + '\n... [log truncated for brevity]' 
-                                  : logContent;
+                                // Look for output section
+                                const outputMarkerIndex = logContent.indexOf('##### Output');
                                 
-                                errorLogs += `<details><summary>Error Log: ${file}</summary>\n\n\`\`\`\n${truncatedContent}\n\`\`\`\n</details>\n\n`;
+                                if (outputMarkerIndex !== -1) {
+                                  // Extract content after "##### Output"
+                                  const relevantOutput = logContent.substring(outputMarkerIndex);
+                                  outputContent += `### Error from ${file}:\n\n\`\`\`\n${relevantOutput}\n\`\`\`\n\n`;
+                                } else {
+                                  // If no output marker, include a preview of the log
+                                  const previewContent = logContent.length > 3000 
+                                    ? logContent.substring(0, 3000) + '\n... [log truncated]' 
+                                    : logContent;
+                                    
+                                  errorLogs += `<details><summary>Error Log: ${file}</summary>\n\n\`\`\`\n${previewContent}\n\`\`\`\n</details>\n\n`;
+                                }
                               }
                             }
                           }
                         }
                         
-                        // Create the comment
-                        const body = `## ❌ Unity Test Results: Failed\n\n${errorLogs}${testResults}`;
+                        // Create the comment body prioritizing output content
+                        let body = `## ❌ Unity Test Results: Failed\n\n`;
+                        
+                        // First add the output content if we found it
+                        if (outputContent) {
+                          body += `${outputContent}\n`;
+                        }
+                        
+                        // Then add other error logs in collapsible sections
+                        if (errorLogs) {
+                          body += `### Additional Error Logs\n\n${errorLogs}\n`;
+                        }
+                        
+                        // Finally add test results XML
+                        body += testResults;
                         
                         // Post comment to PR
                         await github.rest.issues.createComment({
