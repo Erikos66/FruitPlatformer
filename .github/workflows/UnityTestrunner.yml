@@ -11,6 +11,7 @@ jobs:
               uses: actions/checkout@v4.2.2
 
             - name: Unity - Test runner
+              id: unity-test-runner
               uses: game-ci/unity-test-runner@v4.3.1
               env:
                   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -19,3 +20,78 @@ jobs:
               with:
                   projectPath: .
                   unityVersion: auto
+                  checkName: Unity Test Results
+                  customParameters: -logFile -
+
+            - name: Upload test results
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: Test results
+                  path: ${{ steps.unity-test-runner.outputs.artifactsPath }}
+
+            - name: Comment PR with test failure details
+              if: github.event_name == 'pull_request' && failure()
+              uses: actions/github-script@v7.0.1
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const fs = require('fs');
+                      const path = require('path');
+
+                      const testResultsPath = '${{ steps.unity-test-runner.outputs.artifactsPath }}';
+                      let testResults = '';
+
+                      try {
+                        // Try to read the test results file if it exists
+                        const logsPath = path.join(testResultsPath, 'editmode-results.xml');
+                        if (fs.existsSync(logsPath)) {
+                          const logContent = fs.readFileSync(logsPath, 'utf8').toString();
+                          testResults = `<details><summary>Test Results Log</summary>\n\n\`\`\`xml\n${logContent}\n\`\`\`\n</details>`;
+                        }
+                        
+                        // Try to find any error logs
+                        const errorLogsDir = testResultsPath;
+                        let errorLogs = '';
+                        
+                        if (fs.existsSync(errorLogsDir)) {
+                          const files = fs.readdirSync(errorLogsDir);
+                          
+                          for (const file of files) {
+                            if (file.includes('error') || file.endsWith('.log')) {
+                              const logPath = path.join(errorLogsDir, file);
+                              const logContent = fs.readFileSync(logPath, 'utf8').toString();
+                              
+                              if (logContent && logContent.trim().length > 0) {
+                                const truncatedContent = logContent.length > 5000 
+                                  ? logContent.substring(0, 5000) + '\n... [log truncated for brevity]' 
+                                  : logContent;
+                                
+                                errorLogs += `<details><summary>Error Log: ${file}</summary>\n\n\`\`\`\n${truncatedContent}\n\`\`\`\n</details>\n\n`;
+                              }
+                            }
+                          }
+                        }
+                        
+                        // Create the comment
+                        const body = `## ❌ Unity Test Results: Failed\n\n${errorLogs}${testResults}`;
+                        
+                        // Post comment to PR
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.issue.number,
+                          body: body
+                        });
+                        
+                      } catch (error) {
+                        console.log(`Error creating comment: ${error.message}`);
+                        
+                        // Post a simplified comment if there was an error processing logs
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.issue.number,
+                          body: `## ❌ Unity Tests Failed\n\nFailed to process detailed logs: ${error.message}`
+                        });
+                      }
