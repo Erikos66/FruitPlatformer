@@ -1,157 +1,17 @@
-name: Unity Testrunner
+name: Unity Test Runner
 
-on:
-    pull_request:
-        branches:
-            - master
-            - main
-    workflow_dispatch: # Adding manual trigger capability
-
-permissions:
-    contents: read
-    issues: write
-    pull-requests: write
+on: [pull_request, workflow_dispatch]
 
 jobs:
-    testAllModes:
-        name: Test in ${{ matrix.testMode }}
+    test:
+        name: Unity Tests
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                projectPath:
-                    - .
-                testMode:
-                    - playmode
-                    - editmode
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Unity - Test runner
+              uses: game-ci/unity-test-runner@v4.3.1
               with:
-                  lfs: true
-                  fetch-depth: 0
-
-            # Set up Docker to avoid resource issues
-            - name: Set up Docker
-              uses: docker/setup-buildx-action@v3
-              with:
-                  driver: docker
-
-            - uses: actions/cache@v3
-              with:
-                  path: ${{ matrix.projectPath }}/Library
-                  key: Library-${{ matrix.projectPath }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-                  restore-keys: |
-                      Library-${{ matrix.projectPath }}-
-                      Library-
-
-            # For manual runs (workflow_dispatch), provide artifacts
-            - uses: game-ci/unity-test-runner@v4
-              id: tests
-              if: github.event_name == 'workflow_dispatch'
-              env:
-                  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-                  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-                  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-              with:
-                  projectPath: ${{ matrix.projectPath }}
-                  testMode: ${{ matrix.testMode }}
-                  githubToken: ${{ secrets.GITHUB_TOKEN }}
-                  checkName: ${{ matrix.testMode }} Test Results
-                  artifactsPath: ${{ matrix.testMode }}-artifacts
-                  customParameters: "-enableCodeCoverage -coverageResultsPath=CodeCoverage -coverageOptions='generateHtmlReport;generateBadgeReport;generateAdditionalMetrics'"
-
-            # For PR runs, no artifacts
-            - uses: game-ci/unity-test-runner@v4
-              id: tests_no_artifacts
-              if: github.event_name == 'pull_request'
-              env:
-                  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-                  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-                  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-              with:
-                  projectPath: ${{ matrix.projectPath }}
-                  testMode: ${{ matrix.testMode }}
-                  githubToken: ${{ secrets.GITHUB_TOKEN }}
-                  checkName: ${{ matrix.testMode }} Test Results
-                  customParameters: "-enableCodeCoverage -coverageResultsPath=CodeCoverage -coverageOptions='generateHtmlReport;generateBadgeReport;generateAdditionalMetrics'"
-
-            # Upload artifacts for manual runs only
-            - uses: actions/upload-artifact@v4
-              if: always() && github.event_name == 'workflow_dispatch' && steps.tests.outputs.artifactsPath
-              with:
-                  name: Test results for ${{ matrix.testMode }}
-                  path: ${{ steps.tests.outputs.artifactsPath }}
-
-            # Upload coverage artifacts for manual runs only
-            - uses: actions/upload-artifact@v4
-              if: always() && github.event_name == 'workflow_dispatch'
-              with:
-                  name: Coverage results for ${{ matrix.testMode }}
-                  path: CodeCoverage
-                  if-no-files-found: ignore
-
-    labelPR:
-        name: Set PR Label
-        needs: testAllModes
-        runs-on: ubuntu-latest
-        if: success() && github.event_name == 'pull_request' # Only run on PRs
-        steps:
-            - uses: actions/github-script@v6
-              with:
-                  script: |
-                      // Get existing labels on the PR
-                      const { data: existingLabels } = await github.rest.issues.listLabelsOnIssue({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number: context.issue.number
-                      });
-
-                      // Check if "Safe to Merge" label already exists
-                      const safeLabel = 'Safe to Merge';
-                      const hasSafeLabel = existingLabels.some(label => label.name === safeLabel);
-
-                      // Only add the label if it doesn't exist
-                      if (!hasSafeLabel) {
-                        await github.rest.issues.addLabels({
-                          issue_number: context.issue.number,
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          labels: [safeLabel]
-                        });
-                        console.log(`Added "${safeLabel}" label to PR #${context.issue.number}`);
-                      }
-
-    unlabelPR:
-        name: Check PR Label
-        needs: testAllModes
-        runs-on: ubuntu-latest
-        if: failure() && github.event_name == 'pull_request' # Only run on PRs
-        steps:
-            - uses: actions/github-script@v6
-              with:
-                  script: |
-                      // Get existing labels on the PR
-                      const { data: existingLabels } = await github.rest.issues.listLabelsOnIssue({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number: context.issue.number
-                      });
-
-                      // Check if "Safe to Merge" label exists
-                      const safeLabel = 'Safe to Merge';
-                      const hasSafeLabel = existingLabels.some(label => label.name === safeLabel);
-
-                      // Remove the label if it exists
-                      if (hasSafeLabel) {
-                        try {
-                          await github.rest.issues.removeLabel({
-                            owner: context.repo.owner,
-                            repo: context.repo.repo,
-                            issue_number: context.issue.number,
-                            name: safeLabel
-                          });
-                          console.log(`Removed "${safeLabel}" label from PR #${context.issue.number} due to test failure`);
-                        } catch (error) {
-                          console.log(`Error removing "${safeLabel}" label: ${error.message}`);
-                        }
-                      }
+                  projectPath: .
+                  unityVersion: auto
