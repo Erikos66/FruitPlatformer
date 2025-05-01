@@ -35,8 +35,10 @@ jobs:
                   restore-keys: |
                       Library-${{ matrix.projectPath }}-
                       Library-
+            # For manual runs (workflow_dispatch), provide artifacts
             - uses: game-ci/unity-test-runner@v4
               id: tests
+              if: github.event_name == 'workflow_dispatch'
               env:
                   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
                   UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -44,8 +46,38 @@ jobs:
               with:
                   projectPath: ${{ matrix.projectPath }}
                   testMode: ${{ matrix.testMode }}
+                  githubToken: ${{ secrets.GITHUB_TOKEN }}
                   checkName: ${{ matrix.testMode }} Test Results
-                  # No artifactsPath or coverageOptions to avoid generating and uploading artifacts
+                  artifactsPath: ${{ matrix.testMode }}-artifacts
+                  coverageOptions: "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport"
+
+            # For PR runs, no artifacts
+            - uses: game-ci/unity-test-runner@v4
+              id: tests_no_artifacts
+              if: github.event_name == 'pull_request'
+              env:
+                  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+                  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+                  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+              with:
+                  projectPath: ${{ matrix.projectPath }}
+                  testMode: ${{ matrix.testMode }}
+                  githubToken: ${{ secrets.GITHUB_TOKEN }}
+                  checkName: ${{ matrix.testMode }} Test Results
+
+            # Upload artifacts for manual runs only
+            - uses: actions/upload-artifact@v4
+              if: always() && github.event_name == 'workflow_dispatch' && steps.tests.outputs.artifactsPath
+              with:
+                  name: Test results for ${{ matrix.testMode }}
+                  path: ${{ steps.tests.outputs.artifactsPath }}
+
+            # Upload coverage artifacts for manual runs only
+            - uses: actions/upload-artifact@v4
+              if: always() && github.event_name == 'workflow_dispatch' && steps.tests.outputs.coveragePath
+              with:
+                  name: Coverage results for ${{ matrix.testMode }}
+                  path: ${{ steps.tests.outputs.coveragePath }}
 
     labelPR:
         name: Label PR as Safe to Merge
