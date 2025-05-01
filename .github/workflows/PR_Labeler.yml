@@ -1,0 +1,90 @@
+name: PR Labeler
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+permissions:
+    contents: read
+    issues: write
+    pull-requests: write
+
+jobs:
+    label-pr:
+        name: Label PR based on changed files
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Label PR based on changed files
+              uses: actions/github-script@v6
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const { data: files } = await github.rest.pulls.listFiles({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        pull_number: context.issue.number,
+                      });
+
+                      // Define file patterns and their corresponding labels
+                      const labelPatterns = {
+                        'Sprites': ['Assets/Sprites/**'],
+                        'Scripts': ['Assets/Scripts/**'],
+                        'UI': ['Assets/UI/**'],
+                        'Art': ['Assets/Art/**'],
+                        'Audio': ['Assets/Audio/**'],
+                        'Animations': ['Assets/Animations/**'],
+                        'Materials': ['Assets/Materials/**'],
+                        'Textures': ['Assets/Textures/**'],
+                        'Prefabs': ['Assets/Prefabs/**'],
+                        'Settings': ['Assets/Settings/**', 'ProjectSettings/**']
+                      };
+
+                      // Get existing labels on the PR
+                      const { data: existingLabels } = await github.rest.issues.listLabelsOnIssue({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: context.issue.number
+                      });
+
+                      const existingLabelNames = existingLabels.map(label => label.name);
+                      const filePaths = files.map(file => file.filename);
+
+                      // Determine which labels should be present
+                      const labelsToAdd = [];
+
+                      Object.entries(labelPatterns).forEach(([label, patterns]) => {
+                        // Check if any file matches the patterns for this label
+                        const shouldHaveLabel = patterns.some(pattern => {
+                          const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+                          return filePaths.some(path => regex.test(path));
+                        });
+                        
+                        if (shouldHaveLabel && !existingLabelNames.includes(label)) {
+                          // Add label if it should be present but isn't
+                          labelsToAdd.push(label);
+                        } else if (!shouldHaveLabel && existingLabelNames.includes(label)) {
+                          // Remove label if it shouldn't be present but is
+                          github.rest.issues.removeLabel({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: context.issue.number,
+                            name: label
+                          }).catch(e => {
+                            console.log(`Failed to remove label ${label}: ${e.message}`);
+                          });
+                          console.log(`Removed label: ${label}`);
+                        }
+                      });
+
+                      // Add any new labels in a single request
+                      if (labelsToAdd.length > 0) {
+                        await github.rest.issues.addLabels({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.issue.number,
+                          labels: labelsToAdd
+                        });
+                        console.log(`Added labels: ${labelsToAdd.join(', ')}`);
+                      }

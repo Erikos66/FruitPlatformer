@@ -1,0 +1,113 @@
+name: Unity Testrunner
+
+on:
+    pull_request:
+        branches:
+            - master
+            - main
+
+permissions:
+    contents: read
+    issues: write
+    pull-requests: write
+
+jobs:
+    testAllModes:
+        name: Test in ${{ matrix.testMode }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                projectPath:
+                    - .
+                testMode:
+                    - playmode
+                    - editmode
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  lfs: true
+            - uses: actions/cache@v3
+              with:
+                  path: ${{ matrix.projectPath }}/Library
+                  key: Library-${{ matrix.projectPath }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+                  restore-keys: |
+                      Library-${{ matrix.projectPath }}-
+                      Library-
+            - uses: game-ci/unity-test-runner@v4
+              id: tests
+              env:
+                  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+                  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+                  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+              with:
+                  projectPath: ${{ matrix.projectPath }}
+                  testMode: ${{ matrix.testMode }}
+                  checkName: ${{ matrix.testMode }} Test Results
+                  # No artifactsPath or coverageOptions to avoid generating and uploading artifacts
+
+    labelPR:
+        name: Label PR as Safe to Merge
+        needs: testAllModes
+        runs-on: ubuntu-latest
+        if: success()
+        steps:
+            - uses: actions/github-script@v6
+              with:
+                  script: |
+                      // Get existing labels on the PR
+                      const { data: existingLabels } = await github.rest.issues.listLabelsOnIssue({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: context.issue.number
+                      });
+
+                      // Check if "Safe to Merge" label already exists
+                      const safeLabel = 'Safe to Merge';
+                      const hasSafeLabel = existingLabels.some(label => label.name === safeLabel);
+
+                      // Only add the label if it doesn't exist
+                      if (!hasSafeLabel) {
+                        await github.rest.issues.addLabels({
+                          issue_number: context.issue.number,
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          labels: [safeLabel]
+                        });
+                        console.log(`Added "${safeLabel}" label to PR #${context.issue.number}`);
+                      }
+
+    unlabelPR:
+        name: Remove Safe to Merge Label on Test Failure
+        needs: testAllModes
+        runs-on: ubuntu-latest
+        if: failure()
+        steps:
+            - uses: actions/github-script@v6
+              with:
+                  script: |
+                      // Get existing labels on the PR
+                      const { data: existingLabels } = await github.rest.issues.listLabelsOnIssue({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: context.issue.number
+                      });
+
+                      // Check if "Safe to Merge" label exists
+                      const safeLabel = 'Safe to Merge';
+                      const hasSafeLabel = existingLabels.some(label => label.name === safeLabel);
+
+                      // Remove the label if it exists
+                      if (hasSafeLabel) {
+                        try {
+                          await github.rest.issues.removeLabel({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: context.issue.number,
+                            name: safeLabel
+                          });
+                          console.log(`Removed "${safeLabel}" label from PR #${context.issue.number} due to test failure`);
+                        } catch (error) {
+                          console.log(`Error removing "${safeLabel}" label: ${error.message}`);
+                        }
+                      }
