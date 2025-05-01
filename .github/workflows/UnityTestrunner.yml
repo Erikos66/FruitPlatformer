@@ -4,13 +4,14 @@ on: [pull_request, workflow_dispatch]
 
 jobs:
     test:
-        name: Unity Tests
+        name: Performing Tests
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4.2.2
 
             - name: Unity - Test runner
+              id: unity-test-runner
               uses: game-ci/unity-test-runner@v4.3.1
               env:
                   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -19,3 +20,102 @@ jobs:
               with:
                   projectPath: .
                   unityVersion: auto
+                  checkName: Unity Test Results
+                  customParameters: -logFile -
+
+            - name: Upload test results
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: Test results
+                  path: ${{ steps.unity-test-runner.outputs.artifactsPath }}
+
+            - name: Comment PR with test failure details
+              if: github.event_name == 'pull_request' && failure()
+              uses: actions/github-script@v7.0.1
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const fs = require('fs');
+                      const path = require('path');
+
+                      const testResultsPath = '${{ steps.unity-test-runner.outputs.artifactsPath }}';
+                      let testResults = '';
+
+                      try {
+                        // Try to read the test results file if it exists
+                        const logsPath = path.join(testResultsPath, 'editmode-results.xml');
+                        if (fs.existsSync(logsPath)) {
+                          const logContent = fs.readFileSync(logsPath, 'utf8').toString();
+                          testResults = `<details><summary>Test Results XML</summary>\n\n\`\`\`xml\n${logContent}\n\`\`\`\n</details>\n\n`;
+                        }
+                        
+                        // Try to find any error logs with special focus on content after "##### Output"
+                        const errorLogsDir = testResultsPath;
+                        let errorLogs = '';
+                        let outputContent = '';
+                        
+                        if (fs.existsSync(errorLogsDir)) {
+                          const files = fs.readdirSync(errorLogsDir);
+                          
+                          for (const file of files) {
+                            if (file.includes('error') || file.endsWith('.log')) {
+                              const logPath = path.join(errorLogsDir, file);
+                              const logContent = fs.readFileSync(logPath, 'utf8').toString();
+                              
+                              if (logContent && logContent.trim().length > 0) {
+                                // Look for output section
+                                const outputMarkerIndex = logContent.indexOf('##### Output');
+                                
+                                if (outputMarkerIndex !== -1) {
+                                  // Extract content after "##### Output"
+                                  const relevantOutput = logContent.substring(outputMarkerIndex);
+                                  outputContent += `### Error from ${file}:\n\n\`\`\`\n${relevantOutput}\n\`\`\`\n\n`;
+                                } else {
+                                  // If no output marker, include a preview of the log
+                                  const previewContent = logContent.length > 3000 
+                                    ? logContent.substring(0, 3000) + '\n... [log truncated]' 
+                                    : logContent;
+                                    
+                                  errorLogs += `<details><summary>Error Log: ${file}</summary>\n\n\`\`\`\n${previewContent}\n\`\`\`\n</details>\n\n`;
+                                }
+                              }
+                            }
+                          }
+                        }
+                        
+                        // Create the comment body prioritizing output content
+                        let body = `## ❌ Unity Test Results: Failed\n\n`;
+                        
+                        // First add the output content if we found it
+                        if (outputContent) {
+                          body += `${outputContent}\n`;
+                        }
+                        
+                        // Then add other error logs in collapsible sections
+                        if (errorLogs) {
+                          body += `### Additional Error Logs\n\n${errorLogs}\n`;
+                        }
+                        
+                        // Finally add test results XML
+                        body += testResults;
+                        
+                        // Post comment to PR
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.issue.number,
+                          body: body
+                        });
+                        
+                      } catch (error) {
+                        console.log(`Error creating comment: ${error.message}`);
+                        
+                        // Post a simplified comment if there was an error processing logs
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.issue.number,
+                          body: `## ❌ Unity Tests Failed\n\nFailed to process detailed logs: ${error.message}`
+                        });
+                      }
