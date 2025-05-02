@@ -33,7 +33,9 @@ public class Player : MonoBehaviour {
 
 	[Header("Knockback")]
 	[SerializeField] private Vector2 knockbackPower;
+	[SerializeField] private float invincibilityDuration = 1.5f; // Duration of invincibility after knockback
 	private bool isKnocked;
+	private bool isInvincible;
 
 	[Header("Collision")]
 	[SerializeField] private float groundCheckDistnace;
@@ -154,9 +156,10 @@ public class Player : MonoBehaviour {
 	}
 
 	public void Knockback(float knockbackDuration, Vector2 knockbackPower, Vector2? hitPosition = null) {
-		if (isKnocked)
+		if (isKnocked || isInvincible)
 			return;
 		StartCoroutine(KnockbackRoutine(knockbackDuration));
+		StartCoroutine(InvincibilityRoutine());
 		anim.SetTrigger("knockback");
 
 		// Use GameManager's CameraManager instead of singleton
@@ -173,6 +176,29 @@ public class Player : MonoBehaviour {
 		isKnocked = true;
 		yield return new WaitForSeconds(knockbackDuration);
 		isKnocked = false;
+	}
+
+	private IEnumerator InvincibilityRoutine() {
+		isInvincible = true;
+
+		// Get the sprite renderer to apply visual feedback
+		SpriteRenderer spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+		// Flash the player sprite to indicate invincibility
+		if (spriteRenderer != null) {
+			float flashInterval = 0.10f;
+			for (float i = 0; i < invincibilityDuration; i += flashInterval) {
+				spriteRenderer.enabled = !spriteRenderer.enabled;
+				yield return new WaitForSeconds(flashInterval);
+			}
+			spriteRenderer.enabled = true; // Ensure sprite is visible when done
+		}
+		else {
+			// If no sprite renderer, just wait the full duration
+			yield return new WaitForSeconds(invincibilityDuration);
+		}
+
+		isInvincible = false;
 	}
 
 	private void UpdateAirbornStatus() {
