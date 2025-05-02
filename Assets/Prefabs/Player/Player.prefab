@@ -112,13 +112,13 @@ MonoBehaviour:
   jumpForce: 15
   doubleJumpForce: 12
   bufferJumpWindow: 0.25
-  coyoteJumpWindow: 0.7
+  coyoteJumpWindow: 0.65
   wallJumpDuration: 0.8
-  wallJumpForce: {x: 15, y: 14}
+  wallJumpForce: {x: 16, y: 13}
   knockbackPower: {x: 12, y: 14}
   invincibilityDuration: 1.5
   groundCheckDistnace: 0.8
-  wallCheckDistance: 0.7
+  wallCheckDistance: 0.8
   whatIsGround:
     serializedVersion: 2
     m_Bits: 8

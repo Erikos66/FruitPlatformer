@@ -30,6 +30,9 @@ public class Player : MonoBehaviour {
 	private float wallJumpDuration = .6f;
 	[SerializeField] private Vector2 wallJumpForce;
 	private bool isWallJumping;
+	private bool canDetectWall = true;
+	private Vector2 wallJumpInitialInput; // Store input when wall jump starts
+	private bool ignoreHorizontalInput = false;
 
 	[Header("Knockback")]
 	[SerializeField] private Vector2 knockbackPower;
@@ -48,6 +51,8 @@ public class Player : MonoBehaviour {
 	private bool isGrounded;
 	public bool isAirborne;
 	private bool isWallDetected;
+	private bool isTouchingLeftWall;
+	private bool isTouchingRightWall;
 
 	private Vector2 moveInput;
 
@@ -254,7 +259,7 @@ public class Player : MonoBehaviour {
 		if (isGrounded || coyoteJumpAvalible) {
 			Jump();
 		}
-		else if (isWallDetected && !isGrounded) {
+		else if ((isTouchingLeftWall || isTouchingRightWall) && !isGrounded) {
 			WallJump();
 		}
 		else if (canDoubleJump) {
@@ -288,10 +293,32 @@ public class Player : MonoBehaviour {
 
 	private void WallJump() {
 		canDoubleJump = true;
-		rb.linearVelocity = new Vector2(wallJumpForce.x * -facingDir, wallJumpForce.y);
-		// Play jump sound for wall jump too
+
+		// Determine which wall we're actually touching, not just facing
+		int wallDirection = 1;
+		if (isTouchingLeftWall) {
+			wallDirection = -1;
+		}
+		else if (isTouchingRightWall) {
+			wallDirection = 1;
+		}
+
+		// Apply force in the opposite direction of the wall
+		rb.linearVelocity = new Vector2(wallJumpForce.x * -wallDirection, wallJumpForce.y);
+
+		// Play jump sound for wall jump
 		AudioManager.Instance.PlaySFX("SFX_Jump");
-		Flip();
+
+		// Make sure we're facing away from the wall after jumping
+		if ((wallDirection > 0 && facingRight) || (wallDirection < 0 && !facingRight)) {
+			Flip();
+		}
+
+		// Store initial input state when wall jumping starts
+		wallJumpInitialInput = moveInput;
+		ignoreHorizontalInput = true;
+
+		// Start wall jump related coroutines
 		StartCoroutine(WallJumpRoutine());
 	}
 
@@ -299,10 +326,11 @@ public class Player : MonoBehaviour {
 		isWallJumping = true;
 		yield return new WaitForSeconds(wallJumpDuration);
 		isWallJumping = false;
+		ignoreHorizontalInput = false;
 	}
 
 	private void HandleWallSlide() {
-		bool canWallSlide = isWallDetected && rb.linearVelocity.y < 0;
+		bool canWallSlide = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && rb.linearVelocity.y < 0;
 		float yModifer = moveInput.y < 0 ? 1 : .05f;
 		if (!canWallSlide) return;
 		rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * yModifer);
@@ -310,7 +338,18 @@ public class Player : MonoBehaviour {
 
 	private void HandleCollision() {
 		isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistnace, whatIsGround);
-		isWallDetected = Physics2D.Raycast(transform.position, Vector2.right * facingDir, wallCheckDistance, whatIsGround);
+
+		// Check for walls on both sides if wall detection is enabled
+		if (canDetectWall) {
+			isTouchingRightWall = Physics2D.Raycast(transform.position, Vector2.right, wallCheckDistance, whatIsGround);
+			isTouchingLeftWall = Physics2D.Raycast(transform.position, Vector2.left, wallCheckDistance, whatIsGround);
+			isWallDetected = (isTouchingRightWall && facingRight) || (isTouchingLeftWall && !facingRight);
+		}
+		else {
+			isTouchingRightWall = false;
+			isTouchingLeftWall = false;
+			isWallDetected = false;
+		}
 	}
 
 	private void HandleAnimations() {
@@ -323,12 +362,37 @@ public class Player : MonoBehaviour {
 	private void HandleMovement() {
 		if (isWallDetected)
 			return;
-		if (isWallJumping)
+		if (isWallJumping) {
+			// Check if the input has changed significantly from initial wall jump input
+			if (ignoreHorizontalInput) {
+				// If input direction changes, stop ignoring input
+				if (Mathf.Sign(moveInput.x) != Mathf.Sign(wallJumpInitialInput.x) && Mathf.Abs(moveInput.x) > 0.1f) {
+					ignoreHorizontalInput = false;
+				}
+				// If input is released (near zero), stop ignoring input
+				else if (Mathf.Abs(moveInput.x) < 0.1f) {
+					ignoreHorizontalInput = false;
+				}
+			}
+			return;
+		}
+
+		// Reset ignoreHorizontalInput when not wall jumping
+		if (!isWallJumping && ignoreHorizontalInput) {
+			ignoreHorizontalInput = false;
+		}
+
+		// Normal movement when not ignoring input
+		if (!ignoreHorizontalInput) {
+			rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
+		}
+	}
+
+	private void HandleFlip() {
+		// Don't flip based on player input if we're ignoring horizontal input
+		if (ignoreHorizontalInput)
 			return;
 
-		rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
-	}
-	private void HandleFlip() {
 		if ((moveInput.x < 0 && facingRight) || (moveInput.x > 0 && !facingRight))
 			Flip();
 	}
@@ -342,7 +406,12 @@ public class Player : MonoBehaviour {
 	private void OnDrawGizmos() {
 		Gizmos.DrawWireSphere(EnemyCheck.position, EnemyCheckRadius);
 		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistnace));
-		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + (wallCheckDistance * facingDir), transform.position.y));
+
+		// Draw lines for wall detection on both sides
+		Gizmos.color = Color.blue;
+		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + wallCheckDistance, transform.position.y));
+		Gizmos.color = Color.green;
+		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x - wallCheckDistance, transform.position.y));
 	}
 
 	public void Die() {
