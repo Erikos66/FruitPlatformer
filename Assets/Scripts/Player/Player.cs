@@ -163,6 +163,13 @@ public class Player : MonoBehaviour {
 	public void Knockback(float knockbackDuration, Vector2 knockbackPower, Vector2? hitPosition = null) {
 		if (isKnocked || isInvincible)
 			return;
+
+		// In Normal mode, knockback results in player death
+		if (GameManager.Instance != null && GameManager.Instance.IsNormalMode()) {
+			Die();
+			return;
+		}
+
 		StartCoroutine(KnockbackRoutine(knockbackDuration));
 		StartCoroutine(InvincibilityRoutine());
 		anim.SetTrigger("knockback");
@@ -419,5 +426,6 @@ public class Player : MonoBehaviour {
 		AudioManager.Instance.PlaySFX("SFX_Death");
 		GameObject newPlayerDeathVFX = Instantiate(playerDeath_VFX, transform.position, Quaternion.identity);
 		Destroy(gameObject);
+		PlayerManager.Instance.PlayerDied();
 	}
 }

@@ -17,6 +17,12 @@ public class UI_Settings : MonoBehaviour {
 	[SerializeField] private TMP_Dropdown resolutionDropdown;
 	[SerializeField] private TMP_Dropdown displayModeDropdown;
 
+	[Header("Game Settings")]
+	[SerializeField] private Button easyDifficultyButton;
+	[SerializeField] private Button normalDifficultyButton;
+	[SerializeField] private Color selectedButtonColor = Color.green;
+	[SerializeField] private Color unselectedButtonColor = Color.white;
+
 	private Resolution[] resolutions;
 	private AudioManager audioManager;
 
@@ -37,6 +43,9 @@ public class UI_Settings : MonoBehaviour {
 		if (resolutionDropdown != null) {
 			InitializeResolutionDropdown();
 		}
+
+		// Initialize difficulty buttons
+		InitializeDifficultyButtons();
 	}
 
 	void Start() {
@@ -75,6 +84,16 @@ public class UI_Settings : MonoBehaviour {
 
 		if (displayModeDropdown != null)
 			displayModeDropdown.onValueChanged.AddListener(OnDisplayModeChanged);
+
+		// Register difficulty button listeners
+		if (easyDifficultyButton != null)
+			easyDifficultyButton.onClick.AddListener(OnEasyDifficultySelected);
+
+		if (normalDifficultyButton != null)
+			normalDifficultyButton.onClick.AddListener(OnNormalDifficultySelected);
+
+		// Update button visuals based on current difficulty
+		UpdateDifficultyButtonVisuals();
 	}
 
 	void OnDisable() {
@@ -90,6 +109,13 @@ public class UI_Settings : MonoBehaviour {
 
 		if (displayModeDropdown != null)
 			displayModeDropdown.onValueChanged.RemoveListener(OnDisplayModeChanged);
+
+		// Unregister difficulty button listeners
+		if (easyDifficultyButton != null)
+			easyDifficultyButton.onClick.RemoveListener(OnEasyDifficultySelected);
+
+		if (normalDifficultyButton != null)
+			normalDifficultyButton.onClick.RemoveListener(OnNormalDifficultySelected);
 	}
 
 	private void InitializeResolutionDropdown() {
@@ -114,6 +140,57 @@ public class UI_Settings : MonoBehaviour {
 		resolutionDropdown.AddOptions(resolutionOptions);
 		resolutionDropdown.value = currentResolutionIndex;
 		resolutionDropdown.RefreshShownValue();
+	}
+
+	private void InitializeDifficultyButtons() {
+		// Update button visuals based on current difficulty
+		UpdateDifficultyButtonVisuals();
+	}
+
+	private void UpdateDifficultyButtonVisuals() {
+		if (GameManager.Instance == null || easyDifficultyButton == null || normalDifficultyButton == null)
+			return;
+
+		// Get current difficulty
+		GameManager.GameDifficulty currentDifficulty = GameManager.Instance.CurrentDifficulty;
+
+		// Get button colors
+		ColorBlock easyColorBlock = easyDifficultyButton.colors;
+		ColorBlock normalColorBlock = normalDifficultyButton.colors;
+
+		// Set button colors based on current difficulty
+		if (currentDifficulty == GameManager.GameDifficulty.Easy) {
+			easyColorBlock.normalColor = selectedButtonColor;
+			normalColorBlock.normalColor = unselectedButtonColor;
+		}
+		else {
+			easyColorBlock.normalColor = unselectedButtonColor;
+			normalColorBlock.normalColor = selectedButtonColor;
+		}
+
+		// Apply updated color blocks
+		easyDifficultyButton.colors = easyColorBlock;
+		normalDifficultyButton.colors = normalColorBlock;
+	}
+
+	public void OnEasyDifficultySelected() {
+		if (GameManager.Instance != null) {
+			GameManager.Instance.CurrentDifficulty = GameManager.GameDifficulty.Easy;
+			// Play UI confirmation sound
+			AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
+			// Update button visuals
+			UpdateDifficultyButtonVisuals();
+		}
+	}
+
+	public void OnNormalDifficultySelected() {
+		if (GameManager.Instance != null) {
+			GameManager.Instance.CurrentDifficulty = GameManager.GameDifficulty.Normal;
+			// Play UI confirmation sound
+			AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
+			// Update button visuals
+			UpdateDifficultyButtonVisuals();
+		}
 	}
 
 	public void OnSfxVolumeChanged(float value) {
