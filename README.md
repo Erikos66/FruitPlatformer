@@ -2,7 +2,7 @@
 
 A delightful 2D platformer game where you collect fruits while navigating through challenging levels filled with unique enemies and obstacles.
 
-![FruitPlatformer Game](https://imgur.com/placeholder) <!-- You can replace this with an actual screenshot of your game -->
+![FruitPlatformer Game](https://imgur.com/a/ZBYVTAN) <!-- You can replace this with an actual screenshot of your game -->
 
 ## 🎮 Game Features
 
