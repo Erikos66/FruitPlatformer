@@ -4446,7 +4446,7 @@ GameObject:
   m_Component:
   - component: {fileID: 816979111}
   - component: {fileID: 816979110}
-  - component: {fileID: 816979109}
+  - component: {fileID: 816979113}
   - component: {fileID: 816979108}
   - component: {fileID: 816979112}
   m_Layer: 0
@@ -4476,37 +4476,6 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
---- !u!114 &816979109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 816979107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 886251e9a18ece04ea8e61686c173e1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CameraDistance: 10
-  DeadZoneDepth: 0
-  Composition:
-    ScreenPosition: {x: 0, y: 0}
-    DeadZone:
-      Enabled: 0
-      Size: {x: 0.2, y: 0.2}
-    HardLimits:
-      Enabled: 0
-      Size: {x: 0.8, y: 0.8}
-      Offset: {x: 0, y: 0}
-  CenterOnActivate: 1
-  TargetOffset: {x: 0, y: 0, z: 0}
-  Damping: {x: 1, y: 1, z: 1}
-  Lookahead:
-    Enabled: 0
-    Time: 0
-    Smoothing: 0
-    IgnoreY: 0
 --- !u!114 &816979110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4588,6 +4557,25 @@ MonoBehaviour:
     FrequencyGain: 1
     Duration: 1
     m_NoiseOffsets: {x: 0, y: 0, z: 0}
+--- !u!114 &816979113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 816979107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b617507da6d07e749b7efdb34e1173e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TrackerSettings:
+    BindingMode: 4
+    PositionDamping: {x: 1, y: 1, z: 1}
+    AngularDampingMode: 0
+    RotationDamping: {x: 1, y: 1, z: 1}
+    QuaternionDamping: 1
+  FollowOffset: {x: 0, y: 0, z: -10}
 --- !u!1 &846129656
 GameObject:
   m_ObjectHideFlags: 0
@@ -4877,8 +4865,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sfxContainer: {fileID: 1666621216}
   musicContainer: {fileID: 256118667}
-  sfxVolumeSlider: {fileID: 0}
-  musicVolumeSlider: {fileID: 0}
   minPitch: 0.8
   maxPitch: 1.1
 --- !u!4 &1028461223
@@ -5063,7 +5049,7 @@ Transform:
   m_GameObject: {fileID: 1147764777}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.226181, y: -0.7536297, z: -10}
+  m_LocalPosition: {x: -4.2311673, y: -0.7536297, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10913,15 +10899,15 @@ RectTransform:
   m_GameObject: {fileID: 1560915670}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.71828, y: 0.64523, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 974981228}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 902.8, y: 474.2}
-  m_SizeDelta: {x: 114.3957, y: 50}
+  m_AnchoredPosition: {x: 480.34, y: 268}
+  m_SizeDelta: {x: 101.3118, y: 54}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1560915672
 CanvasRenderer:
@@ -11016,7 +11002,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -1.9100342, w: 0}
+  m_margin: {x: -23.377502, y: 4.730133, z: -16.62915, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -11303,6 +11289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ed51249148c23d40a645c17fc4aa66b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showAllLevels: 0
   levelSceneNames: []
   showLevelSelectOnMainMenu: 0
 --- !u!4 &1801254967
@@ -11425,7 +11412,7 @@ RectTransform:
   m_GameObject: {fileID: 1948960069}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.6348, y: 0.61394, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2118683039}
@@ -11433,7 +11420,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -827.2, y: 474.2}
+  m_AnchoredPosition: {x: -449, y: 268}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1948960071

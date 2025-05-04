@@ -321,7 +321,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creditsPanel: {fileID: 1448516213}
-  scrollSpeed: 100
+  scrollSpeed: 200
   mainMenuSceneName: MainMenu
   OffScreenY: 1700
 --- !u!1001 &1066471484
