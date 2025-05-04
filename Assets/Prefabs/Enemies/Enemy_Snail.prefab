@@ -158,7 +158,7 @@ MonoBehaviour:
     m_Bits: 128
   groundTransform: {fileID: 1873422878432689480}
   groundCheckDistance: 0.8
-  wallCheckDistance: 0.7
+  wallCheckDistance: 0.5
   detectionShape: 0
   playerDetectionDistance: 0
   heightOffset: 0
@@ -350,7 +350,7 @@ Transform:
   m_GameObject: {fileID: 4059179956633129144}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.752, y: -0.354, z: 0}
+  m_LocalPosition: {x: 0.008, y: -0.354, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
