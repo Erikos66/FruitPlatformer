@@ -2,7 +2,9 @@
 
 A delightful 2D platformer game where you collect fruits while navigating through challenging levels filled with unique enemies and obstacles.
 
-![FruitPlatformer Game](https://i.imgur.com/c11gRzu.png) <!-- You can replace this with an actual screenshot of your game -->
+![FruitPlatformer Game](https://i.imgur.com/c11gRzu.png)
+
+## Check out my Itch.io: https://erikos66.itch.io/fruit-bananza?secret=NUC2teTTdHyWOyhOXmvTvWFU
 
 ## 🎮 Game Features
 
