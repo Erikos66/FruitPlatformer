@@ -9522,7 +9522,23 @@ MonoBehaviour:
     previewImage: {fileID: -3435612070656217800, guid: 653700a608fc42446adc61bbcecc6ed2, type: 3}
   - sceneName: Level_6
     previewImage: {fileID: -1102716110133017059, guid: 70d8ad66c83b96e4d8e4e8769b6d3c36, type: 3}
-  manualLevelList: []
+  - sceneName: Level_7
+    previewImage: {fileID: 6670687605746184242, guid: 3bd8aa7e749152349abea998258cacbd, type: 3}
+  manualLevelList:
+  - displayName: Level 1
+    sceneName: Level_1
+  - displayName: Level 2
+    sceneName: Level_2
+  - displayName: Level 3
+    sceneName: Level_3
+  - displayName: Level 4
+    sceneName: Level_4
+  - displayName: Level 5
+    sceneName: Level_5
+  - displayName: Level 6
+    sceneName: Level_6
+  - displayName: Level 7
+    sceneName: Level_7
 --- !u!1 &1820432115
 GameObject:
   m_ObjectHideFlags: 0

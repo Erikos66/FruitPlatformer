@@ -38,6 +38,7 @@ public class LevelManager : MonoBehaviour {
 			levelSceneNames.Add("Level_4");
 			levelSceneNames.Add("Level_5");
 			levelSceneNames.Add("Level_6");
+			levelSceneNames.Add("Level_7");
 			// Add more levels as needed
 		}
 	}
