@@ -25,13 +25,17 @@ public class Enemy_Base : MonoBehaviour {
 	[Header("Enemy Components")]
 	protected Animator anim;
 	protected Rigidbody2D rb;
+	[SerializeField] protected Transform flipPivot;  // Optional pivot point for flipping the enemy
 	[Space]
 	[Header("Collision Properties")]
 	[SerializeField] protected LayerMask groundLayer;
 	[SerializeField] protected LayerMask playerLayer;
-	[SerializeField] protected Transform groundTransform;
-	[SerializeField] protected float groundCheckDistance = 1f;
+	[SerializeField] protected Transform ledgeDetectionTransform;
+	[SerializeField] protected Transform floorDetectionTransform;
+	[SerializeField] protected Transform wallDetectionTransform;
+	[SerializeField] protected float floorCheckDistance = 1f;
 	[SerializeField] protected float wallCheckDistance = 1f;
+	[SerializeField] protected float ledgeCheckDistance = 1f;
 	protected bool isWallDetected;
 	protected bool isGroundinFrontDetected;
 	protected bool isGrounded;
@@ -76,6 +80,7 @@ public class Enemy_Base : MonoBehaviour {
 	}
 
 	protected virtual void Update() {
+		if (isDead) return;
 		idleTimer -= Time.deltaTime;
 	}
 
@@ -86,9 +91,9 @@ public class Enemy_Base : MonoBehaviour {
 	}
 
 	protected virtual void HandleCollision() {
-		isWallDetected = Physics2D.Raycast(groundTransform.position, Vector2.right * facingDir, wallCheckDistance, groundLayer);
-		isGroundinFrontDetected = Physics2D.Raycast(groundTransform.position, Vector2.down, groundCheckDistance, groundLayer);
-		isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, groundLayer);
+		isWallDetected = Physics2D.Raycast(wallDetectionTransform.position, Vector2.right * facingDir, wallCheckDistance, groundLayer);
+		isGroundinFrontDetected = Physics2D.Raycast(ledgeDetectionTransform.position, Vector2.down, floorCheckDistance, groundLayer);
+		isGrounded = Physics2D.Raycast(floorDetectionTransform.position, Vector2.down, floorCheckDistance, groundLayer);
 	}
 
 	protected virtual void HandleMovement() {
@@ -98,9 +103,32 @@ public class Enemy_Base : MonoBehaviour {
 
 	protected virtual void Flip() {
 		facingDir *= -1;
-		transform.Rotate(0f, 180f, 0f);
 		facingRight = !facingRight;
 		rb.linearVelocity = Vector2.zero;
+
+		if (flipPivot != null) {
+			// Save the world position of the pivot
+			Vector3 pivotWorldPos = flipPivot.position;
+
+			// Get the current parent position
+			Vector3 parentPos = transform.position;
+
+			// Calculate the position difference relative to pivot
+			Vector3 relativePos = parentPos - pivotWorldPos;
+
+			// Flip the X position relative to pivot
+			relativePos.x *= -1;
+
+			// Set the new position (pivot + flipped relative position)
+			transform.position = pivotWorldPos + relativePos;
+
+			// Rotate the object
+			transform.Rotate(0f, 180f, 0f);
+		}
+		else {
+			// Use the original rotation method if no pivot point is assigned
+			transform.Rotate(0f, 180f, 0f);
+		}
 	}
 
 	protected virtual bool DetectedPlayer() {
@@ -187,11 +215,11 @@ public class Enemy_Base : MonoBehaviour {
 
 	protected virtual void OnDrawGizmos() {
 		Gizmos.color = Color.blue;
-		if (groundTransform != null) {
-			Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x, groundTransform.position.y - groundCheckDistance));
-			Gizmos.DrawLine(groundTransform.position, new Vector2(groundTransform.position.x + wallCheckDistance * facingDir, groundTransform.position.y));
-		}
-		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+		// draw the gizmos for the ground check, wall check, and ledge check
+		Gizmos.DrawRay(floorDetectionTransform.position, Vector2.down * floorCheckDistance);
+		Gizmos.DrawRay(wallDetectionTransform.position, Vector2.right * facingDir * wallCheckDistance);
+		Gizmos.DrawRay(ledgeDetectionTransform.position, Vector2.down * floorCheckDistance);
+
 
 		if (detectionShape == DetectionShape.None) {
 			return;
