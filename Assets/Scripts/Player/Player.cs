@@ -133,13 +133,19 @@ public class Player : MonoBehaviour {
 		foreach (var enemy in enemies) {
 			if (enemy) {
 				Enemy_Base enemyBase = enemy.GetComponentInParent<Enemy_Base>();
+				Enemy_Flying_Base enemyFlyingBase = enemy.GetComponentInParent<Enemy_Flying_Base>();
 				if (enemyBase != null) {
 					enemyBase.Die();
 					// Play enemy kicked sound
 					AudioManager.Instance.PlaySFX("SFX_EnemyKicked");
 				}
+				else if (enemyFlyingBase != null) {
+					enemyFlyingBase.Die();
+					// Play enemy kicked sound
+					AudioManager.Instance.PlaySFX("SFX_EnemyKicked");
+				}
 				else {
-					GameObject.Destroy(enemy.gameObject);
+					Destroy(enemy.gameObject);
 				}
 				Jump();
 			}
