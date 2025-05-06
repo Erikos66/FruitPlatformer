@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class Enemy_Ghost : Enemy_Flying_Base {
 
+	// Gonna use regions to organize the code better, this is a personal preference.
+	#region Variables
+
 	[Header("Enemy Ghost Settings")]
 	[SerializeField] private LayerMask groundLayer; // Layer for ground detection
 	[SerializeField] private float moveSpeed = 2f; // Speed of the enemy
@@ -27,6 +30,8 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 	private bool isChasing = false; // Flag to check if the enemy is chasing
 	private bool isPlayerDetected = false; // Flag to check if the player is detected
 	private bool isReturningToStart = false; // Flag to check if the enemy is returning to the starting position
+
+	#endregion
 
 
 	#region Unity Methods
@@ -53,18 +58,18 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 	}
 
 	private void Update() {
-		if (isDead) {
-			return; // If the enemy is dead, exit the update method	
-		}
+		if (isDead) return; // If the enemy is dead, exit the update method	
 
+		// TODO: Make this not be as expensive, it's fine for now, but it could be better.
 		anim.SetBool("isRoaming", isRoaming);
 
-		// Debug the current state if debug mode is enabled
+		// Debug the current state if debug mode is enabled, can safely remove this later.
 		if (debugMode && Time.frameCount % 60 == 0) {
-			Debug.Log($"Ghost State: {currentState}, isWaiting: {isWaiting}, waitCoroutine: {waitCoroutine != null}");
+			Debug.Log($"Ghost State: {currentState}");
 		}
 
 		// handles the enemies states, roaming, chasing and waiting.
+		// Currently also handling the flags for the states here, but could be moved to the states themselves.
 		switch (currentState) {
 			case State.Roaming:
 				isRoaming = true;
@@ -130,7 +135,7 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 	}
 
 	/// <summary>
-	///  Handles the chasing state of the enemy.
+	/// Handles the chasing state of the enemy.
 	/// The enemy chases the player if they are within the detection radius.
 	/// If the player is hit, the enemy returns to the waiting state.
 	/// </summary>
@@ -163,7 +168,7 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 			targetPoint = PickNextRoamPoint(); // Reset target point when reached
 			currentState = State.Waiting;
 			isRoaming = false; // Reset roaming flag when we reach the target
-			isReturningToStart = false; // Reset returning to start flag
+			isReturningToStart = false; // Reset returning to start flag, it is important to reset the flag after attacking the player
 		}
 	}
 
@@ -241,13 +246,14 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 
 		currentState = State.Roaming;
 		isWaiting = false;
-		waitCoroutine = null; // Reset the coroutine reference when it's done
+		waitCoroutine = null; // Reset the coroutine to null, clearing the reference when it's done
 	}
 
 	private void HandleMovement(float moveSpeed) {
 		// Move the enemy towards the target point and flip its sprite based on the direction of movement.
 		Vector2 direction = (targetPoint - (Vector2)transform.position).normalized;
 		transform.position = Vector2.MoveTowards(transform.position, targetPoint, moveSpeed * Time.deltaTime);
+
 		if (direction.x > 0) {
 			facingDirection = 1; // facing right
 		}
@@ -262,6 +268,12 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 			transform.localScale = new Vector3(1, 1, 1); // facing left
 		}
 	}
+
+	#endregion
+
+
+	// These methods are used in the animator, modify at your own peril.
+	#region Animation Methods
 
 	private void MakeInvisible() {
 		// Set the sprite renderer to be invisible and disable the collider
