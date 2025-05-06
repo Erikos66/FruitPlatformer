@@ -90,6 +90,18 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 		HandlePlayerDetection();
 	}
 
+	private void OnDrawGizmos() {
+
+		// Draw a sphere in the scene view to visualize the detection radius for player detection
+		Gizmos.color = Color.yellow;
+		Gizmos.DrawWireSphere(transform.position, detectionRadius);
+
+		// Draw a sphere for the damage radius
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireSphere(transform.position, damageRadius);
+
+	}
+
 	#endregion
 
 	#region States
@@ -261,18 +273,6 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 		// Set the sprite renderer to be visible and enable the collider
 		spriteRenderer.enabled = true;
 		col.enabled = true;
-	}
-
-	private void OnDrawGizmos() {
-
-		// Draw a sphere in the scene view to visualize the detection radius for player detection
-		Gizmos.color = Color.yellow;
-		Gizmos.DrawWireSphere(transform.position, detectionRadius);
-
-		// Draw a sphere for the damage radius
-		Gizmos.color = Color.red;
-		Gizmos.DrawWireSphere(transform.position, damageRadius);
-
 	}
 	#endregion
 
