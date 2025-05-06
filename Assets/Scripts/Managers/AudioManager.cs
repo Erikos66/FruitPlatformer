@@ -249,4 +249,15 @@ public class AudioManager : MonoBehaviour {
 			Debug.LogError($"Music index out of range: {index}");
 		}
 	}
+
+	internal void PlaySFXOnce(string v) {
+		// Play a one-shot SFX without looping
+		if (sfxDict.TryGetValue(v, out AudioSource source)) {
+			source.pitch = Random.Range(minPitch, maxPitch);
+			source.PlayOneShot(source.clip, sfxVolume * masterVolume);
+		}
+		else {
+			Debug.LogError($"SFX not found: {v}");
+		}
+	}
 }
