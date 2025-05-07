@@ -4959,7 +4959,7 @@ MonoBehaviour:
   damageRadius: 0.6
   knockbackDirection: {x: 10, y: 10}
   knockbackDuration: 1
-  debugMode: 1
+  debugMode: 0
 --- !u!50 &7450662704776822851
 Rigidbody2D:
   serializedVersion: 5
