@@ -28,6 +28,7 @@ public class Trap_MovingPlatform : MonoBehaviour {
 	// Keep track of attached player and previous position for properly moving the player
 	private Transform attachedPlayer = null;
 	private Vector2 previousPosition;
+	private Vector2 positionDelta; // Store the position delta to apply to the player
 
 	#endregion
 
@@ -80,26 +81,44 @@ public class Trap_MovingPlatform : MonoBehaviour {
 		}
 	}
 
+	private void FixedUpdate() {
+		// Calculate position delta in FixedUpdate to sync with physics
+		positionDelta = rb.position - previousPosition;
+		previousPosition = rb.position;
+	}
+
 	private void LateUpdate() {
 		// If we have an attached player, update their position based on platform movement
-		if (attachedPlayer != null) {
-			Vector2 positionDelta = rb.position - previousPosition;
-			if (positionDelta.magnitude > 0) {
-				Rigidbody2D playerRb = attachedPlayer.GetComponent<Rigidbody2D>();
-				if (playerRb != null) {
-					// Apply the platform's movement to the player directly
-					playerRb.MovePosition(playerRb.position + positionDelta);
+		if (attachedPlayer != null && positionDelta.magnitude > 0) {
+			Rigidbody2D playerRb = attachedPlayer.GetComponent<Rigidbody2D>();
+			Player playerScript = attachedPlayer.GetComponent<Player>();
+
+			if (playerRb != null) {
+				// Only move the player with the platform if they're grounded
+				// This prevents affecting the player while they're jumping or falling
+				bool isPlayerGrounded = playerScript != null && IsPlayerGrounded(playerScript);
+
+				if (isPlayerGrounded) {
+					// Apply the platform's movement to the player
+					playerRb.position += positionDelta;
+
+					if (debugMode) {
+						Debug.Log($"Moving player with platform. Delta: {positionDelta}");
+					}
 				}
 			}
 		}
-
-		// Update previous position for next frame's delta calculation
-		previousPosition = rb.position;
 	}
 
 	#endregion
 
 	#region Custom Methods
+
+	private bool IsPlayerGrounded(Player player) {
+		// Use the player's own isGrounded state if available
+		// We can access this directly since it's needed for our platform mechanics
+		return !player.isAirborne;
+	}
 
 	private void MovePlatform() {
 		if (waypoints.Count == 0) return; // no waypoints to move towards

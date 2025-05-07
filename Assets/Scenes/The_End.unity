@@ -321,7 +321,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creditsPanel: {fileID: 1448516213}
-  scrollSpeed: 200
+  scrollSpeed: 150
   mainMenuSceneName: MainMenu
   OffScreenY: 1700
 --- !u!1001 &1066471484
@@ -816,10 +816,10 @@ RectTransform:
   - {fileID: 1826207676}
   m_Father: {fileID: 754403882}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -648}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -558}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1448516215
 MonoBehaviour:
@@ -1041,7 +1041,24 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Thank you!
+  m_text: '
+
+
+
+
+
+
+
+
+
+
+
+
+    Special thanks to Erikos!
+
+
+
+    Thank you!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1177,29 +1194,30 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Art Designer - Brad
+  m_text: 'Art Designer - Erikos
 
 
-    Game Design Lead - Brad
+    Game Design Lead - Erikos
 
 
     Audio Designer
-    - Brad
+    - Erikos
 
 
-    Lead Coder - Brad
+    Lead Coder - Erikos
 
 
     Game Testers;
 
 
-    Brad
+    @Erikos
 
-    Alex
+
+    @Hawk
 
 
     Director
-    - Brad
+    - Erikos
 
 '
   m_isRightToLeft: 0
@@ -1401,7 +1419,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Created by Bradley Houghton
+  m_text: Created by Erikos
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
