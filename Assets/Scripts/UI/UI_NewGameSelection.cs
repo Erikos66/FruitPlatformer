@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class UI_NewGameSelection : MonoBehaviour {
 
@@ -189,9 +188,6 @@ public class UI_NewGameSelection : MonoBehaviour {
 		}
 
 		Debug.Log($"Loading scene: {sceneName}");
-
-		// Play transition sound if needed
-		AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
 
 		// Load the level
 		LevelManager.Instance.LoadLevel(sceneName);

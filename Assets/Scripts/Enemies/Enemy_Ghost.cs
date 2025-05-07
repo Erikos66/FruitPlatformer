@@ -22,7 +22,7 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 	private Vector2 startingPosition; // Starting position of the enemy
 	private Vector2[] roamPoints; // Array to store random roam points
 	private int facingDirection = 1; // 1 for right, -1 for left
-	private Vector2 targetPoint = Vector2.zero; // Target point for roaming
+	private Vector2 targetPoint; // Target point for roaming
 	private Vector2 playerPosition; // Position of the player
 	private Coroutine waitCoroutine; // Coroutine for waiting state
 	private bool isWaiting = false; // Flag to check if the enemy is waiting
@@ -42,6 +42,7 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 		// Initialize the starting position of the enemy to its current position in the scene.
 		// This will be used as the center point for generating random roam points.
 		startingPosition = transform.position;
+		targetPoint = startingPosition; // Set the target point to the starting position
 	}
 
 	private void Start() {
@@ -188,9 +189,10 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 	private void HandlePlayerDetection() {
 		// damage the player if they are within the damage radius and knock them back.
 		Collider2D[] dcolliders = Physics2D.OverlapCircleAll(transform.position, damageRadius, playerLayer);
-		foreach (Collider2D collider in dcolliders) {
-			if (collider.CompareTag("Player")) {
-				collider.GetComponent<Player>().Knockback(knockbackDuration, knockbackDirection, transform.position);
+		if (currentState == State.Chasing) {
+			foreach (Collider2D collider in dcolliders) {
+				if (currentState == State.Chasing)
+					collider.GetComponent<Player>().Knockback(knockbackDuration, knockbackDirection, transform.position);
 
 				// After knocking back the player, return to starting position
 				targetPoint = startingPosition;
@@ -204,6 +206,7 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 
 				return;
 			}
+
 		}
 
 		// check if the player is within the detection radius, if so, set the target point to the players position and change the state to chasing.

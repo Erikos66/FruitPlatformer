@@ -31,6 +31,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 326454670349250758}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1031765557792944555
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3513039468170960750}
+  m_Layer: 0
+  m_Name: WallCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3513039468170960750
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1031765557792944555}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.171, y: -0.742, z: 0.16533822}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 326454670349250758}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2450732305735106786
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,6 +157,37 @@ MonoBehaviour:
   knockbackPower: {x: 10, y: 5}
   Damage: 0
   hitInterval: 1
+--- !u!1 &5342431063622526593
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5463445010640495754}
+  m_Layer: 0
+  m_Name: FloorCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5463445010640495754
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5342431063622526593}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.204, y: -0.661, z: 0.16533822}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 326454670349250758}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5526427840557757642
 GameObject:
   m_ObjectHideFlags: 0
@@ -136,7 +198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 907634611846611885}
   m_Layer: 6
-  m_Name: GroundCheck
+  m_Name: LedgeCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -151,7 +213,7 @@ Transform:
   m_GameObject: {fileID: 5526427840557757642}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.05, y: 0, z: 0}
+  m_LocalPosition: {x: -0.333, y: -0.726, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -192,6 +254,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 907634611846611885}
+  - {fileID: 5463445010640495754}
+  - {fileID: 3513039468170960750}
   - {fileID: 7078597592997307904}
   - {fileID: 6052199822694431749}
   m_Father: {fileID: 0}
@@ -213,15 +277,19 @@ MonoBehaviour:
   moveSpeed: 1
   idleDuration: 1
   startFacingRight: 0
+  flipPivot: {fileID: 0}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
-  groundTransform: {fileID: 907634611846611885}
-  groundCheckDistance: 1.34
+  ledgeDetectionTransform: {fileID: 907634611846611885}
+  floorDetectionTransform: {fileID: 5463445010640495754}
+  wallDetectionTransform: {fileID: 3513039468170960750}
+  floorCheckDistance: 1
   wallCheckDistance: 1
+  ledgeCheckDistance: 1
   detectionShape: 2
   playerDetectionDistance: 10.61
   heightOffset: 0.06

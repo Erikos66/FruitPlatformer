@@ -265,7 +265,6 @@ public class UI_InGame : MonoBehaviour {
 
 	// method to return to main menu
 	public void ReturnToMainMenu() {
-		Time.timeScale = 1f;
 		LevelManager.Instance.ReturnToMainMenu();
 	}
 }
