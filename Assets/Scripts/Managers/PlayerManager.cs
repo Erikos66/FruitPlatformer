@@ -69,16 +69,6 @@ public class PlayerManager : MonoBehaviour {
 			TimerManager.Instance.StartLevelTimer();
 			firstSpawn = false;
 		}
-
-		// Add a small delay before enabling player control
-		StartCoroutine(EnablePlayerControlAfterDelay(1f));
-	}
-
-	private IEnumerator EnablePlayerControlAfterDelay(float delay) {
-		yield return new WaitForSeconds(delay);
-		if (currentPlayer.TryGetComponent<Player>(out var playerComponent)) {
-			playerComponent.EnableControl();
-		}
 	}
 
 	/// <summary>
