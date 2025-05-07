@@ -24,11 +24,7 @@ public class SaveManager : MonoBehaviour {
 		else if (Instance != this) {
 			Destroy(gameObject);
 		}
-		// Initialize the first level as unlocked by default
-		if (!PlayerPrefs.HasKey(KEY_LEVEL_UNLOCKED_PREFIX + "Level_1")) {
-			PlayerPrefs.SetInt(KEY_LEVEL_UNLOCKED_PREFIX + "Level_1", 1);
-			PlayerPrefs.Save();
-		}
+		// The auto-unlocking of Level_1 has been removed as it's now handled by the new game flow
 	}
 
 	#region Level Progression
@@ -38,6 +34,9 @@ public class SaveManager : MonoBehaviour {
 	/// </summary>
 	public void SetLevelComplete(string levelName) {
 		PlayerPrefs.SetInt(KEY_LEVEL_COMPLETED_PREFIX + levelName, 1);
+
+		// Make sure the completed level is also marked as unlocked
+		PlayerPrefs.SetInt(KEY_LEVEL_UNLOCKED_PREFIX + levelName, 1);
 
 		// Unlock the next level
 		UnlockNextLevel(levelName);
@@ -79,6 +78,14 @@ public class SaveManager : MonoBehaviour {
 		foreach (string levelName in levelNames) {
 			PlayerPrefs.SetInt(KEY_LEVEL_UNLOCKED_PREFIX + levelName, 1);
 		}
+		PlayerPrefs.Save();
+	}
+
+	/// <summary>
+	/// Unlock a specific level
+	/// </summary>
+	public void UnlockLevel(string levelName) {
+		PlayerPrefs.SetInt(KEY_LEVEL_UNLOCKED_PREFIX + levelName, 1);
 		PlayerPrefs.Save();
 	}
 
@@ -222,8 +229,7 @@ public class SaveManager : MonoBehaviour {
 			PlayerPrefs.DeleteKey(KEY_LEVEL_TOTAL_FRUITS_PREFIX + levelName);
 		}
 
-		// Make sure the first level is still unlocked
-		PlayerPrefs.SetInt(KEY_LEVEL_UNLOCKED_PREFIX + "Level_1", 1);
+
 
 		PlayerPrefs.Save();
 	}

@@ -96,6 +96,13 @@ public class LevelManager : MonoBehaviour {
 	}
 
 	public void ReturnToMainMenu() {
+		// Mark the current level as unlocked if it's a playable level
+		string currentSceneName = SceneManager.GetActiveScene().name;
+		if (levelSceneNames.Contains(currentSceneName) && SaveManager.Instance != null) {
+			// Mark this level as unlocked when returning to main menu
+			SaveManager.Instance.UnlockLevel(currentSceneName);
+		}
+
 		StartCoroutine(LoadMainMenuRoutine());
 	}
 
