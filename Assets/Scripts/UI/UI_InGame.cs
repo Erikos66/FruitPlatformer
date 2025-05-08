@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.OnScreen;
+using System.Collections;
 
 public class UI_InGame : MonoBehaviour {
 	public static UI_InGame Instance { get; private set; }
@@ -35,6 +35,10 @@ public class UI_InGame : MonoBehaviour {
 	private bool isGamepadConnected = false;
 	// Flag to track if we're on a mobile platform
 	private bool isMobilePlatform = false;
+	// Flag to prevent recursive SetActive calls
+	private bool isUpdatingControls = false;
+	// Flag to track if initial setup is complete
+	private bool initialSetupComplete = false;
 
 	private void Awake() {
 		if (Instance == null) {
@@ -76,8 +80,8 @@ public class UI_InGame : MonoBehaviour {
 		// Subscribe to device change events
 		InputSystem.onDeviceChange += OnInputDeviceChange;
 
-		// Check if any gamepad is already connected
-		CheckForConnectedGamepad();
+		// Delay the initial gamepad check to prevent activation issues during initialization
+		StartCoroutine(DelayedInitialSetup());
 	}
 
 	void OnEnable() {
@@ -106,17 +110,27 @@ public class UI_InGame : MonoBehaviour {
 		InputSystem.onDeviceChange -= OnInputDeviceChange;
 	}
 
+	// Coroutine to delay initial gamepad check
+	private IEnumerator DelayedInitialSetup() {
+		// Wait for next frame to ensure all components are initialized
+		yield return null;
+
+		// Check if any gamepad is already connected
+		CheckForConnectedGamepad();
+		initialSetupComplete = true;
+	}
+
 	// Detect platform type and set flags
 	private void CheckPlatform() {
 		// Check if we're on a mobile platform (Android or iOS)
 #if UNITY_ANDROID || UNITY_IOS
-			isMobilePlatform = true;
+		isMobilePlatform = true;
 #else
 		isMobilePlatform = false;
 #endif
 
-		// Update on-screen controls visibility based on platform
-		UpdateOnScreenControlsVisibility();
+		// Note: We don't update controls visibility here anymore
+		// This will be handled by the DelayedInitialSetup coroutine
 	}
 
 	// Check if any gamepad is already connected
@@ -130,6 +144,9 @@ public class UI_InGame : MonoBehaviour {
 
 	// Handle device connection/disconnection events
 	private void OnInputDeviceChange(InputDevice device, InputDeviceChange change) {
+		// Skip device change events until initial setup is complete
+		if (!initialSetupComplete) return;
+
 		if (device is Gamepad) {
 			if (change == InputDeviceChange.Added || change == InputDeviceChange.Reconnected) {
 				isGamepadConnected = true;
@@ -149,26 +166,36 @@ public class UI_InGame : MonoBehaviour {
 
 	// Update the visibility of on-screen controls based on platform and connected devices
 	private void UpdateOnScreenControlsVisibility() {
-		bool shouldShowControls = isMobilePlatform && !isGamepadConnected;
+		// Prevent recursive SetActive calls
+		if (isUpdatingControls) return;
 
-		// Only update if the control objects exist
-		if (onScreenJoystick != null) {
-			onScreenJoystick.SetActive(shouldShowControls);
-		}
+		isUpdatingControls = true;
 
-		if (onScreenButtonA != null) {
-			onScreenButtonA.SetActive(shouldShowControls);
-		}
+		try {
+			bool shouldShowControls = isMobilePlatform && !isGamepadConnected;
 
-		if (onScreenButtonB != null) {
-			onScreenButtonB.SetActive(shouldShowControls);
-		}
+			// Only update if the control objects exist
+			if (onScreenJoystick != null && onScreenJoystick.activeSelf != shouldShowControls) {
+				onScreenJoystick.SetActive(shouldShowControls);
+			}
 
-		if (shouldShowControls) {
-			Debug.Log("Showing on-screen controls: Mobile platform detected without gamepad");
+			if (onScreenButtonA != null && onScreenButtonA.activeSelf != shouldShowControls) {
+				onScreenButtonA.SetActive(shouldShowControls);
+			}
+
+			if (onScreenButtonB != null && onScreenButtonB.activeSelf != shouldShowControls) {
+				onScreenButtonB.SetActive(shouldShowControls);
+			}
+
+			if (shouldShowControls) {
+				Debug.Log("Showing on-screen controls: Mobile platform detected without gamepad");
+			}
+			else if (isMobilePlatform) {
+				Debug.Log("Hiding on-screen controls: Gamepad connected to mobile device");
+			}
 		}
-		else if (isMobilePlatform) {
-			Debug.Log("Hiding on-screen controls: Gamepad connected to mobile device");
+		finally {
+			isUpdatingControls = false;
 		}
 	}
 
