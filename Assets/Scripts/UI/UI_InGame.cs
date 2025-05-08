@@ -31,6 +31,11 @@ public class UI_InGame : MonoBehaviour {
 	// Flag to track if we're using mouse or keyboard/gamepad
 	private bool usingMouse = false;
 
+	// Flag to track if a gamepad is currently connected
+	private bool isGamepadConnected = false;
+	// Flag to track if we're on a mobile platform
+	private bool isMobilePlatform = false;
+
 	private void Awake() {
 		if (Instance == null) {
 			Instance = this;
@@ -48,6 +53,9 @@ public class UI_InGame : MonoBehaviour {
 			Debug.LogError("Pause menu is not assigned in the inspector.");
 		}
 
+		// Check if we're on a mobile platform
+		CheckPlatform();
+
 		// Initialize the PlayerInput for Pause functionality
 		playerInput = new PlayerInput();
 		playerInput.Enable();
@@ -64,6 +72,12 @@ public class UI_InGame : MonoBehaviour {
 		defaultInputActions.UI.Navigate.performed += _ => OnKeyboardOrGamepadInput();
 		defaultInputActions.UI.Submit.performed += _ => OnKeyboardOrGamepadInput();
 		defaultInputActions.UI.Cancel.performed += _ => OnKeyboardOrGamepadInput();
+
+		// Subscribe to device change events
+		InputSystem.onDeviceChange += OnInputDeviceChange;
+
+		// Check if any gamepad is already connected
+		CheckForConnectedGamepad();
 	}
 
 	void OnEnable() {
@@ -86,6 +100,75 @@ public class UI_InGame : MonoBehaviour {
 
 		if (defaultInputActions != null) {
 			defaultInputActions.Disable();
+		}
+
+		// Unsubscribe from device change events
+		InputSystem.onDeviceChange -= OnInputDeviceChange;
+	}
+
+	// Detect platform type and set flags
+	private void CheckPlatform() {
+		// Check if we're on a mobile platform (Android or iOS)
+#if UNITY_ANDROID || UNITY_IOS
+			isMobilePlatform = true;
+#else
+		isMobilePlatform = false;
+#endif
+
+		// Update on-screen controls visibility based on platform
+		UpdateOnScreenControlsVisibility();
+	}
+
+	// Check if any gamepad is already connected
+	private void CheckForConnectedGamepad() {
+		var gamepads = Gamepad.all;
+		isGamepadConnected = gamepads.Count > 0;
+
+		// Update on-screen controls visibility
+		UpdateOnScreenControlsVisibility();
+	}
+
+	// Handle device connection/disconnection events
+	private void OnInputDeviceChange(InputDevice device, InputDeviceChange change) {
+		if (device is Gamepad) {
+			if (change == InputDeviceChange.Added || change == InputDeviceChange.Reconnected) {
+				isGamepadConnected = true;
+				Debug.Log("Gamepad connected: " + device.name);
+			}
+			else if (change == InputDeviceChange.Removed || change == InputDeviceChange.Disconnected) {
+				// Check if there are still other gamepads connected
+				var gamepads = Gamepad.all;
+				isGamepadConnected = gamepads.Count > 0;
+				Debug.Log("Gamepad disconnected. Remaining gamepads: " + gamepads.Count);
+			}
+
+			// Update on-screen controls visibility whenever gamepad connection status changes
+			UpdateOnScreenControlsVisibility();
+		}
+	}
+
+	// Update the visibility of on-screen controls based on platform and connected devices
+	private void UpdateOnScreenControlsVisibility() {
+		bool shouldShowControls = isMobilePlatform && !isGamepadConnected;
+
+		// Only update if the control objects exist
+		if (onScreenJoystick != null) {
+			onScreenJoystick.SetActive(shouldShowControls);
+		}
+
+		if (onScreenButtonA != null) {
+			onScreenButtonA.SetActive(shouldShowControls);
+		}
+
+		if (onScreenButtonB != null) {
+			onScreenButtonB.SetActive(shouldShowControls);
+		}
+
+		if (shouldShowControls) {
+			Debug.Log("Showing on-screen controls: Mobile platform detected without gamepad");
+		}
+		else if (isMobilePlatform) {
+			Debug.Log("Hiding on-screen controls: Gamepad connected to mobile device");
 		}
 	}
 
@@ -121,11 +204,6 @@ public class UI_InGame : MonoBehaviour {
 
 		// Initial update of the fruit count
 		UpdateFruitCountText();
-
-		// Hide on-screen controls initially
-		if (onScreenJoystick != null) onScreenJoystick.SetActive(false);
-		if (onScreenButtonA != null) onScreenButtonA.SetActive(false);
-		if (onScreenButtonB != null) onScreenButtonB.SetActive(false);
 	}
 
 	// Called when the initial fade-in effect is complete
@@ -157,11 +235,6 @@ public class UI_InGame : MonoBehaviour {
 		// Update fruit count display
 		UpdateFruitCountText();
 
-		// Enable on-screen controls if touch input is detected
-		bool touchDetected = Input.touchCount > 0;
-		if (onScreenJoystick != null) onScreenJoystick.SetActive(touchDetected);
-		if (onScreenButtonA != null) onScreenButtonA.SetActive(touchDetected);
-		if (onScreenButtonB != null) onScreenButtonB.SetActive(touchDetected);
 	}
 
 	// Update the fruit count text to show current collection progress
