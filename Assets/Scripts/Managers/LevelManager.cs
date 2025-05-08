@@ -103,22 +103,7 @@ public class LevelManager : MonoBehaviour {
 			// Mark this level as unlocked when returning to main menu
 			SaveManager.Instance.UnlockLevel(currentSceneName);
 		}
-
-		StartCoroutine(LoadMainMenuRoutine());
-	}
-
-	private IEnumerator LoadMainMenuRoutine() {
-		// Fade out
-		UI_FadeEffect fadeEffect = FindFirstObjectByType<UI_FadeEffect>();
-		if (fadeEffect != null) {
-			fadeEffect.ScreenFadeEffect(1f, 1.5f);
-			yield return new WaitForSeconds(1.5f);
-		}
-
-		// Reset time scale in case we're paused
-		Time.timeScale = 1f;
-
-		// Load main menu
+		Time.timeScale = 1f; // Reset time scale to normal
 		SceneManager.LoadScene(MAIN_MENU_SCENE);
 	}
 

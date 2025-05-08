@@ -165,7 +165,7 @@ MonoBehaviour:
   floorCheckDistance: 1
   wallCheckDistance: 0.57
   ledgeCheckDistance: 1
-  detectionShape: 0
+  detectionShape: 1
   playerDetectionDistance: 10
   heightOffset: 0
   sideOffset: 0

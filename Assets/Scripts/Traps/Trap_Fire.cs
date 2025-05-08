@@ -15,9 +15,8 @@ public class Trap_Fire : MonoBehaviour {
 
 	private void OnTriggerEnter2D(Collider2D other) {
 		if (other.TryGetComponent<Player>(out var player)) {
-			if (!isOn) {
+			if (!isOn)
 				player.Knockback(0.5f, new Vector2(15, 10), transform.position);
-			}
 		}
 	}
 }

@@ -7,6 +7,7 @@ public class Trap_FallingPlatform : MonoBehaviour {
 	[SerializeField] private float hoverAmplitude = 0.2f;
 	[SerializeField] private float rechargeDuration = 0.5f;
 	[SerializeField] private float lerpDuration = 2f;
+
 	private bool isFalling = false;
 	private bool playerOnPlatform = false;
 	private bool isLerping = false;

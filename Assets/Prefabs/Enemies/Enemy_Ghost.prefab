@@ -4953,7 +4953,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   moveSpeed: 1
-  chargeSpeed: 6
+  chargeSpeed: 4
   waitDuration: 1
   roamDistance: 5
   damageRadius: 0.6
