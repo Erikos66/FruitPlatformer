@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.OnScreen;
 
 public class UI_InGame : MonoBehaviour {
 	public static UI_InGame Instance { get; private set; }
@@ -11,6 +12,12 @@ public class UI_InGame : MonoBehaviour {
 	[SerializeField] private TextMeshProUGUI timerText;
 	[SerializeField] private TextMeshProUGUI fruitCountText; // Added fruit counter text
 	[SerializeField] private GameObject pauseMenu; // Reference to the pause menu UI
+
+	// On-screen controls
+	[SerializeField] private GameObject onScreenJoystick; // Reference to the on-screen joystick
+	[SerializeField] private GameObject onScreenButtonA; // Reference to on-screen button A
+	[SerializeField] private GameObject onScreenButtonB; // Reference to on-screen button B
+
 	private bool showTimer = true;
 	private bool showFruitCount = true;
 	private Player player; // Reference to the Player component
@@ -114,6 +121,11 @@ public class UI_InGame : MonoBehaviour {
 
 		// Initial update of the fruit count
 		UpdateFruitCountText();
+
+		// Hide on-screen controls initially
+		if (onScreenJoystick != null) onScreenJoystick.SetActive(false);
+		if (onScreenButtonA != null) onScreenButtonA.SetActive(false);
+		if (onScreenButtonB != null) onScreenButtonB.SetActive(false);
 	}
 
 	// Called when the initial fade-in effect is complete
@@ -144,6 +156,12 @@ public class UI_InGame : MonoBehaviour {
 
 		// Update fruit count display
 		UpdateFruitCountText();
+
+		// Enable on-screen controls if touch input is detected
+		bool touchDetected = Input.touchCount > 0;
+		if (onScreenJoystick != null) onScreenJoystick.SetActive(touchDetected);
+		if (onScreenButtonA != null) onScreenButtonA.SetActive(touchDetected);
+		if (onScreenButtonB != null) onScreenButtonB.SetActive(touchDetected);
 	}
 
 	// Update the fruit count text to show current collection progress
