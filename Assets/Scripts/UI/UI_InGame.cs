@@ -125,12 +125,52 @@ public class UI_InGame : MonoBehaviour {
 		// Check if we're on a mobile platform (Android or iOS)
 #if UNITY_ANDROID || UNITY_IOS
 		isMobilePlatform = true;
+#elif UNITY_WEBGL
+		// For WebGL, we need to detect if we're on a touch device
+		// This will be determined at runtime
+		StartCoroutine(CheckWebGLTouchSupport());
 #else
 		isMobilePlatform = false;
 #endif
 
 		// Note: We don't update controls visibility here anymore
 		// This will be handled by the DelayedInitialSetup coroutine
+	}
+
+	// Check if WebGL is running on a touch-capable device
+	private IEnumerator CheckWebGLTouchSupport() {
+		// Wait for next frame to ensure Input system is initialized
+		yield return null;
+
+		// Check if the device has touch capability
+		// Use multiple detection methods for better accuracy
+		bool hasTouchSupport = false;
+
+		// Method 1: Unity's built-in touch detection
+		if (Input.touchSupported && Input.multiTouchEnabled) {
+			hasTouchSupport = true;
+		}
+
+#if UNITY_WEBGL
+		// Method 2: Try to detect mobile browser via screen size and ratio
+		// Mobile devices typically have higher pixel ratio and specific dimensions
+		float ratio = Screen.width / (float)Screen.height;
+		bool likelyMobileRatio = (ratio <= 0.7f || ratio >= 1.7f); // Common mobile aspect ratios
+		bool likelyMobileResolution = Screen.width <= 1200 || Screen.height <= 1200;
+		
+		if (likelyMobileRatio && likelyMobileResolution) {
+			hasTouchSupport = true;
+			Debug.Log("WebGL: Likely mobile device based on screen dimensions");
+		}
+#endif
+
+		isMobilePlatform = hasTouchSupport;
+		Debug.Log($"WebGL: Touch controls {(hasTouchSupport ? "enabled" : "disabled")} (Touch detection result: {hasTouchSupport})");
+
+		// Update controls visibility after determining platform
+		if (initialSetupComplete) {
+			UpdateOnScreenControlsVisibility();
+		}
 	}
 
 	// Check if any gamepad is already connected
@@ -385,4 +425,13 @@ public class UI_InGame : MonoBehaviour {
 	public void ReturnToMainMenu() {
 		LevelManager.Instance.ReturnToMainMenu();
 	}
+
+#if UNITY_WEBGL
+	// Public method that can be called from a button to toggle controls manually
+	public void ToggleOnScreenControls() {
+		isMobilePlatform = !isMobilePlatform;
+		Debug.Log($"WebGL: Manual control toggle - On-screen controls now {(isMobilePlatform ? "enabled" : "disabled")}");
+		UpdateOnScreenControlsVisibility();
+	}
+#endif
 }
