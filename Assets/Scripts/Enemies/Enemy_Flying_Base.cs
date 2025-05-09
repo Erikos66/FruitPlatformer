@@ -10,7 +10,7 @@ public class Enemy_Flying_Base : MonoBehaviour {
 	[SerializeField] protected SpriteRenderer spriteRenderer; // SpriteRenderer component for sprite rendering
 	[SerializeField] protected Collider2D col; // Collider component for collision detection
 
-	[Header("BaseClass Properties")]
+	[Header("Death Properties")]
 	[SerializeField] protected float despawnTime = 5f; // Time before the enemy is destroyed after death
 	[SerializeField] protected float deathRotationSpeed = 100f; // Speed of rotation when the enemy dies
 	[SerializeField] protected float deathImpactForce; // Force applied to the enemy when it dies

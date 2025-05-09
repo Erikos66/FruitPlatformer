@@ -20,6 +20,7 @@ public class UI_Settings : MonoBehaviour {
 	[Header("Game Settings")]
 	[SerializeField] private Button easyDifficultyButton;
 	[SerializeField] private Button normalDifficultyButton;
+	[SerializeField] private Toggle onScreenControlsToggle; // Added on-screen controls toggle
 	[SerializeField] private Color selectedButtonColor = Color.green;
 	[SerializeField] private Color unselectedButtonColor = Color.white;
 
@@ -67,6 +68,11 @@ public class UI_Settings : MonoBehaviour {
 			else
 				displayModeDropdown.value = 0; // Windowed
 		}
+
+		// Set initial toggle state for on-screen controls
+		if (onScreenControlsToggle != null && GameManager.Instance != null) {
+			onScreenControlsToggle.isOn = GameManager.Instance.OnScreenControlsEnabled;
+		}
 	}
 
 	void OnEnable() {
@@ -92,6 +98,10 @@ public class UI_Settings : MonoBehaviour {
 		if (normalDifficultyButton != null)
 			normalDifficultyButton.onClick.AddListener(OnNormalDifficultySelected);
 
+		// Register on-screen controls toggle listener
+		if (onScreenControlsToggle != null)
+			onScreenControlsToggle.onValueChanged.AddListener(OnOnScreenControlsToggled);
+
 		// Update button visuals based on current difficulty
 		UpdateDifficultyButtonVisuals();
 	}
@@ -116,6 +126,10 @@ public class UI_Settings : MonoBehaviour {
 
 		if (normalDifficultyButton != null)
 			normalDifficultyButton.onClick.RemoveListener(OnNormalDifficultySelected);
+
+		// Unregister on-screen controls toggle listener
+		if (onScreenControlsToggle != null)
+			onScreenControlsToggle.onValueChanged.RemoveListener(OnOnScreenControlsToggled);
 	}
 
 	private void InitializeResolutionDropdown() {
@@ -236,5 +250,20 @@ public class UI_Settings : MonoBehaviour {
 		Screen.fullScreenMode = mode;
 		PlayerPrefs.SetInt("DisplayMode", index);
 		PlayerPrefs.Save();
+	}
+
+	public void OnOnScreenControlsToggled(bool isOn) {
+		if (GameManager.Instance != null) {
+			// Update GameManager setting
+			GameManager.Instance.OnScreenControlsEnabled = isOn;
+
+			// Play UI confirmation sound
+			AudioManager.Instance.PlayRandomSFX("SFX_MenuSelect");
+
+			// If we're in a gameplay scene, update the UI immediately
+			if (UI_InGame.Instance != null) {
+				UI_InGame.Instance.RefreshOnScreenControls();
+			}
+		}
 	}
 }

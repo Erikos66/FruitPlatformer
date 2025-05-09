@@ -14,9 +14,7 @@ public class UI_InGame : MonoBehaviour {
 	[SerializeField] private GameObject pauseMenu; // Reference to the pause menu UI
 
 	// On-screen controls
-	[SerializeField] private GameObject onScreenJoystick; // Reference to the on-screen joystick
-	[SerializeField] private GameObject onScreenButtonA; // Reference to on-screen button A
-	[SerializeField] private GameObject onScreenButtonB; // Reference to on-screen button B
+	[SerializeField] private GameObject onScreenControls;
 
 	private bool showTimer = true;
 	private bool showFruitCount = true;
@@ -33,12 +31,6 @@ public class UI_InGame : MonoBehaviour {
 
 	// Flag to track if a gamepad is currently connected
 	private bool isGamepadConnected = false;
-	// Flag to track if we're on a mobile platform
-	private bool isMobilePlatform = false;
-	// Flag to prevent recursive SetActive calls
-	private bool isUpdatingControls = false;
-	// Flag to track if initial setup is complete
-	private bool initialSetupComplete = false;
 
 	private void Awake() {
 		if (Instance == null) {
@@ -57,9 +49,6 @@ public class UI_InGame : MonoBehaviour {
 			Debug.LogError("Pause menu is not assigned in the inspector.");
 		}
 
-		// Check if we're on a mobile platform
-		CheckPlatform();
-
 		// Initialize the PlayerInput for Pause functionality
 		playerInput = new PlayerInput();
 		playerInput.Enable();
@@ -77,11 +66,8 @@ public class UI_InGame : MonoBehaviour {
 		defaultInputActions.UI.Submit.performed += _ => OnKeyboardOrGamepadInput();
 		defaultInputActions.UI.Cancel.performed += _ => OnKeyboardOrGamepadInput();
 
-		// Subscribe to device change events
-		InputSystem.onDeviceChange += OnInputDeviceChange;
-
-		// Delay the initial gamepad check to prevent activation issues during initialization
-		StartCoroutine(DelayedInitialSetup());
+		// Set on-screen controls based on GameManager setting
+		UpdateOnScreenControlsVisibility();
 	}
 
 	void OnEnable() {
@@ -105,138 +91,13 @@ public class UI_InGame : MonoBehaviour {
 		if (defaultInputActions != null) {
 			defaultInputActions.Disable();
 		}
-
-		// Unsubscribe from device change events
-		InputSystem.onDeviceChange -= OnInputDeviceChange;
 	}
 
-	// Coroutine to delay initial gamepad check
-	private IEnumerator DelayedInitialSetup() {
-		// Wait for next frame to ensure all components are initialized
-		yield return null;
-
-		// Check if any gamepad is already connected
-		CheckForConnectedGamepad();
-		initialSetupComplete = true;
-	}
-
-	// Detect platform type and set flags
-	private void CheckPlatform() {
-		// Check if we're on a mobile platform (Android or iOS)
-#if UNITY_ANDROID || UNITY_IOS
-		isMobilePlatform = true;
-#elif UNITY_WEBGL
-		// For WebGL, we need to detect if we're on a touch device
-		// This will be determined at runtime
-		StartCoroutine(CheckWebGLTouchSupport());
-#else
-		isMobilePlatform = false;
-#endif
-
-		// Note: We don't update controls visibility here anymore
-		// This will be handled by the DelayedInitialSetup coroutine
-	}
-
-	// Check if WebGL is running on a touch-capable device
-	private IEnumerator CheckWebGLTouchSupport() {
-		// Wait for next frame to ensure Input system is initialized
-		yield return null;
-
-		// Check if the device has touch capability
-		// Use multiple detection methods for better accuracy
-		bool hasTouchSupport = false;
-
-		// Method 1: Unity's built-in touch detection
-		if (Input.touchSupported && Input.multiTouchEnabled) {
-			hasTouchSupport = true;
-		}
-
-#if UNITY_WEBGL
-		// Method 2: Try to detect mobile browser via screen size and ratio
-		// Mobile devices typically have higher pixel ratio and specific dimensions
-		float ratio = Screen.width / (float)Screen.height;
-		bool likelyMobileRatio = (ratio <= 0.7f || ratio >= 1.7f); // Common mobile aspect ratios
-		bool likelyMobileResolution = Screen.width <= 1200 || Screen.height <= 1200;
-		
-		if (likelyMobileRatio && likelyMobileResolution) {
-			hasTouchSupport = true;
-			Debug.Log("WebGL: Likely mobile device based on screen dimensions");
-		}
-#endif
-
-		isMobilePlatform = hasTouchSupport;
-		Debug.Log($"WebGL: Touch controls {(hasTouchSupport ? "enabled" : "disabled")} (Touch detection result: {hasTouchSupport})");
-
-		// Update controls visibility after determining platform
-		if (initialSetupComplete) {
-			UpdateOnScreenControlsVisibility();
-		}
-	}
 
 	// Check if any gamepad is already connected
 	private void CheckForConnectedGamepad() {
 		var gamepads = Gamepad.all;
 		isGamepadConnected = gamepads.Count > 0;
-
-		// Update on-screen controls visibility
-		UpdateOnScreenControlsVisibility();
-	}
-
-	// Handle device connection/disconnection events
-	private void OnInputDeviceChange(InputDevice device, InputDeviceChange change) {
-		// Skip device change events until initial setup is complete
-		if (!initialSetupComplete) return;
-
-		if (device is Gamepad) {
-			if (change == InputDeviceChange.Added || change == InputDeviceChange.Reconnected) {
-				isGamepadConnected = true;
-				Debug.Log("Gamepad connected: " + device.name);
-			}
-			else if (change == InputDeviceChange.Removed || change == InputDeviceChange.Disconnected) {
-				// Check if there are still other gamepads connected
-				var gamepads = Gamepad.all;
-				isGamepadConnected = gamepads.Count > 0;
-				Debug.Log("Gamepad disconnected. Remaining gamepads: " + gamepads.Count);
-			}
-
-			// Update on-screen controls visibility whenever gamepad connection status changes
-			UpdateOnScreenControlsVisibility();
-		}
-	}
-
-	// Update the visibility of on-screen controls based on platform and connected devices
-	private void UpdateOnScreenControlsVisibility() {
-		// Prevent recursive SetActive calls
-		if (isUpdatingControls) return;
-
-		isUpdatingControls = true;
-
-		try {
-			bool shouldShowControls = isMobilePlatform && !isGamepadConnected;
-
-			// Only update if the control objects exist
-			if (onScreenJoystick != null && onScreenJoystick.activeSelf != shouldShowControls) {
-				onScreenJoystick.SetActive(shouldShowControls);
-			}
-
-			if (onScreenButtonA != null && onScreenButtonA.activeSelf != shouldShowControls) {
-				onScreenButtonA.SetActive(shouldShowControls);
-			}
-
-			if (onScreenButtonB != null && onScreenButtonB.activeSelf != shouldShowControls) {
-				onScreenButtonB.SetActive(shouldShowControls);
-			}
-
-			if (shouldShowControls) {
-				Debug.Log("Showing on-screen controls: Mobile platform detected without gamepad");
-			}
-			else if (isMobilePlatform) {
-				Debug.Log("Hiding on-screen controls: Gamepad connected to mobile device");
-			}
-		}
-		finally {
-			isUpdatingControls = false;
-		}
 	}
 
 	private void PauseToggle() {
@@ -426,12 +287,15 @@ public class UI_InGame : MonoBehaviour {
 		LevelManager.Instance.ReturnToMainMenu();
 	}
 
-#if UNITY_WEBGL
-	// Public method that can be called from a button to toggle controls manually
-	public void ToggleOnScreenControls() {
-		isMobilePlatform = !isMobilePlatform;
-		Debug.Log($"WebGL: Manual control toggle - On-screen controls now {(isMobilePlatform ? "enabled" : "disabled")}");
+	// Update the visibility of on-screen controls based on GameManager setting
+	private void UpdateOnScreenControlsVisibility() {
+		if (onScreenControls != null && GameManager.Instance != null) {
+			onScreenControls.SetActive(GameManager.Instance.OnScreenControlsEnabled);
+		}
+	}
+
+	// Method to be called when the on-screen controls setting changes
+	public void RefreshOnScreenControls() {
 		UpdateOnScreenControlsVisibility();
 	}
-#endif
 }
