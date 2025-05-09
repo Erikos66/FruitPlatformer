@@ -38,6 +38,8 @@ public class Enemy_Skull : Enemy_Flying_Base {
 
 		base.Awake(); // Call the base class Awake method to initialize components
 
+		col.enabled = false; // Disable the collider initially
+
 		SetupPatrol(); // Setup patrol points and center position
 
 	}
@@ -348,6 +350,9 @@ public class Enemy_Skull : Enemy_Flying_Base {
 		if (anim != null) {
 			anim.SetTrigger("wallHit");
 		}
+
+		// enable/disable collider based on shield status
+		col.enabled = (hasShield); 
 
 		// Return to patrol state
 		ReturnToPatrol();

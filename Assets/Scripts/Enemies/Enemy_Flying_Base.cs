@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-public class Enemy_Flying_Base : MonoBehaviour {
+public class Enemy_Flying_Base : MonoBehaviour, IDamageable {
 
 	[Header("Enemy Components")]
 	[SerializeField] protected Rigidbody2D rb; // Rigidbody component for physics interactions

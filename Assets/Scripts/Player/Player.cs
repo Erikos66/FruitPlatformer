@@ -128,24 +128,15 @@ public class Player : MonoBehaviour {
 			return;
 		}
 
-		Collider2D[] enemies = Physics2D.OverlapCircleAll(EnemyCheck.position, EnemyCheckRadius, whatIsEnemy);
+		Collider2D[] colliders = Physics2D.OverlapCircleAll(EnemyCheck.position, EnemyCheckRadius, whatIsEnemy);
 
-		foreach (var enemy in enemies) {
-			if (enemy) {
-				Enemy_Base enemyBase = enemy.GetComponentInParent<Enemy_Base>();
-				Enemy_Flying_Base enemyFlyingBase = enemy.GetComponentInParent<Enemy_Flying_Base>();
-				if (enemyBase != null) {
-					enemyBase.Die();
+		foreach (var hits in colliders) {
+			if (hits) {
+				IDamageable damageable = hits.GetComponent<IDamageable>();
+				if (damageable != null) {
+					damageable.Die();
 					// Play enemy kicked sound
 					AudioManager.Instance.PlaySFX("SFX_EnemyKicked");
-				}
-				else if (enemyFlyingBase != null) {
-					enemyFlyingBase.Die();
-					// Play enemy kicked sound
-					AudioManager.Instance.PlaySFX("SFX_EnemyKicked");
-				}
-				else {
-					Destroy(enemy.gameObject);
 				}
 				Jump();
 			}

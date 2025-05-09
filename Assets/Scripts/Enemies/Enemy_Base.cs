@@ -9,7 +9,7 @@ public enum DetectionShape {
 	Sphere
 }
 
-public class Enemy_Base : MonoBehaviour {
+public class Enemy_Base : MonoBehaviour, IDamageable {
 
 	[Header("Enemy Properties")]
 	[SerializeField] protected int health = 1;
