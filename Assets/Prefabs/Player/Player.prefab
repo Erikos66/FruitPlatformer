@@ -124,7 +124,7 @@ MonoBehaviour:
     m_Bits: 8
   whatIsEnemy:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 1088
   EnemyCheckRadius: 0.4
   EnemyCheck: {fileID: 1786533514780595022}
   isAirborne: 0
