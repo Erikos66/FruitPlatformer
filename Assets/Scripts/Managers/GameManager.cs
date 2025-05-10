@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
@@ -44,6 +45,8 @@ public class GameManager : MonoBehaviour {
 			Destroy(gameObject);
 		}
 
+		CheckMobilePlatform();
+
 		// Initialize managers
 		InitializeManagers();
 
@@ -55,6 +58,13 @@ public class GameManager : MonoBehaviour {
 		// Load on-screen controls preference
 		_onScreenControlsEnabled = PlayerPrefs.GetInt("OnScreenControls", 0) == 1;
 	}
+
+	private void CheckMobilePlatform() {
+		if (Application.isMobilePlatform) {
+			_onScreenControlsEnabled = true;
+		}
+	}
+
 
 	private void InitializeManagers() {
 		// instantiate manager objects if they are not already in the scene
