@@ -352,7 +352,7 @@ public class Enemy_Skull : Enemy_Flying_Base {
 		}
 
 		// enable/disable collider based on shield status
-		col.enabled = (hasShield); 
+		col.enabled = (!hasShield);
 
 		// Return to patrol state
 		ReturnToPatrol();

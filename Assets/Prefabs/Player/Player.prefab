@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 815154925940335882}
   - component: {fileID: 7910922564890111489}
   - component: {fileID: 2784983891812146419}
-  - component: {fileID: 4339668702446009745}
+  - component: {fileID: 6154421523848567098}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -109,12 +109,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerDeath_VFX: {fileID: 2685973626150419772, guid: 8bbf1ca509c672244aa128cc6fc87b2b, type: 3}
   moveSpeed: 8
-  jumpForce: 15
-  doubleJumpForce: 12
+  jumpForce: 12
+  doubleJumpForce: 13
   bufferJumpWindow: 0.25
   coyoteJumpWindow: 0.7
   wallJumpDuration: 0.8
-  wallJumpForce: {x: 16, y: 13}
+  wallJumpForce: {x: 15, y: 14}
   knockbackPower: {x: 12, y: 14}
   invincibilityDuration: 1.5
   groundCheckDistnace: 0.82
@@ -125,11 +125,11 @@ MonoBehaviour:
   whatIsEnemy:
     serializedVersion: 2
     m_Bits: 1088
-  EnemyCheckRadius: 0.4
+  EnemyCheckRadius: 0.42
   EnemyCheck: {fileID: 1786533514780595022}
   isAirborne: 0
---- !u!70 &4339668702446009745
-CapsuleCollider2D:
+--- !u!61 &6154421523848567098
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -162,9 +162,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.016100407, y: -0.045696616}
-  m_Size: {x: 0.67597485, y: 1.2229075}
-  m_Direction: 0
+  m_Offset: {x: 0, y: -0.08638793}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.767282, y: 1.1234113}
+  m_EdgeRadius: 0
 --- !u!1 &2290971739996369671
 GameObject:
   m_ObjectHideFlags: 0
