@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
@@ -19,6 +20,18 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	// On-screen controls setting
+	private bool _onScreenControlsEnabled = false;
+	public bool OnScreenControlsEnabled {
+		get { return _onScreenControlsEnabled; }
+		set {
+			_onScreenControlsEnabled = value;
+			// Save setting to PlayerPrefs
+			PlayerPrefs.SetInt("OnScreenControls", value ? 1 : 0);
+			PlayerPrefs.Save();
+		}
+	}
+
 	// Public properties for easy access to common managers
 	public GameObject[] managerObjects;
 
@@ -32,6 +45,8 @@ public class GameManager : MonoBehaviour {
 			Destroy(gameObject);
 		}
 
+		CheckMobilePlatform();
+
 		// Initialize managers
 		InitializeManagers();
 
@@ -39,7 +54,17 @@ public class GameManager : MonoBehaviour {
 		if (SaveManager.Instance != null) {
 			_currentDifficulty = SaveManager.Instance.GetGameDifficulty();
 		}
+
+		// Load on-screen controls preference
+		_onScreenControlsEnabled = PlayerPrefs.GetInt("OnScreenControls", 0) == 1;
 	}
+
+	private void CheckMobilePlatform() {
+		if (Application.isMobilePlatform) {
+			_onScreenControlsEnabled = true;
+		}
+	}
+
 
 	private void InitializeManagers() {
 		// instantiate manager objects if they are not already in the scene

@@ -130,7 +130,7 @@ MonoBehaviour:
   floorDetectionTransform: {fileID: 3872225668332652090}
   wallDetectionTransform: {fileID: 6623768604347775202}
   floorCheckDistance: 1
-  wallCheckDistance: 1.2
+  wallCheckDistance: 1.3
   ledgeCheckDistance: 1
   detectionShape: 1
   playerDetectionDistance: 14
