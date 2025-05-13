@@ -19,6 +19,7 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 
 	private enum State { Roaming, Chasing, Waiting } // Enum to represent the enemy's state
 	private State currentState = State.Roaming; // Initial state of the enemy
+	private State previousState; // Track previous state to detect state changes
 	private Vector2 startingPosition; // Starting position of the enemy
 	private Vector2[] roamPoints; // Array to store random roam points
 	private int facingDirection = 1; // 1 for right, -1 for left
@@ -30,6 +31,7 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 	private bool isChasing = false; // Flag to check if the enemy is chasing
 	private bool isPlayerDetected = false; // Flag to check if the player is detected
 	private bool isReturningToStart = false; // Flag to check if the enemy is returning to the starting position
+	private bool hasPlayedChargeSound = false; // Flag to track if charge sound has been played
 
 	#endregion
 
@@ -43,6 +45,7 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 		// This will be used as the center point for generating random roam points.
 		startingPosition = transform.position;
 		targetPoint = startingPosition; // Set the target point to the starting position
+		previousState = currentState; // Initialize previous state
 	}
 
 	private void Start() {
@@ -67,6 +70,20 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 		// Debug the current state if debug mode is enabled, can safely remove this later.
 		if (debugMode && Time.frameCount % 60 == 0) {
 			Debug.Log($"Ghost State: {currentState}");
+		}
+
+		// Track state transitions
+		bool stateChanged = previousState != currentState;
+		if (stateChanged) {
+			// Reset sound flag when transitioning out of chasing state
+			if (previousState == State.Chasing) {
+				hasPlayedChargeSound = false;
+			}
+
+			if (debugMode) {
+				Debug.Log($"State changed from {previousState} to {currentState}");
+			}
+			previousState = currentState;
 		}
 
 		// handles the enemies states, roaming, chasing and waiting.
@@ -141,6 +158,15 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 	/// If the player is hit, the enemy returns to the waiting state.
 	/// </summary>
 	private void ChasePlayer() {
+		// Play charge sound only once when entering chase state
+		if (!hasPlayedChargeSound) {
+			PlayChargeSFX();
+			hasPlayedChargeSound = true;
+			if (debugMode) {
+				Debug.Log("Played ghost charge sound");
+			}
+		}
+
 		if (playerPosition != Vector2.zero && isPlayerDetected) {
 			targetPoint = playerPosition; // Set the target point to the player's position
 			HandleMovement(chargeSpeed); // Move faster towards the player
@@ -206,7 +232,6 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 
 				return;
 			}
-
 		}
 
 		// check if the player is within the detection radius, if so, set the target point to the players position and change the state to chasing.
@@ -218,10 +243,6 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 					playerPosition = collider.transform.position;
 					isPlayerDetected = true;
 					currentState = State.Chasing;
-					// play a sfx once the player is detected.
-					if (AudioManager.Instance != null) {
-						AudioManager.Instance.PlaySFXOnce("SFX_GhostCharge");
-					}
 					return;
 				}
 			}
@@ -269,6 +290,13 @@ public class Enemy_Ghost : Enemy_Flying_Base {
 		}
 		else if (facingDirection == -1) {
 			transform.localScale = new Vector3(1, 1, 1); // facing left
+		}
+	}
+
+	private void PlayChargeSFX() {
+		// play a sfx once the player is detected.
+		if (AudioManager.Instance != null) {
+			AudioManager.Instance.PlaySFX("SFX_GhostCharge");
 		}
 	}
 
