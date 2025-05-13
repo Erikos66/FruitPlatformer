@@ -102,11 +102,23 @@ public class UI_NewGameSelection : MonoBehaviour {
 		// Set button colors based on current difficulty
 		if (currentDifficulty == GameManager.GameDifficulty.Easy) {
 			easyColorBlock.normalColor = selectedButtonColor;
+			easyColorBlock.highlightedColor = selectedButtonColor;
+			easyColorBlock.pressedColor = selectedButtonColor;
+			easyColorBlock.selectedColor = selectedButtonColor;
 			normalColorBlock.normalColor = unselectedButtonColor;
+			normalColorBlock.highlightedColor = unselectedButtonColor;
+			normalColorBlock.pressedColor = unselectedButtonColor;
+			normalColorBlock.selectedColor = unselectedButtonColor;
 		}
 		else {
 			easyColorBlock.normalColor = unselectedButtonColor;
+			easyColorBlock.highlightedColor = unselectedButtonColor;
+			easyColorBlock.pressedColor = unselectedButtonColor;
+			easyColorBlock.selectedColor = unselectedButtonColor;
 			normalColorBlock.normalColor = selectedButtonColor;
+			normalColorBlock.highlightedColor = selectedButtonColor;
+			normalColorBlock.pressedColor = selectedButtonColor;
+			normalColorBlock.selectedColor = selectedButtonColor;
 		}
 
 		// Apply updated color blocks
