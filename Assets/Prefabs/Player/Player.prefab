@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 815154925940335882}
   - component: {fileID: 7910922564890111489}
   - component: {fileID: 2784983891812146419}
-  - component: {fileID: 6154421523848567098}
+  - component: {fileID: 2744730792479469216}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -59,7 +59,7 @@ Transform:
   m_GameObject: {fileID: 292616798252525937}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.85, y: -0.77, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -92,7 +92,7 @@ Rigidbody2D:
     serializedVersion: 2
     m_Bits: 0
   m_Interpolate: 1
-  m_SleepingMode: 1
+  m_SleepingMode: 0
   m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &2784983891812146419
@@ -109,15 +109,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerDeath_VFX: {fileID: 2685973626150419772, guid: 8bbf1ca509c672244aa128cc6fc87b2b, type: 3}
   moveSpeed: 8
-  jumpForce: 12
-  doubleJumpForce: 13
+  jumpForce: 14
+  doubleJumpForce: 14
   bufferJumpWindow: 0.25
-  coyoteJumpWindow: 0.7
-  wallJumpDuration: 0.8
-  wallJumpForce: {x: 15, y: 14}
-  knockbackPower: {x: 12, y: 14}
+  coyoteJumpWindow: 0.8
+  wallJumpDuration: 3
+  wallJumpForce: {x: 14, y: 15}
+  knockbackPower: {x: 14, y: 15}
   invincibilityDuration: 1.5
-  groundCheckDistnace: 0.82
+  groundCheckDistnace: 0.7
   wallCheckDistance: 0.4
   whatIsGround:
     serializedVersion: 2
@@ -128,8 +128,8 @@ MonoBehaviour:
   EnemyCheckRadius: 0.42
   EnemyCheck: {fileID: 1786533514780595022}
   isAirborne: 0
---- !u!61 &6154421523848567098
-BoxCollider2D:
+--- !u!70 &2744730792479469216
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -162,18 +162,9 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -0.08638793}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.767282, y: 1.1234113}
-  m_EdgeRadius: 0
+  m_Offset: {x: 0.0015271977, y: -0.13440955}
+  m_Size: {x: 0.5030544, y: 1.1048431}
+  m_Direction: 0
 --- !u!1 &2290971739996369671
 GameObject:
   m_ObjectHideFlags: 0
