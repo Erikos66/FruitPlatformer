@@ -9478,6 +9478,8 @@ MonoBehaviour:
     previewImage: {fileID: -6362640387699834566, guid: a38e7fa380217c246a08a40755304577, type: 3}
   - sceneName: Level_9
     previewImage: {fileID: -3949220886463796080, guid: c3811ab6d68dbb840b7320d276639ecd, type: 3}
+  - sceneName: Level_10
+    previewImage: {fileID: 7012361350516681348, guid: be9f3314faa7c044cadbec6eb0873d22, type: 3}
   manualLevelList:
   - displayName: Level 1
     sceneName: Level_1
