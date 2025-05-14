@@ -41,6 +41,7 @@ public class LevelManager : MonoBehaviour {
 			levelSceneNames.Add("Level_7");
 			levelSceneNames.Add("Level_8");
 			levelSceneNames.Add("Level_9");
+			levelSceneNames.Add("Level_10");
 			// Add more levels as needed
 		}
 	}
@@ -66,7 +67,7 @@ public class LevelManager : MonoBehaviour {
 		}
 		else {
 			// If we can't find the current level or it's the last level, go to credits
-			LoadCredits();
+			LoadLevel(CREDITS_SCENE);
 		}
 	}
 
