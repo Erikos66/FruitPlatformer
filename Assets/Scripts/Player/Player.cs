@@ -8,7 +8,7 @@ public class Player : MonoBehaviour {
 	private PlayerAnimation playerAnimationController;
 
 	[Header("Visuals")]
-	public GameObject playerDeath_VFX;
+	public GameObject playerDeath_VFX; // Prefab for player death VFX
 	private ParticleSystem dustfx;
 
 	[Header("Movement")]

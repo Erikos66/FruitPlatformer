@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour {
@@ -250,7 +249,7 @@ public class AudioManager : MonoBehaviour {
 		}
 	}
 
-	internal void PlaySFXOnce(string v) {
+	public void PlaySFXOnce(string v) {
 		// Play a one-shot SFX without looping
 		if (sfxDict.TryGetValue(v, out AudioSource source)) {
 			source.pitch = Random.Range(minPitch, maxPitch);
