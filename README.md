@@ -4,7 +4,7 @@ A delightful 2D platformer game where you collect fruits while navigating throug
 
 ![FruitPlatformer Game](https://i.imgur.com/c11gRzu.png)
 
-## Check out my Itch.io: https://erikos66.itch.io/fruit-bananza?secret=NUC2teTTdHyWOyhOXmvTvWFU
+## Check out my Itch.io: [Here](https://erikos66.itch.io/fruit-bananza)
 
 ## 🎮 Game Features
 
