@@ -35,7 +35,7 @@ jobs:
                         'Animations': ['Assets/Animations/**'],
                         'Materials': ['Assets/Materials/**'],
                         'Prefabs': ['Assets/Prefabs/**'],
-                        'Settings': ['Assets/Settings/**', 'ProjectSettings/**']
+                        'Settings': ['Assets/Settings/**']
                         'Scenes': ['Assets/Scenes/**'],
                       };
 
