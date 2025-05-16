@@ -35,8 +35,8 @@ jobs:
                         'Animations': ['Assets/Animations/**'],
                         'Materials': ['Assets/Materials/**'],
                         'Prefabs': ['Assets/Prefabs/**'],
-                        'Settings': ['Assets/Settings/**']
-                        'Scenes': ['Assets/Scenes/**'],
+                        'Settings': ['Assets/Settings/**'],
+                        'Scenes': ['Assets/Scenes/**']
                       };
 
                       // Get existing labels on the PR
