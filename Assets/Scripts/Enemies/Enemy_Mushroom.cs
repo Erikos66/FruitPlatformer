@@ -1,24 +1,35 @@
 using UnityEngine;
 
-public class Enemy_Mushroom : Enemy_Base {
+public class Enemy_Mushroom : Base_Enemy_Class {
 
-    protected override void Update() {
-        base.Update();
+	#region Variables
+	// Mushroom has no specific variables beyond what it inherits from the base class
+	#endregion
 
-        if (isDead) {
-            return;
-        }
+	#region Unity Methods
 
-        anim.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
+	/// <summary>
+	/// Updates the mushroom enemy's state and behavior
+	/// </summary>
+	protected override void Update() {
+		base.Update();
 
-        HandleCollision();
-        if (isGrounded) {
-            HandleMovement();
+		if (_isDead) {
+			return;
+		}
 
-            if (isWallDetected || !isGroundinFrontDetected) {
-                Flip();
-                idleTimer = idleDuration;
-            }
-        }
-    }
+		_anim.SetFloat("xVelocity", Mathf.Abs(_rb.linearVelocity.x));
+
+		HandleCollision();
+		if (_isGrounded) {
+			HandleMovement();
+
+			if (_isWallDetected || !_isGroundinFrontDetected) {
+				Flip();
+				_idleTimer = _idleDuration;
+			}
+		}
+	}
+
+	#endregion
 }

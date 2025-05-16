@@ -29,16 +29,14 @@ jobs:
 
                       // Define file patterns and their corresponding labels
                       const labelPatterns = {
-                        'Sprites': ['Assets/Sprites/**'],
                         'Scripts': ['Assets/Scripts/**'],
-                        'UI': ['Assets/UI/**'],
                         'Art': ['Assets/Art/**'],
                         'Audio': ['Assets/Audio/**'],
                         'Animations': ['Assets/Animations/**'],
                         'Materials': ['Assets/Materials/**'],
-                        'Textures': ['Assets/Textures/**'],
                         'Prefabs': ['Assets/Prefabs/**'],
                         'Settings': ['Assets/Settings/**', 'ProjectSettings/**']
+                        'Scenes': ['Assets/Scenes/**'],
                       };
 
                       // Get existing labels on the PR
