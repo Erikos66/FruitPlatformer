@@ -1,6 +1,6 @@
 # Unity Project Code Style Guide
 
-This document outlines the coding standards for our Unity project. Please follow these guidelines when writing or modifying code. When using Copilot or other AI assistants, refer to this document for the expected formatting.
+This document outlines the coding standards for the Unity project. Please follow these guidelines when writing or modifying code. When using Copilot or other AI assistants, refer to this document for the expected formatting.
 
 ## General Formatting
 
