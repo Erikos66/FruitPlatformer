@@ -9,3 +9,27 @@ insert_final_newline = true
 charset = utf-8
 dotnet_sort_system_directives_first = true
 csharp_prefer_braces = true
+
+# Naming conventions
+dotnet_naming_rule.private_members_with_underscore.symbols = private_fields
+dotnet_naming_rule.private_members_with_underscore.style = prefix_underscore
+dotnet_naming_rule.private_members_with_underscore.severity = suggestion
+
+dotnet_naming_rule.constants_should_be_uppercase.symbols = constants
+dotnet_naming_rule.constants_should_be_uppercase.style = uppercase
+dotnet_naming_rule.constants_should_be_uppercase.severity = suggestion
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_symbols.constants.applicable_kinds = field
+dotnet_naming_symbols.constants.required_modifiers = const
+
+dotnet_naming_style.prefix_underscore.capitalization = camel_case
+dotnet_naming_style.prefix_underscore.required_prefix = _
+
+dotnet_naming_style.uppercase.capitalization = all_upper
+dotnet_naming_style.uppercase.word_separator = _
+
+# XML documentation preferences
+dotnet_style_require_accessibility_modifiers = always:suggestion

@@ -1,121 +1,143 @@
 using UnityEngine;
 
-public class Enemy_Rhino : Enemy_Base {
-    [Header("Rhino Specific")]
-    [SerializeField] private float chargeSpeed = 16f;
-    [SerializeField] private float returnSpeed = 3f;
-    [SerializeField] private float bounceForce = 2f;
-    [SerializeField] private float returnDelay = 2f;
+public class Enemy_Rhino : Base_Enemy_Class {
 
-    private Vector3 startingPosition;
-    private bool isCharging;
-    private bool isReturning;
-    private bool isBouncing;
-    private float normalSpeed;
-    private float returnTimer;
-    private int startingFacingDir;
+	#region Variables
 
-    protected override void Awake() {
-        base.Awake();
-        normalSpeed = moveSpeed;
-        startingPosition = transform.position;
-        startingFacingDir = facingDir;
-    }
+	[Header("Rhino Specific")]
+	[SerializeField] private float _chargeSpeed = 16f;          // Speed when charging
+	[SerializeField] private float _returnSpeed = 3f;           // Speed when returning to start
+	[SerializeField] private float _bounceForce = 2f;           // Vertical force when bouncing
+	[SerializeField] private float _returnDelay = 2f;           // Delay before returning to start
 
-    protected override void Update() {
-        base.Update();
+	private Vector3 _startingPosition;                          // Initial position
+	private bool _isCharging;                                   // Whether rhino is charging
+	private bool _isReturning;                                  // Whether returning to start
+	private bool _isBouncing;                                   // Whether bouncing off wall
+	private float _normalSpeed;                                 // Normal movement speed
+	private float _returnTimer;                                 // Timer for return delay
+	private int _startingFacingDir;                             // Initial facing direction
 
-        if (isDead) {
-            return;
-        }
+	#endregion
 
-        anim.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
+	#region Unity Methods
 
-        HandleCollision();
+	protected override void Awake() {
+		base.Awake();
+		_normalSpeed = _moveSpeed;
+		_startingPosition = transform.position;
+		_startingFacingDir = _facingDir;
+	}
 
-        if (isGrounded) {
-            if (isBouncing) {
-                isBouncing = false;
-                isCharging = false;
-                returnTimer = returnDelay;
-            }
-            else if (returnTimer > 0) {
-                returnTimer -= Time.deltaTime;
-                if (returnTimer <= 0) {
-                    isReturning = true;
-                }
-            }
-            else if (isCharging) {
-                ChargeBehavior();
-                if (isWallDetected) {
-                    StartBounce();
-                }
-            }
-            else if (isReturning) {
-                ReturnBehavior();
-                if (DetectedPlayer()) {
-                    isCharging = true;
-                    isReturning = false;
-                    moveSpeed = chargeSpeed;
-                }
-            }
-            else {
-                if (DetectedPlayer()) {
-                    isCharging = true;
-                    isReturning = false;
-                    moveSpeed = chargeSpeed;
-                }
-            }
-        }
-    }
+	protected override void Update() {
+		base.Update();
 
-    private void ChargeBehavior() {
-        // play the charge sound
-        AudioManager.Instance.PlaySFX("SFX_RinoCharge");
-        rb.linearVelocity = new Vector2(moveSpeed * facingDir, rb.linearVelocity.y);
-    }
+		if (_isDead) {
+			return;
+		}
 
-    private void StartBounce() {
-        isBouncing = true;
-        anim.SetTrigger("onWallHit");
-        rb.linearVelocity = new Vector2(-facingDir * moveSpeed * 0.5f, bounceForce);
-    }
+		_anim.SetFloat("xVelocity", Mathf.Abs(_rb.linearVelocity.x));
 
-    private void ReturnBehavior() {
-        int directionToStart = transform.position.x > startingPosition.x ? -1 : 1;
+		HandleCollision();
 
-        if (directionToStart != facingDir) {
-            Flip();
-            return;
-        }
+		if (_isGrounded) {
+			if (_isBouncing) {
+				_isBouncing = false;
+				_isCharging = false;
+				_returnTimer = _returnDelay;
+			}
+			else if (_returnTimer > 0) {
+				_returnTimer -= Time.deltaTime;
+				if (_returnTimer <= 0) {
+					_isReturning = true;
+				}
+			}
+			else if (_isCharging) {
+				ChargeBehavior();
+				if (_isWallDetected) {
+					StartBounce();
+				}
+			}
+			else if (_isReturning) {
+				ReturnBehavior();
+				if (DetectedPlayer()) {
+					_isCharging = true;
+					_isReturning = false;
+					_moveSpeed = _chargeSpeed;
+				}
+			}
+			else {
+				if (DetectedPlayer()) {
+					_isCharging = true;
+					_isReturning = false;
+					_moveSpeed = _chargeSpeed;
+				}
+			}
+		}
+	}
 
-        moveSpeed = returnSpeed;
-        rb.linearVelocity = new Vector2(moveSpeed * facingDir, rb.linearVelocity.y);
+	protected override void OnDrawGizmos() {
+		base.OnDrawGizmos();
 
-        float distanceToStart = Vector2.Distance(
-            new Vector2(transform.position.x, 0),
-            new Vector2(startingPosition.x, 0)
-        );
+		if (Application.isPlaying) {
+			Gizmos.color = Color.blue;
+			Gizmos.DrawSphere(_startingPosition, 0.2f);
+		}
+	}
 
-        if (distanceToStart < 0.5f) {
-            transform.position = new Vector3(startingPosition.x, transform.position.y, transform.position.z);
-            rb.linearVelocity = Vector2.zero;
+	#endregion
 
-            if (facingDir != startingFacingDir) {
-                Flip();
-            }
+	#region Private Methods
 
-            isReturning = false;
-            moveSpeed = normalSpeed;
-        }
-    }
+	/// <summary>
+	/// Handles the charging behavior
+	/// </summary>
+	private void ChargeBehavior() {
+		// Play the charge sound
+		AudioManager.Instance.PlaySFX("SFX_RinoCharge");
+		_rb.linearVelocity = new Vector2(_moveSpeed * _facingDir, _rb.linearVelocity.y);
+	}
 
-    protected override void OnDrawGizmos() {
-        base.OnDrawGizmos();
+	/// <summary>
+	/// Initiates bounce behavior when hitting a wall
+	/// </summary>
+	private void StartBounce() {
+		_isBouncing = true;
+		_anim.SetTrigger("onWallHit");
+		_rb.linearVelocity = new Vector2(-_facingDir * _moveSpeed * 0.5f, _bounceForce);
+	}
 
-        if (Application.isPlaying) {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(startingPosition, 0.2f);
-        }
-    }
+	/// <summary>
+	/// Handles returning to starting position
+	/// </summary>
+	private void ReturnBehavior() {
+		int directionToStart = transform.position.x > _startingPosition.x ? -1 : 1;
+
+		if (directionToStart != _facingDir) {
+			Flip();
+			return;
+		}
+
+		_moveSpeed = _returnSpeed;
+		_rb.linearVelocity = new Vector2(_moveSpeed * _facingDir, _rb.linearVelocity.y);
+
+		float distanceToStart = Vector2.Distance(
+			new Vector2(transform.position.x, 0),
+			new Vector2(_startingPosition.x, 0)
+		);
+
+		if (distanceToStart < 0.5f) {
+			transform.position = new Vector3(_startingPosition.x, transform.position.y, transform.position.z);
+			_rb.linearVelocity = Vector2.zero;
+
+			if (_facingDir != _startingFacingDir) {
+				Flip();
+			}
+
+			_isReturning = false;
+			_moveSpeed = _normalSpeed;
+		}
+	}
+
+	#endregion
 }

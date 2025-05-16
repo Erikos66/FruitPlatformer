@@ -1,37 +1,58 @@
 using UnityEngine;
 
-public class Enemy_Plant : Enemy_Base {
+public class Enemy_Plant : Base_Enemy_Class {
+
+	#region Variables
+
 	[Header("Plant Enemy Specific Settings")]
-	[SerializeField] private float attackCooldown = 3f;
-	private float attackCooldownTimer = 0f;
-	[SerializeField] private GameObject bulletPrefab;
-	[SerializeField] private Transform bulletSpawnPoint;
-	[SerializeField] private float bulletSpeed = 5f;
+	[SerializeField] private float _attackCooldown = 3f;       // Time between attacks
+	[SerializeField] private GameObject _bulletPrefab;         // Prefab for bullet projectile
+	[SerializeField] private Transform _bulletSpawnPoint;      // Location to spawn bullets
+	[SerializeField] private float _bulletSpeed = 5f;          // Speed of fired bullets
+
+	private float _attackCooldownTimer = 0f;                   // Current attack cooldown timer
+
+	#endregion
+
+	#region Unity Methods
 
 	protected override void Update() {
 		base.Update();
 
-		if (attackCooldownTimer > 0) {
-			attackCooldownTimer -= Time.deltaTime;
+		if (_attackCooldownTimer > 0) {
+			_attackCooldownTimer -= Time.deltaTime;
 		}
 
-		if (DetectedPlayer() && attackCooldownTimer <= 0) {
+		if (DetectedPlayer() && _attackCooldownTimer <= 0) {
 			Attack();
 		}
 	}
 
-	private void Attack() {
-		anim.SetTrigger("onAttack");
-		attackCooldownTimer = attackCooldown;
+	#endregion
 
-		// We'll spawn the bullet at the animation event
-		// This allows us to synchronize the bullet spawn with the attack animation
+	#region Private Methods
+
+	/// <summary>
+	/// Triggers attack animation and resets cooldown
+	/// </summary>
+	private void Attack() {
+		_anim.SetTrigger("onAttack");
+		_attackCooldownTimer = _attackCooldown;
+
+		// Bullet will be spawned via animation event through SpawnBullet method
 	}
 
-	// This method will be called by an animation event during the attack animation
+	#endregion
+
+	#region Public Methods
+
+	/// <summary>
+	/// Spawns a bullet projectile aimed at player
+	/// Called by Animation Event
+	/// </summary>
 	public void SpawnBullet() {
-		if (isDead) return;
-		if (bulletPrefab == null || bulletSpawnPoint == null) {
+		if (_isDead) return;
+		if (_bulletPrefab == null || _bulletSpawnPoint == null) {
 			Debug.LogWarning("Bullet prefab or spawn point is not assigned!");
 			return;
 		}
@@ -48,15 +69,17 @@ public class Enemy_Plant : Enemy_Base {
 		Vector2 targetPosition = player.transform.position;
 
 		// Instantiate the bullet at the spawn point
-		GameObject bulletObj = Instantiate(bulletPrefab, bulletSpawnPoint.position, Quaternion.identity);
+		GameObject bulletObj = Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.identity);
 
 		// Get the Enemy_Bullet component and initialize it
 		Enemy_Bullet bullet = bulletObj.GetComponent<Enemy_Bullet>();
 		if (bullet != null) {
-			bullet.Initialize(targetPosition, bulletSpeed);
+			bullet.Initialize(targetPosition, _bulletSpeed);
 		}
 		else {
 			Debug.LogError("Enemy_Bullet component not found on bullet prefab!");
 		}
 	}
+
+	#endregion
 }

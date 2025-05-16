@@ -1,18 +1,25 @@
 using UnityEngine;
 using System.Collections;
 
-public class Enemy_Snail : Enemy_Base {
+public class Enemy_Snail : Base_Enemy_Class {
+
+	#region Variables
+
 	[Header("Snail Specific")]
-	[SerializeField] private float shellSlideSpeed = 8f;
-	[SerializeField] private float bounceForce = 5f;
-	[SerializeField] private float wallBounceDelay = 0.1f;
-	[SerializeField] private LayerMask enemyLayer;
+	[SerializeField] private float _shellSlideSpeed = 8f;      // Speed when sliding in shell form
+	[SerializeField] private float _bounceForce = 5f;          // Force applied when bouncing off objects
+	[SerializeField] private float _wallBounceDelay = 0.1f;    // Delay before bouncing off wall
+	[SerializeField] private LayerMask _enemyLayer;            // Layer for detecting other enemies
 
 	private enum SnailState { WithShell, NoShell }
-	private SnailState currentState = SnailState.WithShell;
-	private bool isSliding = false;
-	private bool isBouncingOffWall = false;
-	private int bounceCount = 0;
+	private SnailState _currentState = SnailState.WithShell;   // Current state of the snail
+	private bool _isSliding = false;                          // Whether shell is sliding
+	private bool _isBouncingOffWall = false;                  // Whether currently bouncing off wall
+	private int _bounceCount = 0;                             // Number of bounces performed
+
+	#endregion
+
+	#region Unity Methods
 
 	protected override void Awake() {
 		base.Awake();
@@ -21,29 +28,29 @@ public class Enemy_Snail : Enemy_Base {
 	protected override void Update() {
 		base.Update();
 
-		if (isDead) return;
+		if (_isDead) return;
 
-		anim.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
+		_anim.SetFloat("xVelocity", Mathf.Abs(_rb.linearVelocity.x));
 
 		HandleCollision();
 
-		switch (currentState) {
+		switch (_currentState) {
 			case SnailState.WithShell:
-				if (isGrounded) {
+				if (_isGrounded) {
 					HandleMovement();
 
-					if (isWallDetected || !isGroundinFrontDetected) {
+					if (_isWallDetected || !_isGroundinFrontDetected) {
 						Flip();
-						idleTimer = idleDuration;
+						_idleTimer = _idleDuration;
 					}
 				}
 				break;
 
 			case SnailState.NoShell:
-				if (isGrounded && isSliding && !isBouncingOffWall) {
+				if (_isGrounded && _isSliding && !_isBouncingOffWall) {
 					SlideShell();
 
-					if (isWallDetected) {
+					if (_isWallDetected) {
 						StartCoroutine(DelayedBounceOffWall());
 					}
 				}
@@ -51,55 +58,125 @@ public class Enemy_Snail : Enemy_Base {
 		}
 	}
 
-	private void SlideShell() {
-		rb.linearVelocity = new Vector2(shellSlideSpeed * facingDir, rb.linearVelocity.y);
+	private void OnTriggerEnter2D(Collider2D collision) {
+		// Only perform collision effects when in NoShell state and sliding
+		if (_currentState == SnailState.NoShell && _isSliding) {
+			// Check if shell hit player
+			if (((1 << collision.gameObject.layer) & _playerLayer) != 0) {
+				Player player = collision.gameObject.GetComponent<Player>();
+				if (player != null) {
+					// Apply knockback to player
+					Vector2 knockbackDirection = (collision.transform.position - transform.position).normalized;
+					Vector2 knockbackPower = new Vector2(
+						knockbackDirection.x * _bounceForce,
+						_bounceForce  // Keep the vertical component consistent
+					);
+
+					player.Knockback(0.5f, knockbackPower);
+				}
+			}
+
+			// Check if shell hit another enemy
+			if (((1 << collision.gameObject.layer) & _enemyLayer) != 0) {
+				// Try to get Enemy_Base component from the collided object or its parent
+				Base_Enemy_Class enemy = collision.gameObject.GetComponent<Base_Enemy_Class>();
+				if (enemy == null) {
+					enemy = collision.gameObject.GetComponentInParent<Base_Enemy_Class>();
+				}
+
+				// Make sure we don't kill ourselves
+				if (enemy != null && enemy != this) {
+					enemy.Die();
+				}
+			}
+		}
 	}
 
+	#endregion
+
+	#region Private Methods
+
+	/// <summary>
+	/// Controls the shell sliding behavior
+	/// </summary>
+	private void SlideShell() {
+		_rb.linearVelocity = new Vector2(_shellSlideSpeed * _facingDir, _rb.linearVelocity.y);
+	}
+
+	/// <summary>
+	/// Delays the bounce off wall to create better visual effect
+	/// </summary>
+	/// <returns>Coroutine IEnumerator</returns>
 	private IEnumerator DelayedBounceOffWall() {
 		// Set flag to prevent multiple bounces while waiting
-		isBouncingOffWall = true;
+		_isBouncingOffWall = true;
 
-		bounceCount++;
-		if (bounceCount > 3) {
+		_bounceCount++;
+		if (_bounceCount > 3) {
 			Die();
 		}
 
 		// Stop the shell
-		rb.linearVelocity = Vector2.zero;
+		_rb.linearVelocity = Vector2.zero;
 
 		// Play wall hit animation
-		anim.SetTrigger("onWallHit");
+		_anim.SetTrigger("onWallHit");
 
 		// Wait for the delay
-		yield return new WaitForSeconds(wallBounceDelay);
+		yield return new WaitForSeconds(_wallBounceDelay);
 
 		// Bounce off wall
 		Flip();
 
 		// Re-enable sliding
-		isBouncingOffWall = false;
+		_isBouncingOffWall = false;
 
 		// play the bounce sound
 		AudioManager.Instance.PlaySFX("SFX_EnemyKicked");
 	}
 
-	// Called when player jumps on the snail
+	/// <summary>
+	/// Starts the shell sliding behavior
+	/// </summary>
+	private void LaunchShell() {
+		_isSliding = true;
+
+		// Find player position to determine launch direction
+		GameObject player = GameObject.FindGameObjectWithTag("Player");
+		if (player != null) {
+			// Face away from the player (shell gets kicked in direction player is facing)
+			float dirToPlayer = player.transform.position.x > transform.position.x ? 1 : -1;
+
+			// If player's direction is different than current facing direction, flip
+			if (dirToPlayer != _facingDir) {
+				Flip();
+			}
+		}
+	}
+
+	#endregion
+
+	#region Public Methods
+
+	/// <summary>
+	/// Overrides the base Die method to implement shell state transitions
+	/// </summary>
 	public override void Die() {
-		if (isDead) return;
+		if (_isDead) return;
 		// play the die sound
 		AudioManager.Instance.PlaySFX("SFX_EnemyKicked");
 
-		switch (currentState) {
+		switch (_currentState) {
 			case SnailState.WithShell:
 				// Change to NoShell state instead of dying
-				currentState = SnailState.NoShell;
-				anim.SetTrigger("onHit");
-				rb.linearVelocity = Vector2.zero;
-				isSliding = false;
+				_currentState = SnailState.NoShell;
+				_anim.SetTrigger("onHit");
+				_rb.linearVelocity = Vector2.zero;
+				_isSliding = false;
 				break;
 
 			case SnailState.NoShell:
-				if (!isSliding) {
+				if (!_isSliding) {
 					// Start sliding if not already sliding
 					LaunchShell();
 				}
@@ -111,53 +188,5 @@ public class Enemy_Snail : Enemy_Base {
 		}
 	}
 
-	private void LaunchShell() {
-		isSliding = true;
-
-		// Find player position to determine launch direction
-		GameObject player = GameObject.FindGameObjectWithTag("Player");
-		if (player != null) {
-			// Face away from the player (shell gets kicked in direction player is facing)
-			float dirToPlayer = player.transform.position.x > transform.position.x ? 1 : -1;
-
-			// If player's direction is different than current facing direction, flip
-			if (dirToPlayer != facingDir) {
-				Flip();
-			}
-		}
-	}
-
-	private void OnTriggerEnter2D(Collider2D collision) {
-		// Only perform collision effects when in NoShell state and sliding
-		if (currentState == SnailState.NoShell && isSliding) {
-			// Check if shell hit player
-			if (((1 << collision.gameObject.layer) & playerLayer) != 0) {
-				Player player = collision.gameObject.GetComponent<Player>();
-				if (player != null) {
-					// Apply knockback to player
-					Vector2 knockbackDirection = (collision.transform.position - transform.position).normalized;
-					Vector2 knockbackPower = new Vector2(
-						knockbackDirection.x * bounceForce,
-						bounceForce  // Keep the vertical component consistent
-					);
-
-					player.Knockback(0.5f, knockbackPower);
-				}
-			}
-
-			// Check if shell hit another enemy
-			if (((1 << collision.gameObject.layer) & enemyLayer) != 0) {
-				// Try to get Enemy_Base component from the collided object or its parent
-				Enemy_Base enemy = collision.gameObject.GetComponent<Enemy_Base>();
-				if (enemy == null) {
-					enemy = collision.gameObject.GetComponentInParent<Enemy_Base>();
-				}
-
-				// Make sure we don't kill ourselves
-				if (enemy != null && enemy != this) {
-					enemy.Die();
-				}
-			}
-		}
-	}
+	#endregion
 }
