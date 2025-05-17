@@ -114,38 +114,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a923351fa45c26741b03f8191784e763, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 1
-  damage: 1
-  moveSpeed: 3
-  idleDuration: 1
-  startFacingRight: 0
-  flipPivot: {fileID: 0}
-  groundLayer:
+  _moveSpeed: 2
+  _idleDuration: 2
+  _startFacingRight: 0
+  _flipPivot: {fileID: 0}
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  playerLayer:
+  _playerLayer:
     serializedVersion: 2
     m_Bits: 128
-  ledgeDetectionTransform: {fileID: 2117214603694251693}
-  floorDetectionTransform: {fileID: 3872225668332652090}
-  wallDetectionTransform: {fileID: 6623768604347775202}
-  floorCheckDistance: 1
-  wallCheckDistance: 1.3
-  ledgeCheckDistance: 1
-  detectionShape: 1
-  playerDetectionDistance: 14
-  heightOffset: 0
-  sideOffset: 0
-  coneAngle: 30
-  rectangleHeight: 1
-  sphereRadius: 2
-  despawnTime: 5
-  deathRotationSpeed: 300
-  deathImpactForce: 10
-  chargeSpeed: 16
-  returnSpeed: 4
-  bounceForce: 3
-  returnDelay: 1
+  _ledgeDetectionTransform: {fileID: 2117214603694251693}
+  _floorDetectionTransform: {fileID: 3872225668332652090}
+  _wallDetectionTransform: {fileID: 6623768604347775202}
+  _floorCheckDistance: 1
+  _wallCheckDistance: 1
+  _ledgeCheckDistance: 1
+  _detectionShape: 1
+  _playerDetectionDistance: 10
+  _heightOffset: 0
+  _sideOffset: 0
+  _coneAngle: 30
+  _rectangleHeight: 1
+  _sphereRadius: 2
+  _despawnTime: 5
+  _deathRotationSpeed: 33
+  _deathImpactForce: 5
+  _chargeSpeed: 15
+  _returnSpeed: 3
+  _bounceForce: 3
+  _returnDelay: 2
 --- !u!212 &5078939081319756263
 SpriteRenderer:
   m_ObjectHideFlags: 0

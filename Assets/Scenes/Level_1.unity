@@ -127,6 +127,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3003048330440183142, guid: b11a0986e2c2907498aff580ea04fedb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.0017089844
+      objectReference: {fileID: 0}
     - target: {fileID: 4403413665726948002, guid: b11a0986e2c2907498aff580ea04fedb, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -210,6 +214,22 @@ PrefabInstance:
     - target: {fileID: 7420150566934759610, guid: b11a0986e2c2907498aff580ea04fedb, type: 3}
       propertyPath: m_Name
       value: UI_InGame
+      objectReference: {fileID: 0}
+    - target: {fileID: 8176365764333784035, guid: b11a0986e2c2907498aff580ea04fedb, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 55
+      objectReference: {fileID: 0}
+    - target: {fileID: 8176365764333784035, guid: b11a0986e2c2907498aff580ea04fedb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -42.000122
+      objectReference: {fileID: 0}
+    - target: {fileID: 9060677686145946986, guid: b11a0986e2c2907498aff580ea04fedb, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -7.5998535
+      objectReference: {fileID: 0}
+    - target: {fileID: 9060677686145946986, guid: b11a0986e2c2907498aff580ea04fedb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -33.099976
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4360,10 +4380,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4606cc526b302fb4e9d7af0813754a04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sfxContainer: {fileID: 1666621216}
-  musicContainer: {fileID: 256118667}
-  minPitch: 0.8
-  maxPitch: 1.1
+  _sfxContainer: {fileID: 0}
+  _musicContainer: {fileID: 0}
+  _minPitch: 0.9
+  _maxPitch: 1.1
 --- !u!4 &1028461223
 Transform:
   m_ObjectHideFlags: 0
@@ -4546,7 +4566,7 @@ Transform:
   m_GameObject: {fileID: 1147764777}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.8928413, y: -0.7536297, z: -10}
+  m_LocalPosition: {x: -4.230132, y: -0.7536297, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI; // Added for Selectable
+using UnityEngine.UI;
 
-public class MainMenu : MonoBehaviour {
+public class UI_TitleScreen : MonoBehaviour {
 	public string sceneName;
 	private UI_FadeEffect fadeEffect;
 	private DefaultInputActions defaultInputActions;
@@ -25,7 +25,7 @@ public class MainMenu : MonoBehaviour {
 		defaultInputActions.Enable();
 
 		// Only detect mouse movement for mouse usage, not click
-		defaultInputActions.UI.Point.performed += _ => OnMouseMove();
+		defaultInputActions.UI.Point.started += _ => OnMouseMove();
 
 		// Detect ANY keyboard/gamepad navigation input
 		defaultInputActions.UI.Navigate.performed += _ => OnKeyboardOrGamepadInput();
@@ -50,8 +50,9 @@ public class MainMenu : MonoBehaviour {
 	private void Start() {
 		fadeEffect.ScreenFadeEffect(0f, 1.5f);
 
-		// Set initial selection to the first selectable element
-		SelectFirstAvailableButton();
+		// No longer automatically select anything on start
+		// Clear any selection that might be present
+		EventSystem.current.SetSelectedGameObject(null);
 
 		// Check if we should show the level select UI
 		if (LevelManager.Instance != null && LevelManager.Instance.showLevelSelectOnMainMenu) {
@@ -72,11 +73,12 @@ public class MainMenu : MonoBehaviour {
 		if (levelSelectUI != null) {
 			SwitchUI(levelSelectUI);
 
-			// Find and select the first selectable element in the level select menu
+			// Find the first selectable element but don't select it yet
+			// It will only be selected when keyboard/gamepad input is detected
 			Selectable firstSelectable = levelSelectUI.GetComponentInChildren<Selectable>();
 			if (firstSelectable != null) {
 				lastSelectedObject = firstSelectable.gameObject;
-				EventSystem.current.SetSelectedGameObject(lastSelectedObject);
+				// Don't auto-select: EventSystem.current.SetSelectedGameObject(lastSelectedObject);
 			}
 		}
 	}
@@ -95,23 +97,19 @@ public class MainMenu : MonoBehaviour {
 			EventSystem.current.SetSelectedGameObject(null);
 		}
 	}
-
 	private void OnKeyboardOrGamepadInput() {
-		if (usingMouse) {
-			// Switch from mouse to keyboard/gamepad
-			usingMouse = false;
+		// Always mark that we're using keyboard/gamepad and show selection
+		usingMouse = false;
 
-			// Restore last selected object
-			if (lastSelectedObject != null && lastSelectedObject.activeInHierarchy) {
-				EventSystem.current.SetSelectedGameObject(lastSelectedObject);
-			}
-			else {
-				// Find a selectable element if the previous one isn't valid
-				SelectFirstAvailableButton();
-			}
+		// Restore last selected object or find a new one
+		if (lastSelectedObject != null && lastSelectedObject.activeInHierarchy) {
+			EventSystem.current.SetSelectedGameObject(lastSelectedObject);
+		}
+		else {
+			// Find a selectable element if the previous one isn't valid
+			SelectFirstAvailableButton();
 		}
 	}
-
 	private void UpdateSelectedMenuItem() {
 		// If using keyboard/gamepad but nothing is selected
 		if (!usingMouse && EventSystem.current.currentSelectedGameObject == null) {
@@ -123,6 +121,11 @@ public class MainMenu : MonoBehaviour {
 				// Find a selectable element if the previous one isn't valid
 				SelectFirstAvailableButton();
 			}
+		}
+
+		// When using mouse, ensure nothing is selected
+		if (usingMouse && EventSystem.current.currentSelectedGameObject != null) {
+			EventSystem.current.SetSelectedGameObject(null);
 		}
 
 		// When keyboard/gamepad is used, update the last selected object
@@ -187,8 +190,40 @@ public class MainMenu : MonoBehaviour {
 		}
 		uiToEnable.SetActive(true);
 
-		// After switching UI, select the first selectable element in the new UI
-		Invoke(nameof(SelectFirstAvailableButton), 0.05f);
+		// After switching UI, find the first selectable element but don't select it
+		// Store it for when keyboard/gamepad is used
+		Invoke(nameof(FindFirstSelectableWithoutSelecting), 0.05f);
+	}
+
+	// New method to find the first selectable but not select it
+	private void FindFirstSelectableWithoutSelecting() {
+		// Find the currently active UI container
+		GameObject activeContainer = null;
+		foreach (GameObject uiElement in UIElements) {
+			if (uiElement.activeInHierarchy) {
+				activeContainer = uiElement;
+				break;
+			}
+		}
+
+		if (activeContainer != null) {
+			// Try to find selectable elements in the active container
+			Selectable[] selectables = activeContainer.GetComponentsInChildren<Selectable>();
+
+			// Find first interactable selectable
+			Selectable firstInteractable = null;
+			foreach (Selectable selectable in selectables) {
+				if (selectable.interactable && selectable.gameObject.activeInHierarchy) {
+					firstInteractable = selectable;
+					break;
+				}
+			}
+
+			if (firstInteractable != null) {
+				lastSelectedObject = firstInteractable.gameObject;
+				// Don't select it, just remember it for later when keyboard/gamepad is used
+			}
+		}
 	}
 
 	/// <summary>

@@ -115,39 +115,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5baff3eda12be24591bff3d2731b749, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 1
-  damage: 1
-  moveSpeed: 3
-  idleDuration: 1
-  startFacingRight: 0
-  flipPivot: {fileID: 0}
-  groundLayer:
+  _moveSpeed: 1
+  _idleDuration: 1
+  _startFacingRight: 0
+  _flipPivot: {fileID: 0}
+  _groundLayer:
     serializedVersion: 2
-    m_Bits: 8
-  playerLayer:
+    m_Bits: 0
+  _playerLayer:
     serializedVersion: 2
-    m_Bits: 128
-  ledgeDetectionTransform: {fileID: 2699260260301472743}
-  floorDetectionTransform: {fileID: 1316421750106714901}
-  wallDetectionTransform: {fileID: 4795190366815391396}
-  floorCheckDistance: 1
-  wallCheckDistance: 1
-  ledgeCheckDistance: 1
-  detectionShape: 1
-  playerDetectionDistance: 7
-  heightOffset: 0
-  sideOffset: 0
-  coneAngle: 53.9
-  rectangleHeight: 1
-  sphereRadius: 2
-  despawnTime: 5
-  deathRotationSpeed: 300
-  deathImpactForce: 10
-  attackCooldown: 1.5
-  bulletPrefab: {fileID: 4194466443101787624, guid: 17111dc6fc02f4b45a18ab102e6d0dd5, type: 3}
-  bulletSpawnPoint: {fileID: 149605857096325829}
-  bulletSpeed: 12
-  stopDuration: 1
+    m_Bits: 0
+  _ledgeDetectionTransform: {fileID: 2699260260301472743}
+  _floorDetectionTransform: {fileID: 1316421750106714901}
+  _wallDetectionTransform: {fileID: 4795190366815391396}
+  _floorCheckDistance: 1
+  _wallCheckDistance: 1
+  _ledgeCheckDistance: 1
+  _detectionShape: 2
+  _playerDetectionDistance: 8
+  _heightOffset: 0
+  _sideOffset: 0
+  _coneAngle: 35
+  _rectangleHeight: 1
+  _sphereRadius: 2
+  _despawnTime: 5
+  _deathRotationSpeed: 33
+  _deathImpactForce: 5
+  _attackCooldown: 2.5
+  _bulletPrefab: {fileID: 4194466443101787624, guid: 17111dc6fc02f4b45a18ab102e6d0dd5, type: 3}
+  _bulletSpawnPoint: {fileID: 149605857096325829}
+  _bulletSpeed: 5
+  _stopDuration: 1.5
 --- !u!212 &6032168922505835806
 SpriteRenderer:
   m_ObjectHideFlags: 0
