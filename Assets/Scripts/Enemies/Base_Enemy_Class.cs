@@ -5,8 +5,6 @@ public class Base_Enemy_Class : MonoBehaviour, IDamageable {
 	#region Variables
 
 	[Header("Enemy Properties")]
-	[SerializeField] protected int _health = 1;                      // Enemy health points
-	[SerializeField] protected int _damage = 1;                      // Damage dealt to player
 	[SerializeField] protected float _moveSpeed = 1;                 // Movement speed
 	[SerializeField] protected float _idleDuration = 1;              // Time spent idle between movements
 	[SerializeField] protected bool _startFacingRight = false;       // Toggle to control starting direction

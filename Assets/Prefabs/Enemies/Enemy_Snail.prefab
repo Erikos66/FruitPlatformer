@@ -178,40 +178,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05940c144c5a8224cb653af6cc238f4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 1
-  damage: 1
-  moveSpeed: 0.5
-  idleDuration: 1
-  startFacingRight: 1
-  flipPivot: {fileID: 0}
-  groundLayer:
+  _moveSpeed: 1
+  _idleDuration: 1
+  _startFacingRight: 0
+  _flipPivot: {fileID: 0}
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  playerLayer:
+  _playerLayer:
     serializedVersion: 2
     m_Bits: 128
-  ledgeDetectionTransform: {fileID: 1873422878432689480}
-  floorDetectionTransform: {fileID: 2608625678808875622}
-  wallDetectionTransform: {fileID: 3200035177524049491}
-  floorCheckDistance: 1
-  wallCheckDistance: 0.7
-  ledgeCheckDistance: 1
-  detectionShape: 0
-  playerDetectionDistance: 0
-  heightOffset: 0
-  sideOffset: 0
-  coneAngle: 30
-  rectangleHeight: 1
-  sphereRadius: 2
-  despawnTime: 5
-  deathRotationSpeed: 300
-  deathImpactForce: 10
-  shellSlideSpeed: 12
-  bounceForce: 3
-  wallBounceDelay: 0
-  enemyLayer:
+  _ledgeDetectionTransform: {fileID: 1873422878432689480}
+  _floorDetectionTransform: {fileID: 2608625678808875622}
+  _wallDetectionTransform: {fileID: 3200035177524049491}
+  _floorCheckDistance: 1
+  _wallCheckDistance: 0.88
+  _ledgeCheckDistance: 1
+  _detectionShape: 0
+  _playerDetectionDistance: 10
+  _heightOffset: 0
+  _sideOffset: 0
+  _coneAngle: 30
+  _rectangleHeight: 1
+  _sphereRadius: 2
+  _despawnTime: 1
+  _deathRotationSpeed: 100
+  _deathImpactForce: 0
+  _shellSlideSpeed: 8
+  _bounceForce: 5
+  _wallBounceDelay: 0
+  _enemyLayer:
     serializedVersion: 2
-    m_Bits: 320
+    m_Bits: 64
 --- !u!212 &1706841251656518853
 SpriteRenderer:
   m_ObjectHideFlags: 0

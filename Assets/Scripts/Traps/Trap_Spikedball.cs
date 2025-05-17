@@ -1,15 +1,19 @@
 using UnityEngine;
 
 public class Trap_Spikedball : MonoBehaviour {
-	[SerializeField] private Rigidbody2D spikerb;
-	[SerializeField] private float pushForce;
+	#region Variables
+	[SerializeField] private Rigidbody2D _spikeRb; // Rigidbody for spiked ball
+	[SerializeField] private float _pushForce; // Initial push force
+	#endregion
 
+	#region Unity Methods
 	private void Awake() {
-		spikerb = GetComponent<Rigidbody2D>();
+		_spikeRb = GetComponent<Rigidbody2D>();
 	}
 
 	private void Start() {
-		Vector2 pushVector = new(pushForce, 0);
-		spikerb.AddForce(pushVector, ForceMode2D.Impulse);
+		Vector2 pushVector = new(_pushForce, 0);
+		_spikeRb.AddForce(pushVector, ForceMode2D.Impulse);
 	}
+	#endregion
 }

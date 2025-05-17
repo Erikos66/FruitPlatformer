@@ -147,36 +147,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cc3cc67550505740a5ad91b72c591e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 1
-  damage: 1
-  moveSpeed: 4
-  idleDuration: 1
-  startFacingRight: 0
-  flipPivot: {fileID: 0}
-  groundLayer:
+  _moveSpeed: 3
+  _idleDuration: 1
+  _startFacingRight: 0
+  _flipPivot: {fileID: 0}
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  playerLayer:
+  _playerLayer:
     serializedVersion: 2
     m_Bits: 128
-  ledgeDetectionTransform: {fileID: 5462824939270810305}
-  floorDetectionTransform: {fileID: 4581365009463495448}
-  wallDetectionTransform: {fileID: 4424835650064592474}
-  floorCheckDistance: 1
-  wallCheckDistance: 0.57
-  ledgeCheckDistance: 1
-  detectionShape: 1
-  playerDetectionDistance: 10
-  heightOffset: 0
-  sideOffset: 0
-  coneAngle: 30
-  rectangleHeight: 1
-  sphereRadius: 2
-  despawnTime: 5
-  deathRotationSpeed: 300
-  deathImpactForce: 10
-  chargeSpeed: 10
-  slidingDeceleration: 2
+  _ledgeDetectionTransform: {fileID: 5462824939270810305}
+  _floorDetectionTransform: {fileID: 4581365009463495448}
+  _wallDetectionTransform: {fileID: 4424835650064592474}
+  _floorCheckDistance: 1
+  _wallCheckDistance: 0.3
+  _ledgeCheckDistance: 1
+  _detectionShape: 1
+  _playerDetectionDistance: 8
+  _heightOffset: 0
+  _sideOffset: 0
+  _coneAngle: 30
+  _rectangleHeight: 1
+  _sphereRadius: 2
+  _despawnTime: 5
+  _deathRotationSpeed: 100
+  _deathImpactForce: 5
+  _chargeSpeed: 5
+  _slidingDeceleration: 1
 --- !u!212 &3694981469099290446
 SpriteRenderer:
   m_ObjectHideFlags: 0

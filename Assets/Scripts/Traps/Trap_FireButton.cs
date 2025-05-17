@@ -2,50 +2,56 @@ using System.Collections;
 using UnityEngine;
 
 public class Trap_FireButton : MonoBehaviour {
-	private Animator anim;
-	[Header("Fire Traps")]
-	[SerializeField] private Trap_Fire[] firetrap;
+	#region Variables
+	private Animator _anim; // Reference to the animator component
 
-	private bool pressed = false;
+	[Header("Fire Traps")]
+	[SerializeField] private Trap_Fire[] _firetrap; // Array of fire traps
+
+	private bool _pressed = false; // Is button pressed
 
 	[Header("Button Properties")]
-	[SerializeField] private bool toggleable = false;
-	[SerializeField] private bool resetAftertime = false;
-	[SerializeField] private float resetDelay = 0.5f;
-	[SerializeField] private float resetTimer = 3f;
+	[SerializeField] private bool _toggleable = false; // Is button toggleable
+	[SerializeField] private bool _resetAfterTime = false; // Should reset after time
+	[SerializeField] private float _resetDelay = 0.5f; // Delay before reset
+	[SerializeField] private float _resetTimer = 3f; // Timer for reset
+	#endregion
 
+	#region Unity Methods
 	private void Awake() {
-		anim = GetComponent<Animator>();
+		_anim = GetComponent<Animator>();
 	}
+	#endregion
 
+	#region Unity Events
 	private void OnTriggerEnter2D(Collider2D other) {
 		if (other.TryGetComponent<Player>(out var player)) {
 			StopAllCoroutines();
-			if (resetAftertime) {
-				if (!pressed) {
-					foreach (var trap in firetrap)
+			if (_resetAfterTime) {
+				if (!_pressed) {
+					foreach (var trap in _firetrap)
 						trap.Toggle();
-					pressed = true;
-					anim.SetBool("pressed", true);
+					_pressed = true;
+					_anim.SetBool("pressed", true);
 					AudioManager.Instance.PlaySFX("SFX_Press");
 					StartCoroutine(ResetAfterTime());
 				}
 			}
 			else {
-				if (!pressed) {
-					if (toggleable) {
-						foreach (var trap in firetrap)
+				if (!_pressed) {
+					if (_toggleable) {
+						foreach (var trap in _firetrap)
 							trap.Toggle();
 						AudioManager.Instance.PlaySFX("SFX_Press");
-						pressed = !pressed;
-						anim.SetBool("pressed", pressed);
+						_pressed = !_pressed;
+						_anim.SetBool("pressed", _pressed);
 					}
 					else {
-						foreach (var trap in firetrap)
+						foreach (var trap in _firetrap)
 							trap.Toggle();
 						AudioManager.Instance.PlaySFX("SFX_Press");
-						pressed = true;
-						anim.SetBool("pressed", true);
+						_pressed = true;
+						_anim.SetBool("pressed", true);
 					}
 				}
 			}
@@ -54,22 +60,25 @@ public class Trap_FireButton : MonoBehaviour {
 
 	private void OnTriggerExit2D(Collider2D other) {
 		if (other.TryGetComponent<Player>(out var player)) {
-			if (!resetAftertime && toggleable)
+			if (!_resetAfterTime && _toggleable)
 				StartCoroutine(ResetButton());
 		}
 	}
+	#endregion
 
+	#region Coroutines
 	private IEnumerator ResetButton() {
-		yield return new WaitForSeconds(resetDelay);
-		pressed = false;
-		anim.SetBool("pressed", false);
+		yield return new WaitForSeconds(_resetDelay);
+		_pressed = false;
+		_anim.SetBool("pressed", false);
 	}
 
 	private IEnumerator ResetAfterTime() {
-		yield return new WaitForSeconds(resetTimer);
-		foreach (var trap in firetrap)
+		yield return new WaitForSeconds(_resetTimer);
+		foreach (var trap in _firetrap)
 			trap.Toggle();
-		pressed = false;
-		anim.SetBool("pressed", false);
+		_pressed = false;
+		_anim.SetBool("pressed", false);
 	}
+	#endregion
 }
