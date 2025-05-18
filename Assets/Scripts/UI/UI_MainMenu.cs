@@ -13,7 +13,6 @@ public class UI_MainMenu : MonoBehaviour {
 	private const string LEVEL_1 = "Level_1";
 
 	void OnEnable() {
-		EventSystem.current.SetSelectedGameObject(firstSelectedButton);
 		CheckContinueButtonStatus();
 	}
 

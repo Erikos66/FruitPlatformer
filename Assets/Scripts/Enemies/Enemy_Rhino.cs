@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy_Rhino : Base_Enemy_Class {
@@ -14,6 +16,7 @@ public class Enemy_Rhino : Base_Enemy_Class {
 	private bool _isCharging;                                   // Whether rhino is charging
 	private bool _isReturning;                                  // Whether returning to start
 	private bool _isBouncing;                                   // Whether bouncing off wall
+	private bool _hasPlayedChargeSound;                         // Whether charge sound has been played
 	private float _normalSpeed;                                 // Normal movement speed
 	private float _returnTimer;                                 // Timer for return delay
 	private int _startingFacingDir;                             // Initial facing direction
@@ -63,6 +66,7 @@ public class Enemy_Rhino : Base_Enemy_Class {
 				if (DetectedPlayer()) {
 					_isCharging = true;
 					_isReturning = false;
+					_hasPlayedChargeSound = false;
 					_moveSpeed = _chargeSpeed;
 				}
 			}
@@ -70,6 +74,7 @@ public class Enemy_Rhino : Base_Enemy_Class {
 				if (DetectedPlayer()) {
 					_isCharging = true;
 					_isReturning = false;
+					_hasPlayedChargeSound = false;
 					_moveSpeed = _chargeSpeed;
 				}
 			}
@@ -93,9 +98,12 @@ public class Enemy_Rhino : Base_Enemy_Class {
 	/// Handles the charging behavior
 	/// </summary>
 	private void ChargeBehavior() {
-		// Play the charge sound
-		AudioManager.Instance.PlaySFX("SFX_RinoCharge");
 		_rb.linearVelocity = new Vector2(_moveSpeed * _facingDir, _rb.linearVelocity.y);
+
+		if (!_hasPlayedChargeSound) {
+			StartCoroutine(PlayChargeSound());
+			_hasPlayedChargeSound = true;
+		}
 	}
 
 	/// <summary>
@@ -103,6 +111,8 @@ public class Enemy_Rhino : Base_Enemy_Class {
 	/// </summary>
 	private void StartBounce() {
 		_isBouncing = true;
+		_isCharging = false;
+		_hasPlayedChargeSound = false;
 		_anim.SetTrigger("onWallHit");
 		_rb.linearVelocity = new Vector2(-_facingDir * _moveSpeed * 0.5f, _bounceForce);
 	}
@@ -140,4 +150,16 @@ public class Enemy_Rhino : Base_Enemy_Class {
 	}
 
 	#endregion
+
+	#region Coroutines
+
+	private IEnumerator PlayChargeSound() {
+		AudioManager.Instance.PlaySFXOnce("SFX_RinoCharge");
+		_hasPlayedChargeSound = true;
+		yield return new WaitForSeconds(1f);
+		_hasPlayedChargeSound = false;
+	}
+
+	#endregion
+
 }

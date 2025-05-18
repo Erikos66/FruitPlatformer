@@ -121,10 +121,10 @@ MonoBehaviour:
   _flipPivot: {fileID: 0}
   _groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   _playerLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   _ledgeDetectionTransform: {fileID: 2699260260301472743}
   _floorDetectionTransform: {fileID: 1316421750106714901}
   _wallDetectionTransform: {fileID: 4795190366815391396}

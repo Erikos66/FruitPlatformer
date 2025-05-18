@@ -647,8 +647,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa793db873d43b84bb7950006a08a2cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spikerb: {fileID: 0}
-  pushForce: 25
+  _spikeRb: {fileID: 2806693152121073638}
+  _pushForce: 20
 --- !u!1 &6706516317914625063
 GameObject:
   m_ObjectHideFlags: 0

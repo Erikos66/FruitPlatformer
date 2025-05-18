@@ -26,7 +26,6 @@ public class UI_NewGameSelection : MonoBehaviour {
 	}
 
 	void OnEnable() {
-		EventSystem.current.SetSelectedGameObject(firstSelectedButton);
 		charSkinDisplayObject.SetActive(true);
 		for (int i = 0; i < chrSkinDisplayAnimator.layerCount; i++) {
 			chrSkinDisplayAnimator.SetLayerWeight(i, 0f);

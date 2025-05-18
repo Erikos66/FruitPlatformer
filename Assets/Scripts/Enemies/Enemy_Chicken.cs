@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Enemy_Chicken : Base_Enemy_Class {
 
@@ -12,6 +13,7 @@ public class Enemy_Chicken : Base_Enemy_Class {
 	private bool _isCharging;                                 // Whether chicken is currently charging
 	private float _normalSpeed;                               // Standard movement speed
 	private float _currentSpeed;                              // Current movement speed
+	private bool _hasPlayedChargeSound;                       // Whether charge sound has been played
 
 	#endregion
 
@@ -63,7 +65,6 @@ public class Enemy_Chicken : Base_Enemy_Class {
 	#endregion
 
 	#region Private Methods
-
 	/// <summary>
 	/// Handles the charging behavior when player is detected
 	/// </summary>
@@ -71,10 +72,14 @@ public class Enemy_Chicken : Base_Enemy_Class {
 		if (!_isCharging) {
 			_isCharging = true;
 			_currentSpeed = _chargeSpeed;
+			_hasPlayedChargeSound = false;
 		}
 		_rb.linearVelocity = new Vector2(_currentSpeed * _facingDir, _rb.linearVelocity.y);
-		// Play the charge sound
-		AudioManager.Instance.PlaySFX("SFX_ChickenCharge");
+
+		// Play the charge sound once with cooldown
+		if (!_hasPlayedChargeSound) {
+			StartCoroutine(PlayChargeSound());
+		}
 	}
 
 	/// <summary>
@@ -101,6 +106,17 @@ public class Enemy_Chicken : Base_Enemy_Class {
 		_currentSpeed = _normalSpeed;
 		_rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
 		_idleTimer = _idleDuration * 1.5f;
+	}
+
+	#endregion
+
+	#region Coroutines
+
+	private IEnumerator PlayChargeSound() {
+		AudioManager.Instance.PlaySFXOnce("SFX_ChickenCharge");
+		_hasPlayedChargeSound = true;
+		yield return new WaitForSeconds(1f);
+		_hasPlayedChargeSound = false;
 	}
 
 	#endregion

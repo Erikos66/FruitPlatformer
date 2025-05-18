@@ -12,7 +12,7 @@ public class UI_TitleScreen : MonoBehaviour {
 	// Store the last selected GameObject when using controller/keyboard
 	private GameObject lastSelectedObject;
 	// Flag to track if we're using mouse or keyboard/gamepad
-	private bool usingMouse = false;
+	private bool usingMouse = true;
 
 	[SerializeField] private GameObject[] UIElements;
 	[SerializeField] private GameObject levelSelectUI; // Reference to the level select UI panel
@@ -24,8 +24,10 @@ public class UI_TitleScreen : MonoBehaviour {
 		defaultInputActions = new DefaultInputActions();
 		defaultInputActions.Enable();
 
-		// Only detect mouse movement for mouse usage, not click
+		// Detect mouse movement for mouse usage
 		defaultInputActions.UI.Point.started += _ => OnMouseMove();
+		defaultInputActions.UI.Point.performed += _ => OnMouseMove();
+		defaultInputActions.UI.Click.started += _ => OnMouseMove(); // Also detect clicks to switch to mouse mode
 
 		// Detect ANY keyboard/gamepad navigation input
 		defaultInputActions.UI.Navigate.performed += _ => OnKeyboardOrGamepadInput();
@@ -84,15 +86,12 @@ public class UI_TitleScreen : MonoBehaviour {
 	}
 
 	private void OnMouseMove() {
-		if (!usingMouse) {
-			// Only switch to mouse mode if actually moving the mouse
-			usingMouse = true;
+		// When mouse moves, always set to mouse input mode and unselect elements
+		usingMouse = true;
 
-			// Store the current selection before deselecting
-			if (EventSystem.current.currentSelectedGameObject != null) {
-				lastSelectedObject = EventSystem.current.currentSelectedGameObject;
-			}
-
+		// Store the current selection before deselecting
+		if (EventSystem.current.currentSelectedGameObject != null) {
+			lastSelectedObject = EventSystem.current.currentSelectedGameObject;
 			// Deselect UI elements when mouse moves
 			EventSystem.current.SetSelectedGameObject(null);
 		}
