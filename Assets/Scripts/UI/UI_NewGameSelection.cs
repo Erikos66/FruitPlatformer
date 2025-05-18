@@ -11,9 +11,19 @@ public class UI_NewGameSelection : MonoBehaviour {
 
 	[Header("Difficulty Selection")]
 	[SerializeField] private Button easyDifficultyButton;
-	[SerializeField] private Button normalDifficultyButton;
-	[SerializeField] private Color selectedButtonColor = Color.green;
-	[SerializeField] private Color unselectedButtonColor = Color.white;
+	[SerializeField] private Button hardDifficultyButton;
+	[SerializeField] private Color easyOriginNormalColor;
+	[SerializeField] private Color hardButtonNormalColor;
+	[SerializeField] private Color easyOriginSelectedColor;
+	[SerializeField] private Color hardButtonSelectedColor;
+	[SerializeField] private Color greenColor = Color.green;
+
+	private void Awake() {
+		easyOriginNormalColor = easyDifficultyButton.colors.normalColor;
+		hardButtonNormalColor = hardDifficultyButton.colors.normalColor;
+		easyOriginSelectedColor = easyDifficultyButton.colors.selectedColor;
+		hardButtonSelectedColor = hardDifficultyButton.colors.selectedColor;
+	}
 
 	void OnEnable() {
 		EventSystem.current.SetSelectedGameObject(firstSelectedButton);
@@ -26,8 +36,8 @@ public class UI_NewGameSelection : MonoBehaviour {
 		if (easyDifficultyButton != null)
 			easyDifficultyButton.onClick.AddListener(OnEasyDifficultySelected);
 
-		if (normalDifficultyButton != null)
-			normalDifficultyButton.onClick.AddListener(OnNormalDifficultySelected);
+		if (hardDifficultyButton != null)
+			hardDifficultyButton.onClick.AddListener(OnNormalDifficultySelected);
 
 		// Update button visuals based on current difficulty
 		UpdateDifficultyButtonVisuals();
@@ -43,8 +53,8 @@ public class UI_NewGameSelection : MonoBehaviour {
 		if (easyDifficultyButton != null)
 			easyDifficultyButton.onClick.RemoveListener(OnEasyDifficultySelected);
 
-		if (normalDifficultyButton != null)
-			normalDifficultyButton.onClick.RemoveListener(OnNormalDifficultySelected);
+		if (hardDifficultyButton != null)
+			hardDifficultyButton.onClick.RemoveListener(OnNormalDifficultySelected);
 	}
 
 	public void NextSkin() {
@@ -89,7 +99,7 @@ public class UI_NewGameSelection : MonoBehaviour {
 
 	#region Difficulty Selection
 	private void UpdateDifficultyButtonVisuals() {
-		if (GameManager.Instance == null || easyDifficultyButton == null || normalDifficultyButton == null)
+		if (GameManager.Instance == null || easyDifficultyButton == null || hardDifficultyButton == null)
 			return;
 
 		// Get current difficulty
@@ -97,33 +107,25 @@ public class UI_NewGameSelection : MonoBehaviour {
 
 		// Get button colors
 		ColorBlock easyColorBlock = easyDifficultyButton.colors;
-		ColorBlock normalColorBlock = normalDifficultyButton.colors;
+		ColorBlock hardColorBlock = hardDifficultyButton.colors;
 
 		// Set button colors based on current difficulty
 		if (currentDifficulty == GameManager.GameDifficulty.Easy) {
-			easyColorBlock.normalColor = selectedButtonColor;
-			easyColorBlock.highlightedColor = selectedButtonColor;
-			easyColorBlock.pressedColor = selectedButtonColor;
-			easyColorBlock.selectedColor = selectedButtonColor;
-			normalColorBlock.normalColor = unselectedButtonColor;
-			normalColorBlock.highlightedColor = unselectedButtonColor;
-			normalColorBlock.pressedColor = unselectedButtonColor;
-			normalColorBlock.selectedColor = unselectedButtonColor;
+			easyColorBlock.normalColor = greenColor;
+			easyColorBlock.selectedColor = greenColor;
+			hardColorBlock.normalColor = hardButtonNormalColor;
+			hardColorBlock.selectedColor = hardButtonSelectedColor;
 		}
 		else {
-			easyColorBlock.normalColor = unselectedButtonColor;
-			easyColorBlock.highlightedColor = unselectedButtonColor;
-			easyColorBlock.pressedColor = unselectedButtonColor;
-			easyColorBlock.selectedColor = unselectedButtonColor;
-			normalColorBlock.normalColor = selectedButtonColor;
-			normalColorBlock.highlightedColor = selectedButtonColor;
-			normalColorBlock.pressedColor = selectedButtonColor;
-			normalColorBlock.selectedColor = selectedButtonColor;
+			hardColorBlock.normalColor = greenColor;
+			hardColorBlock.selectedColor = greenColor;
+			easyColorBlock.normalColor = easyOriginNormalColor;
+			easyColorBlock.selectedColor = easyOriginSelectedColor;
 		}
 
 		// Apply updated color blocks
 		easyDifficultyButton.colors = easyColorBlock;
-		normalDifficultyButton.colors = normalColorBlock;
+		hardDifficultyButton.colors = hardColorBlock;
 	}
 
 	public void OnEasyDifficultySelected() {

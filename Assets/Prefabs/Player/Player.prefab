@@ -108,25 +108,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerDeath_VFX: {fileID: 2685973626150419772, guid: 8bbf1ca509c672244aa128cc6fc87b2b, type: 3}
-  moveSpeed: 8
-  jumpForce: 14
-  doubleJumpForce: 14
-  bufferJumpWindow: 0.25
-  coyoteJumpWindow: 0.8
-  wallJumpDuration: 3
-  wallJumpForce: {x: 14, y: 15}
-  knockbackPower: {x: 14, y: 15}
-  invincibilityDuration: 1.5
-  groundCheckDistnace: 0.7
-  wallCheckDistance: 0.4
-  whatIsGround:
+  _moveSpeed: 8
+  _jumpForce: 15
+  _doubleJumpForce: 13
+  _bufferJumpWindow: 0.25
+  _coyoteJumpWindow: 0.7
+  _wallJumpDuration: 0.5
+  _wallJumpForce: {x: 15, y: 14}
+  _knockbackPower: {x: 12, y: 12}
+  _invincibilityDuration: 1.5
+  _groundCheckDistnace: 0.7
+  _wallCheckDistance: 0.28
+  _whatIsGround:
     serializedVersion: 2
     m_Bits: 8
-  whatIsEnemy:
+  _whatIsEnemy:
     serializedVersion: 2
     m_Bits: 1088
-  EnemyCheckRadius: 0.42
-  EnemyCheck: {fileID: 1786533514780595022}
+  _enemyCheckRadius: 0.4
+  _enemyCheck: {fileID: 1786533514780595022}
   isAirborne: 0
 --- !u!70 &2744730792479469216
 CapsuleCollider2D:

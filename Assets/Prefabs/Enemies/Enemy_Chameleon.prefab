@@ -203,7 +203,7 @@ Transform:
   m_GameObject: {fileID: 7096144802910167142}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.27, y: -0.25, z: 0}
+  m_LocalPosition: {x: 0.993, y: -0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -263,42 +263,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98095dd1dfe7c1c4e97559240b679d69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 1
-  damage: 1
-  moveSpeed: 3
-  idleDuration: 3
-  startFacingRight: 0
-  flipPivot: {fileID: 7739664592771775519}
-  groundLayer:
+  _moveSpeed: 5
+  _idleDuration: 1
+  _startFacingRight: 0
+  _flipPivot: {fileID: 7739664592771775519}
+  _groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  playerLayer:
+  _playerLayer:
     serializedVersion: 2
     m_Bits: 128
-  ledgeDetectionTransform: {fileID: 1277265225253488256}
-  floorDetectionTransform: {fileID: 7746433813398007475}
-  wallDetectionTransform: {fileID: 123943197845143324}
-  floorCheckDistance: 1
-  wallCheckDistance: 0.24
-  ledgeCheckDistance: 1
-  detectionShape: 3
-  playerDetectionDistance: 3
-  heightOffset: -0.15
-  sideOffset: 0
-  coneAngle: 30
-  rectangleHeight: 1
-  sphereRadius: 2
-  despawnTime: 5
-  deathRotationSpeed: 5
-  deathImpactForce: 5
-  attackCooldown: 2
-  attackRaycastDistance: 3
-  knockbackPower: {x: 10, y: 5}
-  knockbackDuration: 1
-  attackOrigin: {fileID: 8769609803273623050}
-  transparentAlpha: 0.1
-  solidAlpha: 1
-  fadeSpeed: 1
+  _ledgeDetectionTransform: {fileID: 1277265225253488256}
+  _floorDetectionTransform: {fileID: 7746433813398007475}
+  _wallDetectionTransform: {fileID: 123943197845143324}
+  _floorCheckDistance: 1
+  _wallCheckDistance: 1
+  _ledgeCheckDistance: 1
+  _detectionShape: 0
+  _playerDetectionDistance: 4
+  _heightOffset: 0
+  _sideOffset: 0
+  _coneAngle: 30
+  _rectangleHeight: 1
+  _sphereRadius: 2
+  _despawnTime: 5
+  _deathRotationSpeed: 10
+  _deathImpactForce: 5
+  _attackCooldown: 2
+  _attackRaycastDistance: 4
+  _knockbackPower: {x: 12, y: 12}
+  _knockbackDuration: 1
+  _attackOrigin: {fileID: 8769609803273623050}
+  _transparentAlpha: 0.2
+  _solidAlpha: 1
+  _fadeSpeed: 1
 --- !u!212 &4681875251417515850
 SpriteRenderer:
   m_ObjectHideFlags: 0

@@ -1,114 +1,108 @@
+
 using System;
 using System.Collections;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
-	private Rigidbody2D rb;
-	private Animator anim;
-	private PlayerAnimation playerAnimationController;
+	#region Variables
+	private Rigidbody2D _rb; // Rigidbody2D component
+	private Animator _anim; // Animator component
+	private PlayerAnimation _playerAnimationController; // Animation controller
 
 	[Header("Visuals")]
 	public GameObject playerDeath_VFX; // Prefab for player death VFX
-	private ParticleSystem dustfx;
+	private ParticleSystem _dustfx; // Dust particle system
 
 	[Header("Movement")]
-	[SerializeField] private float moveSpeed;
-	[SerializeField] private float jumpForce;
-	[SerializeField] private float doubleJumpForce;
-	public PlayerInput ActionMapping { get; private set; }
-	private bool canDoubleJump;
-	private bool canBeControlled = false;
+	[SerializeField] private float _moveSpeed; // Player move speed
+	[SerializeField] private float _jumpForce; // Jump force
+	[SerializeField] private float _doubleJumpForce; // Double jump force
+	public PlayerInput ActionMapping { get; private set; } // Input mapping
+	private bool _canDoubleJump; // Can double jump
+	private bool _canBeControlled = false; // Can player be controlled
 
 	[Header("Buffer & Coyote jump")]
-	[SerializeField] private float bufferJumpWindow = .25f;
-	private float bufferJumpActivated = -1;
-	[SerializeField] private float coyoteJumpWindow = .7f;
-	private float coyoteJumpActivated = -1;
+	[SerializeField] private float _bufferJumpWindow = .25f; // Buffer jump window
+	private float _bufferJumpActivated = -1; // Buffer jump activation time
+	[SerializeField] private float _coyoteJumpWindow = .7f; // Coyote jump window
+	private float _coyoteJumpActivated = -1; // Coyote jump activation time
 
 	[Header("Wall interactions")]
-	[SerializeField]
-	private float wallJumpDuration = .6f;
-	[SerializeField] private Vector2 wallJumpForce;
-	private bool isWallJumping;
-	private bool canDetectWall = true;
-	private Vector2 wallJumpInitialInput; // Store input when wall jump starts
-	private bool ignoreHorizontalInput = false;
+	[SerializeField] private float _wallJumpDuration = .6f; // Wall jump duration
+	[SerializeField] private Vector2 _wallJumpForce; // Wall jump force
+	private bool _isWallJumping; // Is wall jumping
+	private bool _canDetectWall = true; // Can detect wall
+	private Vector2 _wallJumpInitialInput; // Store input when wall jump starts
+	private bool _ignoreHorizontalInput = false; // Ignore horizontal input
 
 	[Header("Knockback")]
-	[SerializeField] private Vector2 knockbackPower;
-	[SerializeField] private float invincibilityDuration = 1.5f; // Duration of invincibility after knockback
-	private bool isKnocked;
-	private bool isInvincible;
+	[SerializeField] private Vector2 _knockbackPower; // Knockback power
+	[SerializeField] private float _invincibilityDuration = 1.5f; // Invincibility duration
+	private bool _isKnocked; // Is knocked
+	private bool _isInvincible; // Is invincible
 
 	[Header("Collision")]
-	[SerializeField] private float groundCheckDistnace;
-	[SerializeField] private float wallCheckDistance;
-	[SerializeField] private LayerMask whatIsGround;
+	[SerializeField] private float _groundCheckDistnace; // Ground check distance
+	[SerializeField] private float _wallCheckDistance; // Wall check distance
+	[SerializeField] private LayerMask _whatIsGround; // Ground layer
 	[Space]
-	[SerializeField] private LayerMask whatIsEnemy;
-	[SerializeField] private float EnemyCheckRadius;
-	[SerializeField] private Transform EnemyCheck;
-	private bool isGrounded;
-	public bool isAirborne;
-	private bool isWallDetected;
-	private bool isTouchingLeftWall;
-	private bool isTouchingRightWall;
+	[SerializeField] private LayerMask _whatIsEnemy; // Enemy layer
+	[SerializeField] private float _enemyCheckRadius; // Enemy check radius
+	[SerializeField] private Transform _enemyCheck; // Enemy check transform
+	private bool _isGrounded; // Is grounded
+	public bool isAirborne; // Is airborne (public for animation)
+	private bool _isWallDetected; // Is wall detected
+	private bool _isTouchingLeftWall; // Is touching left wall
+	private bool _isTouchingRightWall; // Is touching right wall
 
-	private Vector2 moveInput;
+	private Vector2 _moveInput; // Movement input
 
-	private bool facingRight = true;
-	private int facingDir = 1;
+	private bool _facingRight = true; // Facing right
+	private int _facingDir = 1; // Facing direction
+	#endregion
 
+	#region Unity Methods
 	private void Awake() {
-		rb = GetComponent<Rigidbody2D>();
-		if (rb == null) {
+		_rb = GetComponent<Rigidbody2D>();
+		if (_rb == null)
 			Debug.LogError("Rigidbody2D component not found on Player script.");
-		}
-		anim = GetComponentInChildren<Animator>();
-		if (anim == null) {
+		_anim = GetComponentInChildren<Animator>();
+		if (_anim == null)
 			Debug.LogError("Animator component not found on Player script.");
-		}
-		playerAnimationController = GetComponentInChildren<PlayerAnimation>();
-		if (rb == null) {
-			Debug.LogError("Rigidbody2D component not found on Player script.");
-		}
-		dustfx = GetComponentInChildren<ParticleSystem>();
-		if (dustfx == null) {
+		_playerAnimationController = GetComponentInChildren<PlayerAnimation>();
+		if (_playerAnimationController == null)
+			Debug.LogError("PlayerAnimation component not found on Player script.");
+		_dustfx = GetComponentInChildren<ParticleSystem>();
+		if (_dustfx == null)
 			Debug.LogError("Dust particle system not found on Player script.");
-		}
 		ActionMapping = new PlayerInput();
-		if (ActionMapping == null) {
+		if (ActionMapping == null)
 			Debug.LogError("PlayerInput component not found on Player script.");
-		}
 	}
 
 	private void OnEnable() {
 		ActionMapping.Enable();
-
 		ActionMapping.Player.Jump.performed += ctx => JumpButton();
-		ActionMapping.Player.Movement.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-		ActionMapping.Player.Movement.canceled += ctx => moveInput = Vector2.zero;
-
+		ActionMapping.Player.Movement.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
+		ActionMapping.Player.Movement.canceled += ctx => _moveInput = Vector2.zero;
 	}
 
 	private void OnDisable() {
 		ActionMapping.Disable();
-
 		ActionMapping.Player.Jump.performed -= ctx => JumpButton();
-		ActionMapping.Player.Movement.performed -= ctx => moveInput = ctx.ReadValue<Vector2>();
-		ActionMapping.Player.Movement.canceled -= ctx => moveInput = Vector2.zero;
-
+		ActionMapping.Player.Movement.performed -= ctx => _moveInput = ctx.ReadValue<Vector2>();
+		ActionMapping.Player.Movement.canceled -= ctx => _moveInput = Vector2.zero;
 	}
 
 	private void Update() {
 		UpdateAirbornStatus();
-		if (!canBeControlled) {
+		if (!_canBeControlled) {
 			HandleWallSlide();
 			HandleCollision();
 			HandleAnimations();
 			return;
 		}
-		if (isKnocked)
+		if (_isKnocked)
 			return;
 
 		HandleEnemyDetection();
@@ -119,17 +113,17 @@ public class Player : MonoBehaviour {
 		HandleCollision();
 		HandleAnimations();
 	}
+	#endregion
 
+	#region Private Methods
 	private void HandleEnemyDetection() {
 		// Only allow enemy damage if the player is:
 		// 1. In the air (not grounded)
 		// 2. Moving downward (falling)
-		if (!isAirborne || rb.linearVelocity.y >= 0) {
+		if (!isAirborne || _rb.linearVelocity.y >= 0)
 			return;
-		}
 
-		Collider2D[] colliders = Physics2D.OverlapCircleAll(EnemyCheck.position, EnemyCheckRadius, whatIsEnemy);
-
+		Collider2D[] colliders = Physics2D.OverlapCircleAll(_enemyCheck.position, _enemyCheckRadius, _whatIsEnemy);
 		foreach (var hits in colliders) {
 			if (hits) {
 				IDamageable damageable = hits.GetComponent<IDamageable>();
@@ -143,22 +137,34 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	public void EnableControl() => canBeControlled = true;
+	#endregion
 
+	#region Public Methods
+	/// <summary>
+	/// Enables player control.
+	/// </summary>
+	public void EnableControl() => _canBeControlled = true;
+
+	/// <summary>
+	/// Pushes the player with a force and disables control for a duration.
+	/// </summary>
 	public void PushPlayer(Vector2 pushPower, float duration = 0) {
-		rb.linearVelocity = Vector2.zero;
-		rb.AddForce(pushPower, ForceMode2D.Impulse);
+		_rb.linearVelocity = Vector2.zero;
+		_rb.AddForce(pushPower, ForceMode2D.Impulse);
 		StartCoroutine(PushControl(duration));
 	}
 
 	private IEnumerator PushControl(float duration) {
-		canBeControlled = false;
+		_canBeControlled = false;
 		yield return new WaitForSeconds(duration);
 		EnableControl();
 	}
 
+	/// <summary>
+	/// Applies knockback to the player.
+	/// </summary>
 	public void Knockback(float knockbackDuration, Vector2 knockbackPower, Vector2? hitPosition = null) {
-		if (isKnocked || isInvincible)
+		if (_isKnocked || _isInvincible)
 			return;
 
 		// In Normal mode, knockback results in player death
@@ -169,7 +175,7 @@ public class Player : MonoBehaviour {
 
 		StartCoroutine(KnockbackRoutine(knockbackDuration));
 		StartCoroutine(InvincibilityRoutine());
-		anim.SetTrigger("knockback");
+		_anim.SetTrigger("knockback");
 
 		// Use GameManager's CameraManager instead of singleton
 		if (CameraManager.Instance != null)
@@ -177,26 +183,24 @@ public class Player : MonoBehaviour {
 
 		// Play knocked sound
 		AudioManager.Instance.PlaySFX("SFX_PlayerKnocked");
-		Vector2 direction = hitPosition.HasValue ? (((Vector2)transform.position) - hitPosition.Value).normalized : new Vector2(-facingDir, 0);
-		rb.linearVelocity = new Vector2(direction.x * knockbackPower.x, knockbackPower.y);
+		Vector2 direction = hitPosition.HasValue ? (((Vector2)transform.position) - hitPosition.Value).normalized : new Vector2(-_facingDir, 0);
+		_rb.linearVelocity = new Vector2(direction.x * knockbackPower.x, knockbackPower.y);
 	}
 
 	private IEnumerator KnockbackRoutine(float knockbackDuration) {
-		isKnocked = true;
+		_isKnocked = true;
 		yield return new WaitForSeconds(knockbackDuration);
-		isKnocked = false;
+		_isKnocked = false;
 	}
 
 	private IEnumerator InvincibilityRoutine() {
-		isInvincible = true;
-
+		_isInvincible = true;
 		// Get the sprite renderer to apply visual feedback
 		SpriteRenderer spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-
 		// Flash the player sprite to indicate invincibility
 		if (spriteRenderer != null) {
 			float flashInterval = 0.10f;
-			for (float i = 0; i < invincibilityDuration; i += flashInterval) {
+			for (float i = 0; i < _invincibilityDuration; i += flashInterval) {
 				spriteRenderer.enabled = !spriteRenderer.enabled;
 				yield return new WaitForSeconds(flashInterval);
 			}
@@ -204,32 +208,30 @@ public class Player : MonoBehaviour {
 		}
 		else {
 			// If no sprite renderer, just wait the full duration
-			yield return new WaitForSeconds(invincibilityDuration);
+			yield return new WaitForSeconds(_invincibilityDuration);
 		}
-
-		isInvincible = false;
+		_isInvincible = false;
 	}
 
 	private void UpdateAirbornStatus() {
-		if (isGrounded && isAirborne)
+		if (_isGrounded && isAirborne)
 			HandleLanding();
-		if (!isGrounded && !isAirborne)
+		if (!_isGrounded && !isAirborne)
 			BecomeAirborne();
 	}
 
 	private void BecomeAirborne() {
 		isAirborne = true;
-		if (rb.linearVelocity.y < 0)
+		if (_rb.linearVelocity.y < 0)
 			ActivateCoyoteJump();
 	}
 
 	private void HandleLanding() {
 		// play dust fx
-		if (dustfx != null) {
-			dustfx.Play();
-		}
+		if (_dustfx != null)
+			_dustfx.Play();
 		isAirborne = false;
-		canDoubleJump = true;
+		_canDoubleJump = true;
 		AttemptBufferJump();
 	}
 
@@ -244,180 +246,163 @@ public class Player : MonoBehaviour {
 
 	private void RequestBufferJump() {
 		if (isAirborne)
-			bufferJumpActivated = Time.time;
+			_bufferJumpActivated = Time.time;
 	}
 
 	private void AttemptBufferJump() {
-		if (Time.time < bufferJumpActivated + bufferJumpWindow) {
-			bufferJumpActivated = Time.time - 1;
+		if (Time.time < _bufferJumpActivated + _bufferJumpWindow) {
+			_bufferJumpActivated = Time.time - 1;
 			Jump();
 		}
 	}
 
-	private void ActivateCoyoteJump() => coyoteJumpActivated = Time.time;
+	private void ActivateCoyoteJump() => _coyoteJumpActivated = Time.time;
 
-	private void CancelCoyoteJump() => coyoteJumpActivated = Time.time - 1;
+	private void CancelCoyoteJump() => _coyoteJumpActivated = Time.time - 1;
 
 	private void JumpButton() {
-		bool coyoteJumpAvalible = Time.time < coyoteJumpActivated + coyoteJumpWindow;
-		if (isGrounded || coyoteJumpAvalible) {
+		bool coyoteJumpAvalible = Time.time < _coyoteJumpActivated + _coyoteJumpWindow;
+		if (_isGrounded || coyoteJumpAvalible) {
 			Jump();
 		}
-		else if ((isTouchingLeftWall || isTouchingRightWall) && !isGrounded) {
+		else if ((_isTouchingLeftWall || _isTouchingRightWall) && !_isGrounded) {
 			WallJump();
 		}
-		else if (canDoubleJump) {
+		else if (_canDoubleJump) {
 			DoubleJump();
 		}
 		CancelCoyoteJump();
 	}
 
 	private void Jump() {
-		rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+		_rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _jumpForce);
 		// Play jump sound
 		AudioManager.Instance.PlaySFX("SFX_Jump");
 		// play dust fx
-		if (dustfx != null) {
-			dustfx.Play();
-		}
+		if (_dustfx != null)
+			_dustfx.Play();
 	}
 
 	private void DoubleJump() {
 		StopCoroutine(WallJumpRoutine());
-		isWallJumping = false;
-		canDoubleJump = false;
-		rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
+		_isWallJumping = false;
+		_canDoubleJump = false;
+		_rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _doubleJumpForce);
 		// Play jump sound for double jump too
 		AudioManager.Instance.PlaySFX("SFX_Jump");
 		// play dust fx
-		if (dustfx != null) {
-			dustfx.Play();
-		}
+		if (_dustfx != null)
+			_dustfx.Play();
 	}
 
 	private void WallJump() {
-		canDoubleJump = true;
-
+		_canDoubleJump = true;
 		// Determine which wall we're actually touching, not just facing
 		int wallDirection = 1;
-		if (isTouchingLeftWall) {
+		if (_isTouchingLeftWall)
 			wallDirection = -1;
-		}
-		else if (isTouchingRightWall) {
+		else if (_isTouchingRightWall)
 			wallDirection = 1;
-		}
-
 		// Apply force in the opposite direction of the wall
-		rb.linearVelocity = new Vector2(wallJumpForce.x * -wallDirection, wallJumpForce.y);
-
+		_rb.linearVelocity = new Vector2(_wallJumpForce.x * -wallDirection, _wallJumpForce.y);
 		// Play jump sound for wall jump
 		AudioManager.Instance.PlaySFX("SFX_Jump");
-
 		// Make sure we're facing away from the wall after jumping
-		if ((wallDirection > 0 && facingRight) || (wallDirection < 0 && !facingRight)) {
+		if ((wallDirection > 0 && _facingRight) || (wallDirection < 0 && !_facingRight))
 			Flip();
-		}
-
 		// Store initial input state when wall jumping starts
-		wallJumpInitialInput = moveInput;
-		ignoreHorizontalInput = true;
-
+		_wallJumpInitialInput = _moveInput;
+		_ignoreHorizontalInput = true;
 		// Start wall jump related coroutines
 		StartCoroutine(WallJumpRoutine());
 	}
 
 	private IEnumerator WallJumpRoutine() {
-		isWallJumping = true;
-		yield return new WaitForSeconds(wallJumpDuration);
-		isWallJumping = false;
-		ignoreHorizontalInput = false;
+		_isWallJumping = true;
+		yield return new WaitForSeconds(_wallJumpDuration);
+		_isWallJumping = false;
+		_ignoreHorizontalInput = false;
 	}
 
 	private void HandleWallSlide() {
-		bool canWallSlide = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && rb.linearVelocity.y < 0;
-		float yModifer = moveInput.y < 0 ? 1 : .05f;
+		bool canWallSlide = (_isTouchingLeftWall || _isTouchingRightWall) && !_isGrounded && _rb.linearVelocity.y < 0;
+		float yModifer = _moveInput.y < 0 ? 1 : .05f;
 		if (!canWallSlide) return;
-		rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * yModifer);
+		_rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _rb.linearVelocity.y * yModifer);
 	}
 
 	private void HandleCollision() {
-		isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistnace, whatIsGround);
-
+		_isGrounded = Physics2D.Raycast(transform.position, Vector2.down, _groundCheckDistnace, _whatIsGround);
 		// Check for walls on both sides if wall detection is enabled
-		if (canDetectWall) {
-			isTouchingRightWall = Physics2D.Raycast(transform.position, Vector2.right, wallCheckDistance, whatIsGround);
-			isTouchingLeftWall = Physics2D.Raycast(transform.position, Vector2.left, wallCheckDistance, whatIsGround);
-			isWallDetected = (isTouchingRightWall && facingRight) || (isTouchingLeftWall && !facingRight);
+		if (_canDetectWall) {
+			_isTouchingRightWall = Physics2D.Raycast(transform.position, Vector2.right, _wallCheckDistance, _whatIsGround);
+			_isTouchingLeftWall = Physics2D.Raycast(transform.position, Vector2.left, _wallCheckDistance, _whatIsGround);
+			_isWallDetected = (_isTouchingRightWall && _facingRight) || (_isTouchingLeftWall && !_facingRight);
 		}
 		else {
-			isTouchingRightWall = false;
-			isTouchingLeftWall = false;
-			isWallDetected = false;
+			_isTouchingRightWall = false;
+			_isTouchingLeftWall = false;
+			_isWallDetected = false;
 		}
 	}
 
 	private void HandleAnimations() {
-		anim.SetFloat("xVelocity", rb.linearVelocity.x);
-		anim.SetFloat("yVelocity", rb.linearVelocity.y);
-		anim.SetBool("isGrounded", isGrounded);
-		anim.SetBool("isWallDetected", isWallDetected);
+		_anim.SetFloat("xVelocity", _rb.linearVelocity.x);
+		_anim.SetFloat("yVelocity", _rb.linearVelocity.y);
+		_anim.SetBool("isGrounded", _isGrounded);
+		_anim.SetBool("isWallDetected", _isWallDetected);
 	}
 
 	private void HandleMovement() {
-		if (isWallDetected)
+		if (_isWallDetected)
 			return;
-		if (isWallJumping) {
+		if (_isWallJumping) {
 			// Check if the input has changed significantly from initial wall jump input
-			if (ignoreHorizontalInput) {
+			if (_ignoreHorizontalInput) {
 				// If input direction changes, stop ignoring input
-				if (Mathf.Sign(moveInput.x) != Mathf.Sign(wallJumpInitialInput.x) && Mathf.Abs(moveInput.x) > 0.1f) {
-					ignoreHorizontalInput = false;
-				}
+				if (Mathf.Sign(_moveInput.x) != Mathf.Sign(_wallJumpInitialInput.x) && Mathf.Abs(_moveInput.x) > 0.1f)
+					_ignoreHorizontalInput = false;
 				// If input is released (near zero), stop ignoring input
-				else if (Mathf.Abs(moveInput.x) < 0.1f) {
-					ignoreHorizontalInput = false;
-				}
+				else if (Mathf.Abs(_moveInput.x) < 0.1f)
+					_ignoreHorizontalInput = false;
 			}
 			return;
 		}
-
 		// Reset ignoreHorizontalInput when not wall jumping
-		if (!isWallJumping && ignoreHorizontalInput) {
-			ignoreHorizontalInput = false;
-		}
-
+		if (!_isWallJumping && _ignoreHorizontalInput)
+			_ignoreHorizontalInput = false;
 		// Normal movement when not ignoring input
-		if (!ignoreHorizontalInput) {
-			rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
-		}
+		if (!_ignoreHorizontalInput)
+			_rb.linearVelocity = new Vector2(_moveInput.x * _moveSpeed, _rb.linearVelocity.y);
 	}
 
 	private void HandleFlip() {
 		// Don't flip based on player input if we're ignoring horizontal input
-		if (ignoreHorizontalInput)
+		if (_ignoreHorizontalInput)
 			return;
-
-		if ((moveInput.x < 0 && facingRight) || (moveInput.x > 0 && !facingRight))
+		if ((_moveInput.x < 0 && _facingRight) || (_moveInput.x > 0 && !_facingRight))
 			Flip();
 	}
 
 	private void Flip() {
-		facingDir *= -1;
+		_facingDir *= -1;
 		transform.Rotate(0, 180, 0);
-		facingRight = !facingRight;
+		_facingRight = !_facingRight;
 	}
 
 	private void OnDrawGizmos() {
-		Gizmos.DrawWireSphere(EnemyCheck.position, EnemyCheckRadius);
-		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistnace));
-
+		Gizmos.DrawWireSphere(_enemyCheck.position, _enemyCheckRadius);
+		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - _groundCheckDistnace));
 		// Draw lines for wall detection on both sides
 		Gizmos.color = Color.blue;
-		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + wallCheckDistance, transform.position.y));
+		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + _wallCheckDistance, transform.position.y));
 		Gizmos.color = Color.green;
-		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x - wallCheckDistance, transform.position.y));
+		Gizmos.DrawLine(transform.position, new Vector2(transform.position.x - _wallCheckDistance, transform.position.y));
 	}
 
+	/// <summary>
+	/// Handles player death.
+	/// </summary>
 	public void Die() {
 		// Play death sound
 		AudioManager.Instance.PlaySFX("SFX_Death");
@@ -425,4 +410,5 @@ public class Player : MonoBehaviour {
 		Destroy(gameObject);
 		PlayerManager.Instance.PlayerDied();
 	}
+	#endregion
 }
