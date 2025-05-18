@@ -128,10 +128,10 @@ MonoBehaviour:
   _floorDetectionTransform: {fileID: 3872225668332652090}
   _wallDetectionTransform: {fileID: 6623768604347775202}
   _floorCheckDistance: 1
-  _wallCheckDistance: 1
+  _wallCheckDistance: 1.3
   _ledgeCheckDistance: 1
   _detectionShape: 1
-  _playerDetectionDistance: 10
+  _playerDetectionDistance: 15
   _heightOffset: 0
   _sideOffset: 0
   _coneAngle: 30
@@ -140,7 +140,7 @@ MonoBehaviour:
   _despawnTime: 5
   _deathRotationSpeed: 33
   _deathImpactForce: 5
-  _chargeSpeed: 15
+  _chargeSpeed: 14
   _returnSpeed: 3
   _bounceForce: 3
   _returnDelay: 2
