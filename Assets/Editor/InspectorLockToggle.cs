@@ -1,8 +1,10 @@
 using UnityEditor;
 
-public static class InspectorLockToggle {
+public static class InspectorLockToggle
+{
 	[MenuItem("Tools/Toggle Inspector Lock %e")] // Ctrl + E
-	private static void ToggleLock() {
+	private static void ToggleLock()
+	{
 		var inspectorType = typeof(Editor).Assembly.GetType("UnityEditor.InspectorWindow");
 		var window = EditorWindow.GetWindow(inspectorType);
 
