@@ -1,5 +1,4 @@
 using UnityEditor;
-using UnityEngine;
 
 public static class InspectorLockToggle {
 	[MenuItem("Tools/Toggle Inspector Lock %e")] // Ctrl + E
